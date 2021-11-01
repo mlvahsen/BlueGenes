@@ -1,0 +1,671 @@
+pot_no,site_frame,level,pos,gt,comp,flux,soil,porom,poreH2O,rna,colors,measurer,recorder,date,scam_live_density,scam_dead_density,scam_flowers,max_sppa_height,sppa_flowers,soil_to_pot,dh_count,dh_height,notes
+1,fresh_1,1,1,cm4,1,1,0,0,0,0,r,MLV,HSK,5 Oct 2019,4,1,0,45.5,0,5.5,0,NA,no epi
+2,fresh_1,1,2,ka5,0,1,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,14,1,0,NA,NA,6.5,0,NA,no R found; density does not match number of stems
+3,fresh_1,1,3,b3,0,0,0,0,0,0,rby,JLS,SJJ,5 Oct 2019,23,1,0,NA,NA,5.5,0,NA,
+4,fresh_1,1,4,cm3,0,0,0,0,0,0,y,SJJ,JLS,5 Oct 2019,15,3,0,NA,NA,5.0,0,NA,Y is dead
+5,fresh_1,1,5,ca1,0,0,0,0,0,0,r,Madeline,JMc,5 Oct 2019,5,1,0,NA,NA,6.5,0,NA,density does not match number of stems
+6,fresh_1,1,6,cm1,0,0,0,0,0,0,ry,Madeline,JMc,5 Oct 2019,10,4,0,NA,NA,5.5,0,NA,
+7,fresh_1,1,7,km5,0,0,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,18,2,0,NA,NA,5.0,0,NA,
+8,fresh_1,1,8,ca7,1,0,0,0,0,0,rby,JLS,SJJ,5 Oct 2019,13,1,0,58.5,0,5.5,0,NA,
+9,fresh_1,2,1,cm6,1,1,0,0,0,0,r,SJJ,JLS,5 Oct 2019,24,4,0,36.5,0,5.5,1,12,stem 7 tip broke
+10,fresh_1,2,2,cm10,0,1,0,1,1,0,y,Madeline,JMc,5 Oct 2019,19,3,0,NA,NA,5.5,0,NA,density does not match number of stems
+11,fresh_1,2,3,cm2,0,1,0,0,0,0,y,JLS,SJJ,5 Oct 2019,12,2,0,NA,NA,6.0,0,NA,
+12,fresh_1,2,4,ca4,1,1,0,0,0,0,rb,Madeline,JMc,5 Oct 2019,23,2,0,51.5,0,5.0,1,10.5,density does not match number of stems
+13,fresh_1,2,5,ca8,1,0,0,0,0,0,rby,SJJ,JLS,5 Oct 2019,22,1,0,56.5,0,5.0,0,NA,B is dead
+14,fresh_1,2,6,km6,0,0,0,1,1,0,by,Madeline,JMc,5 Oct 2019,16,1,0,NA,NA,5.5,0,NA,
+15,fresh_1,2,7,ka4,0,0,0,0,0,0,rby,SJJ,JLS,5 Oct 2019,31,,0,NA,NA,5.0,0,NA,missing dead density
+16,fresh_1,2,8,ca7,0,0,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,20,3,0,NA,NA,5.5,0,NA,density does not match number of stems; missing R and Y stems
+17,fresh_1,3,1,cm7,0,1,0,0,0,1,none,HSK,LCC,10 Oct 2019,13,3,0,NA,NA,4.5,0,NA,RNA stem not included in measurements
+18,fresh_1,3,2,ca8,1,0,0,1,1,0,none,JLS,SJJ,5 Oct 2019,25,5,0,32.5,0,5.5,0,NA,
+19,fresh_1,3,3,ca6,0,0,0,0,0,1,y,HSK,LCC,10 Oct 2019,16,1,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+20,fresh_1,3,4,cm5,0,0,0,0,0,1,y,HSK,LCC,10 Oct 2019,22,1,0,NA,NA,5.0,0,NA,RNA stem not included in measurements
+21,fresh_1,3,5,ka6,0,0,0,0,0,0,b,MLV,HSK,5 Oct 2019,20,0,0,NA,NA,4.0,0,NA,
+22,fresh_1,3,6,cm1,1,0,0,1,1,0,rb,MLV,HSK,5 Oct 2019,11,2,0,64.5,0,5.0,0,NA,
+23,fresh_1,3,7,km2,0,0,0,0,0,0,by,Madeline,JMc,5 Oct 2019,25,1,0,NA,NA,4.5,0,NA,
+24,fresh_1,3,8,ca5,1,0,0,0,0,0,ry,JLS,SJJ,5 Oct 2019,14,6,0,41.5,NA,5.0,0,NA,
+25,fresh_1,4,1,ca10,1,0,0,0,0,0,none,SJJ,JLS,5 Oct 2019,11,3,0,0,NA,3.0,0,NA,SPPA is dead
+26,fresh_1,4,2,ca4,0,0,0,0,0,1,r,HSK,LCC,10 Oct 2019,18,1,0,NA,NA,2.5,0,NA,RNA stem not included in measurements; R is dead
+27,fresh_1,4,3,km1,0,0,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,29,2,0,NA,NA,5.0,0,NA,mud level was uneven
+28,fresh_1,4,4,cm8,1,0,0,0,0,0,none,MLV,MLV,5 Oct 2019,0,0,0,30.5,0,2.5,0,NA,no live SCAM
+29,fresh_1,4,5,ca3,1,0,0,0,0,0,none,MLV,MLV,5 Oct 2019,0,0,0,0,0,3.5,0,NA,no max SPPA because SPPA is dead
+30,fresh_1,4,6,cm4,0,0,0,0,0,1,by,HSK,LCC,10 Oct 2019,18,3,0,NA,NA,2.0,0,NA,"RNA stem not included in measurements; stem 1 folded into sediment, cut top to extract"
+31,fresh_1,4,7,cm3,0,0,0,0,0,1,y,JLS,EMG,10 Oct 2019,19,3,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+32,fresh_1,4,8,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+33,fresh_1,5,1,ca2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+34,fresh_1,5,2,cm7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+35,fresh_1,5,3,ca9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+36,fresh_1,5,4,ka2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+37,fresh_1,5,5,cm9,1,0,0,0,1,0,none,JLS,JLS,5 Oct 2019,11,2,0,0,NA,5.0,0,NA,SPPA is dead
+38,fresh_1,5,6,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+39,fresh_1,5,7,ca10,0,0,0,0,0,0,none,HSK,HSK,5 Oct 2019,0,0,0,NA,NA,4.0,0,NA,no live SCAM
+40,fresh_1,5,8,cm6,0,0,0,0,1,0,none,Madeline,JMc,5 Oct 2019,12,1,0,NA,NA,2.0,1,12,
+41,fresh_1,6,1,b4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+42,fresh_1,6,2,km3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+43,fresh_1,6,3,ka1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+44,fresh_1,6,4,cm10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+45,fresh_1,6,5,ca1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+46,fresh_1,6,6,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+47,fresh_1,6,7,cm2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+48,fresh_1,6,8,ca2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+49,fresh_2,1,1,cm1,1,0,0,0,0,0,rb,HBK,JLS,5 Oct 2019,6,1,0,67,0,6.0,0,NA,
+50,fresh_2,1,2,ca2,1,0,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,11,0,0,51.5,0,9.0,0,NA,stem 7 might just be a fragment; stem 11 dropped on ground and lost
+51,fresh_2,1,3,km2,0,1,1,0,0,0,rby,Madeline,JMc,5 Oct 2019,16,3,0,NA,NA,6.5,0,NA,"No B stem (based on HarvestMeasurements sheet, should just be RY)"
+52,fresh_2,1,4,ca3,0,1,1,1,1,0,rby,JLS,HBK,5 Oct 2019,15,1,0,NA,NA,6.5,0,NA,
+53,fresh_2,1,5,ka6,0,1,1,1,1,0,by,Madeline,JMc,5 Oct 2019,15,1,0,NA,NA,6.0,0,NA,
+54,fresh_2,1,6,ca7,0,1,1,0,0,0,rby,JLS,HBK,5 Oct 2019,20,1,0,NA,NA,5.0,0,NA,R height/width recorded on sheet but is dead
+55,fresh_2,1,7,cm7,1,0,0,0,0,0,rby,Madeline,JMc,5 Oct 2019,5,0,0,65,0,6.0,0,NA,
+56,fresh_2,1,8,cm6,0,1,1,0,0,0,rby,HBK,JLS,5 Oct 2019,14,1,0,NA,NA,5.5,0,NA,
+57,fresh_2,2,1,cm7,0,1,1,0,0,0,rby,HBK,JLS,5 Oct 2019,12,0,1,NA,NA,5.5,0,NA,B is missing (dead?)
+58,fresh_2,2,2,cm8,1,0,0,0,0,0,rb,Madeline,JMc,5 Oct 2019,10,2,0,59,0,5.0,1,12,R is missing; One basal bract without a stem
+59,fresh_2,2,3,ka4,0,1,1,1,1,0,ry,HSK,MLV,5 Oct 2019,30,5,0,NA,NA,5.0,1,12,R is dead
+60,fresh_2,2,4,ca1,1,0,0,0,0,0,r,HSK,MLV,5 Oct 2019,10,1,0,69.5,0,6.0,1,12,R is dead
+61,fresh_2,2,5,ca6,1,0,0,0,0,0,rb,JLS,HBK,5 Oct 2019,13,1,0,63,0,5.0,0,NA,
+62,fresh_2,2,6,ca5,0,1,1,0,0,0,rb,HBK,JLS,5 Oct 2019,20,1,0,NA,NA,4.5,0,NA,
+63,fresh_2,2,7,cm10,0,1,1,0,0,0,ry,HBK,JLS,5 Oct 2019,23,1,0,NA,NA,3.5,0,NA,
+64,fresh_2,2,8,km3,0,1,1,1,1,0,rby,Madeline,JMc,5 Oct 2019,21,2,0,53,0,5.5,0,NA,"max_sppa_height recorded, but comp and no sppa bag for biomass found. likely a recording error; R is dead"
+65,fresh_2,3,1,b2,0,1,0,0,0,0,by,JLS,HBK,5 Oct 2019,19,1,0,NA,NA,5.0,0,NA,
+66,fresh_2,3,2,km5,0,1,0,0,0,0,ry,MLV,HSK,5 Oct 2019,26,1,0,NA,NA,4.0,0,NA,
+67,fresh_2,3,3,ca8,0,1,0,0,0,1,by,JLS,EMG,10 Oct 2019,22,1,0,NA,NA,4.0,0,NA,RNA stem not included in measurements; see long note about pot 67
+68,fresh_2,3,4,ka6,0,1,0,0,0,0,ry,MLV,JMc,5 Oct 2019,21,1,0,NA,NA,4.5,0,NA,R is dead
+69,fresh_2,3,5,ca4,1,0,0,0,0,0,ry,HSK,MLV,5 Oct 2019,21,3,0,66,0,4.0,0,NA,
+70,fresh_2,3,6,ca2,0,1,0,0,0,1,by,JLS,EMG,10 Oct 2019,20,1,0,NA,NA,4.5,0,NA,RNA stem not included in measurements
+71,fresh_2,3,7,cm2,1,0,0,0,0,0,b,MLV,HBK,5 Oct 2019,17,1,0,66.5,0,3.5,2,unknown,found lost dh stems on 7 Oct 2019 -- too dry to take widths
+72,fresh_2,3,8,cm4,0,1,0,0,0,1,rb,HSK,LCC,10 Oct 2019,25,3,0,NA,NA,6.0,0,NA,RNA stem not included in measurements; B is dead
+73,fresh_2,4,1,ca7,0,1,1,0,0,1,rby,JLS,EMG,10 Oct 2019,19,2,0,NA,NA,2.5,0,NA,RNA stem not included in measurements; see long note about pot 67
+74,fresh_2,4,2,ka3,0,1,1,0,0,0,by,HSK,MLV,5 Oct 2019,16,1,0,NA,NA,3.5,0,NA,
+75,fresh_2,4,3,cm10,0,1,1,0,0,1,none,JLS,EMG,10 Oct 2019,20,2,0,NA,NA,2.0,1,12,RNA stem not included in measurements; density does not match number of measured stems
+76,fresh_2,4,4,ca5,1,0,0,0,0,0,b,JLS,HBK,5 Oct 2019,21,3,0,19.5,0,4.0,0,NA,
+77,fresh_2,4,5,km4,0,1,1,0,0,0,y,HSK,MLV,5 Oct 2019,28,3,0,NA,NA,1.0,0,NA,
+78,fresh_2,4,6,ca4,1,0,0,0,0,0,y,MLV,JMc,5 Oct 2019,24,2,0,64,0,3.5,0,NA,
+79,fresh_2,4,7,cm4,1,0,0,0,0,0,by,HBK,JLS,5 Oct 2019,17,2,0,0,NA,3.5,0,NA,SPPA was dead (no tissue found)
+80,fresh_2,4,8,cm2,0,1,1,0,0,1,b,HSK,LCC,10 Oct 2019,14,2,0,NA,NA,3.5,0,NA,"RNA stem not included in measurements; B is dead; stems 1,4,5 likely damaged by GHG measurements"
+81,fresh_2,5,1,km4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+82,fresh_2,5,2,ca9,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+83,fresh_2,5,3,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+84,fresh_2,5,4,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+85,fresh_2,5,5,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+86,fresh_2,5,6,cm3,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+87,fresh_2,5,7,b1,0,0,0,0,1,0,none,JLS,HBK,5 Oct 2019,12,3,0,NA,NA,4.5,0,NA,
+88,fresh_2,5,8,cm6,1,0,0,0,1,0,none,MLV,HBK,5 Oct 2019,17,4,0,0,NA,3.0,0,NA,soil uneven with hole
+89,fresh_2,6,1,ca8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+90,fresh_2,6,2,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+91,fresh_2,6,3,cm10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+92,fresh_2,6,4,ca3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+93,fresh_2,6,5,cm9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+94,fresh_2,6,6,ka2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+95,fresh_2,6,7,ca1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+96,fresh_2,6,8,cm4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+97,fresh_3,1,1,km4,0,1,1,0,0,0,rb,MLV,WLV,7 Oct 2019,11,1,0,NA,NA,4.5,0,NA,stem 6 is conjoined
+98,fresh_3,1,2,cm8,0,1,1,1,1,0,r,HBK,JLS,7 Oct 2019,12,0,0,NA,NA,6.0,0,NA,
+99,fresh_3,1,3,cm7,0,1,1,0,0,0,rby,JLS,HBK,7 Oct 2019,9,0,0,NA,NA,6.0,0,NA,
+100,fresh_3,1,4,ca2,1,0,0,0,0,0,rb,MLV,WLV,7 Oct 2019,10,2,0,70,0,5.5,0,NA,
+101,fresh_3,1,5,cm4,1,0,0,0,0,0,none,JLS,HBK,7 Oct 2019,0,1,0,77,2,5.0,0,NA,one short dead SCAM stem
+102,fresh_3,1,6,ca5,0,1,1,0,0,0,ry,MLV,WLV,7 Oct 2019,13,2,0,NA,NA,6.5,0,NA,
+103,fresh_3,1,7,ka3,0,1,1,0,0,0,by,MLV,WLV,7 Oct 2019,8,2,0,NA,NA,5.0,0,NA,B is dead
+104,fresh_3,1,8,ca8,1,0,0,0,0,0,rby,HBK,JLS,7 Oct 2019,12,0,0,72.5,0,4.5,0,NA,
+105,fresh_3,2,1,ka1,0,1,1,0,0,0,none,HSK,EAP,7 Oct 2019,10,3,0,NA,NA,4.0,0,NA,
+106,fresh_3,2,2,cm7,1,0,0,0,0,0,ry,JLS,HBK,7 Oct 2019,6,2,0,71,0,4.0,0,NA,R is dead
+107,fresh_3,2,3,ca1,0,1,1,0,0,0,rby,MLV,WLV,7 Oct 2019,25,1,0,NA,NA,3.5,0,NA,
+108,fresh_3,2,4,ca10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+109,fresh_3,2,5,cm10,1,0,0,0,0,0,b,MLV,WLV,7 Oct 2019,19,1,0,86,0,3.1,1,12,
+110,fresh_3,2,6,km1,0,1,1,0,0,0,rby,MLV,WLV,7 Oct 2019,27,1,0,NA,NA,4.5,0,NA,
+111,fresh_3,2,7,ca3,1,0,0,0,0,0,rb,HBK,JLS,7 Oct 2019,14,2,0,56.5,0,5.0,0,NA,B is dead
+112,fresh_3,2,8,cm4,0,1,1,0,0,0,rb,HBK,JLS,7 Oct 2019,27,1,0,NA,NA,3.0,0,NA,
+113,fresh_3,3,1,km5,0,1,0,1,1,0,none,JLS,HBK,7 Oct 2019,16,5,0,NA,NA,4.0,0,NA,
+114,fresh_3,3,2,cm4,1,0,0,0,0,0,rb,MLV,WLV,7 Oct 2019,21,4,0,71,0,4.0,0,NA,3 dead in DH
+115,fresh_3,3,3,cm2,0,1,0,0,0,1,rb,JLS,EMG,10 Oct 2019,16,3,0,NA,NA,4.5,0,NA,RNA stem not included in measurements; R is missing
+116,fresh_3,3,4,cm9,0,1,0,0,0,1,rby,HBK,LCC,10 Oct 2019,38,0,0,NA,NA,5.0,1,12,RNA stem not included in measurements
+117,fresh_3,3,5,ka6,0,1,0,0,0,0,ry,KSH,EAP,7 Oct 2019,22,1,0,NA,NA,4.0,0,NA,R is dead
+118,fresh_3,3,6,ca3,1,0,0,1,1,0,ry,HSK,EAP,7 Oct 2019,16,2,0,64,0,3.5,0,NA,
+119,fresh_3,3,7,ca9,1,0,0,0,0,0,ry,JLS,HBK,7 Oct 2019,16,1,0,39.5,0,4.5,0,NA,
+120,fresh_3,3,8,ca4,0,1,0,0,0,1,b,HBK,LCC,10 Oct 2019,28,4,0,NA,NA,4.4,0,NA,RNA stem not included in measurements; soil_to_pot recorded as 4.4
+121,fresh_3,4,1,cm1,0,1,1,0,0,1,none,HSK,DWS,10 Oct 2019,6,1,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+122,fresh_3,4,2,ca7,1,0,0,1,1,0,r,HSK,EAP,7 Oct 2019,20,2,0,0,0,2.0,0,NA,"All SPPA dead, biomass saved"
+123,fresh_3,4,3,cm10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+124,fresh_3,4,4,ca10,0,1,1,0,0,1,rb,HBK,LCC,10 Oct 2019,26,3,0,NA,NA,2.0,0,NA,RNA stem not included in measurements; R & B are dead
+125,fresh_3,4,5,ka2,0,1,1,0,0,0,b,JLS,HBK,7 Oct 2019,15,,0,NA,NA,2.5,0,NA,Missing scam_dead_density
+126,fresh_3,4,6,cm9,0,1,1,0,0,1,y,HBK,LCC,10 Oct 2019,18,2,0,NA,NA,3.5,0,NA,RNA stem not included in measurements
+127,fresh_3,4,7,ca6,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+128,fresh_3,4,8,b2,0,1,1,0,0,0,none,MLV,WLV,7 Oct 2019,2,0,0,NA,NA,1.5,0,NA,"only 2 stems, no epi"
+129,fresh_3,5,1,ca5,0,0,0,0,0,0,none,HBK,JLS,7 Oct 2019,10,0,,NA,NA,3.0,0,NA,missing scam_flowers info
+130,fresh_3,5,2,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+131,fresh_3,5,3,cm2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+132,fresh_3,5,4,ca2,1,0,0,0,1,0,none,MLV,WLV,7 Oct 2019,15,1,0,NA,NA,1.5,0,NA,no SPPA found
+133,fresh_3,5,5,b4,0,0,0,0,1,0,none,JLS,HBK,7 Oct 2019,11,0,0,NA,NA,1.5,0,NA,
+134,fresh_3,5,6,km3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+135,fresh_3,5,7,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+136,fresh_3,5,8,cm8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+137,fresh_3,6,1,cm9,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+138,fresh_3,6,2,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+139,fresh_3,6,3,ca6,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+140,fresh_3,6,4,b3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+141,fresh_3,6,5,km2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+142,fresh_3,6,6,cm1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+143,fresh_3,6,7,cm4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+144,fresh_3,6,8,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+145,fresh_4,1,1,ka6,0,1,1,0,0,0,r,MLV,WLV,7 Oct 2019,12,2,0,NA,NA,5.5,0,NA,R is dead
+146,fresh_4,1,2,km6,0,1,1,0,0,0,ry,HBK,JLS,7 Oct 2019,15,1,0,NA,NA,7.0,0,NA,
+147,fresh_4,1,3,b1,0,1,1,0,0,0,rby,HSK,EAP,7 Oct 2019,14,1,0,NA,NA,6.5,0,NA,
+148,fresh_4,1,4,ca9,1,0,0,0,0,0,rby,JLS,HBK,7 Oct 2019,12,0,0,42,0,6.5,0,NA,B is dead
+149,fresh_4,1,5,cm2,0,1,1,1,1,0,rb,MLV,WLV,7 Oct 2019,11,1,0,NA,NA,5.5,0,NA,
+150,fresh_4,1,6,ca3,0,1,1,1,1,0,ry,MLV,WLV,7 Oct 2019,17,1,0,NA,NA,5.5,0,NA,R is dead
+151,fresh_4,1,7,ca10,1,0,0,1,1,0,ry,HSK,EAP,7 Oct 2019,7,1,0,63.5,0,6.0,1,12,rhizome from dh stored in separate bag
+152,fresh_4,1,8,cm10,1,0,0,0,0,0,none,JLS,HBK,7 Oct 2019,0,1,0,72,0,6.0,0,NA,
+153,fresh_4,2,1,cm9,1,0,0,1,1,0,rby,JLS,HBK,7 Oct 2019,15,2,0,55,0,6.0,0,NA,
+154,fresh_4,2,2,cm7,0,1,1,1,1,0,r,KSH,EAP,7 Oct 2019,15,4,0,NA,NA,6.0,0,NA,R is dead
+155,fresh_4,2,3,km5,0,1,1,0,0,0,r,MLV,WLV,7 Oct 2019,19,1,0,NA,NA,5.5,0,NA,found B; seems like high density based on last_density. MLV checked and upon entry seems good
+156,fresh_4,2,4,b2,0,1,1,1,1,0,rby,MLV,WLV,7 Oct 2019,19,2,0,NA,NA,6.0,0,NA,B is dead
+157,fresh_4,2,5,ca6,0,1,1,0,0,0,rby,MLV,WLV,7 Oct 2019,19,2,0,NA,NA,5.5,0,NA,B is dead
+158,fresh_4,2,6,ca8,0,1,1,0,0,0,rby,JLS,HBK,7 Oct 2019,21,1,0,NA,NA,7.0,0,NA,R is dead
+159,fresh_4,2,7,ca10,1,0,0,0,0,0,ry,KSH,EAP,7 Oct 2019,25,2,0,57,0,6.5,1,12,dh rhizome in separate bag
+160,fresh_4,2,8,cm1,1,0,0,0,0,0,none,HBK,HBK,7 Oct 2019,0,0,0,86,4,5.5,0,NA,
+161,fresh_4,3,1,ka6,0,1,1,0,0,0,none,HBK,JLS,7 Oct 2019,8,1,0,NA,NA,6.5,0,NA,
+162,fresh_4,3,2,ca10,1,0,0,1,1,0,rb,MLV,WLV,7 Oct 2019,25,3,0,51.5,0,3.5,0,NA,B is dead
+163,fresh_4,3,3,b4,0,1,1,0,0,0,by,MLV,WLV,7 Oct 2019,27,2,0,NA,NA,3.5,0,NA,Y is dead
+164,fresh_4,3,4,cm1,0,0,1,1,1,1,by,HBK,LCC,10 Oct 2019,10,1,0,NA,NA,4.1,0,NA,RNA stem not included in measurements; soil_to_pot entered as 4.1
+165,fresh_4,3,5,ca2,0,1,1,0,0,1,rb,HSK,DWS,10 Oct 2019,23,2,0,NA,NA,4.0,0,NA,RNA stem not included in measurements; rhizome saved -- stems cut off and dried separately
+166,fresh_4,3,6,cm8,1,0,0,0,0,0,r,MLV,WLV,7 Oct 2019,21,2,0,44.5,0,3.5,0,NA,R is dead
+167,fresh_4,3,7,km3,0,1,1,0,0,0,none,HBK,JMc,7 Oct 2019,7,0,0,NA,NA,4.0,0,NA,
+168,fresh_4,3,8,cm6,1,0,0,1,1,0,none,JLS,JLS,7 Oct 2019,26,4,0,26,0,3.5,1,11.5,
+169,fresh_4,4,1,cm2,1,0,0,1,1,0,b,JLS,JLS,7 Oct 2019,12,0,0,0,0,3.5,0,NA,no sppa found
+170,fresh_4,4,2,ca1,0,1,1,0,0,1,none,HSK,DWS,10 Oct 2019,17,2,0,NA,NA,2.5,0,NA,RNA stem not included in measurements
+171,fresh_4,4,3,ka3,0,1,1,0,0,0,y,HBK,JMc,7 Oct 2019,13,4,0,NA,NA,2.0,0,NA,
+172,fresh_4,4,4,km1,0,1,1,0,0,0,rby,HBK,JMc,7 Oct 2019,26,7,0,NA,NA,1.0,0,NA,Y & B are dead; missed mid_wd on last stem
+173,fresh_4,4,5,cm9,1,0,0,0,0,0,y,MLV,WLV,7 Oct 2019,23,2,0,20.5,0,1.5,0,NA,
+174,fresh_4,4,6,cm5,0,1,1,1,1,1,rb,HBK,LCC,10 Oct 2019,31,2,0,NA,NA,1.0,0,NA,RNA stem not included in measurements; R is dead
+175,fresh_4,4,7,ca4,1,0,0,0,0,0,b,HBK,AMD,7 Oct 2019,12,4,0,30,0,2.5,0,NA,"rna recorded as 1, but is actually 0"
+176,fresh_4,4,8,ca5,0,1,1,0,0,1,ry,HSK,DWS,10 Oct 2019,21,2,0,NA,NA,2.5,0,NA,RNA stem not included in measurements; rhizome saved and belowground stems cut off and dried separately
+177,fresh_4,5,1,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+178,fresh_4,5,2,ca8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+179,fresh_4,5,3,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+180,fresh_4,5,4,b1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+181,fresh_4,5,5,cm3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+182,fresh_4,5,6,ka1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+183,fresh_4,5,7,ca1,1,0,0,0,1,0,none,JLS,JLS,7 Oct 2019,8,3,0,0,0,1.5,0,NA,no sppa found
+184,fresh_4,5,8,cm8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+185,fresh_4,6,1,ca3,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+186,fresh_4,6,2,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+187,fresh_4,6,3,cm6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+188,fresh_4,6,4,ca9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+189,fresh_4,6,5,ka6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+190,fresh_4,6,6,ca7,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+191,fresh_4,6,7,cm7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+192,fresh_4,6,8,cm3,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+193,fresh_5,1,1,ca10,1,0,0,0,0,0,r,HBK,AMD,7 Oct 2019,6,1,0,72.5,0,6.5,0,NA,
+194,fresh_5,1,2,b2,0,1,1,0,0,0,rby,HBK,AMD,7 Oct 2019,19,0,0,NA,NA,7.0,0,NA,
+195,fresh_5,1,3,ca2,0,1,1,0,0,0,rby,JLS,JLS,7 Oct 2019,14,2,0,NA,NA,6.5,0,NA,
+196,fresh_5,1,4,cm2,0,1,1,0,0,0,rby,MLV,MLV,7 Oct 2019,11,0,0,NA,NA,6.0,0,NA,
+197,fresh_5,1,5,km1,0,1,1,0,0,0,rby,JLS,EAP,7 Oct 2019,20,2,0,NA,NA,6.5,1,12,R is dead
+198,fresh_5,1,6,cm3,1,0,0,0,0,0,rby,JLS,EAP,7 Oct 2019,13,2,0,68,0,5.5,0,NA,Y is dead
+199,fresh_5,1,7,cm10,1,0,0,0,0,0,rb,MLV,MLV,7 Oct 2019,13,1,0,81,0,6.0,0,NA,2 B found in pot
+200,fresh_5,1,8,ka4,0,1,1,1,1,0,rby,MLV,MLV,7 Oct 2019,23,2,0,NA,NA,6.5,0,NA,R is dead
+201,fresh_5,2,1,km6,0,1,1,0,0,0,rby,JLS,EAP,7 Oct 2019,20,1,0,NA,NA,5.0,0,NA,
+202,fresh_5,2,2,ca8,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+203,fresh_5,2,3,b4,0,1,1,0,0,0,rby,JLS,EAP,7 Oct 2019,36,3,0,NA,NA,5.0,0,NA,Y is dead
+204,fresh_5,2,4,cm4,0,1,1,1,1,0,rby,AMD,HBK,7 Oct 2019,24,1,0,NA,NA,5.5,0,NA,
+205,fresh_5,2,5,ca2,0,1,1,0,0,0,rby,JLS,EAP,7 Oct 2019,32,2,0,NA,NA,4.5,0,NA,
+206,fresh_5,2,6,ca4,1,0,0,1,1,0,rby,MLV,MLV,7 Oct 2019,19,1,0,67,0,6.0,0,NA,
+207,fresh_5,2,7,cm9,1,0,0,0,0,0,rby,HBK,AMD,7 Oct 2019,23,0,0,65,0,5.0,5,NA,
+208,fresh_5,2,8,ka2,0,1,1,1,0,0,rb,HBK,AMD,7 Oct 2019,34,2,0,NA,NA,4.5,0,NA,
+209,fresh_5,3,1,ca10,1,0,0,0,0,0,none,MLV,WLV,7 Oct 2019,15,2,0,71,0,4.0,0,NA,
+210,fresh_5,3,2,cm10,0,1,1,0,0,1,rb,HSK,DWS,10 Oct 2019,24,2,0,NA,NA,2.5,0,NA,RNA stem not included in measurements; R is dead
+211,fresh_5,3,3,ka5,0,1,1,1,1,0,by,MLV,WLV,7 Oct 2019,22,2,0,NA,NA,5.0,0,12,rhizome piece out of dh
+212,fresh_5,3,4,b2,0,1,1,0,0,0,b,AMD,HBK,7 Oct 2019,19,4,0,NA,NA,5.5,0,NA,
+213,fresh_5,3,5,ca6,1,0,0,1,1,0,rb,HSK,WLV,7 Oct 2019,24,1,0,76.5,0,2.5,0,NA,Y found
+214,fresh_5,3,6,ca7,0,1,1,1,1,1,r,JLS,JLS,10 Oct 2019,21,1,0,NA,NA,3.0,0,NA,
+215,fresh_5,3,7,cm8,1,0,0,0,0,0,none,JLS,JLS,7 Oct 2019,0,0,0,87.5,0,4.5,0,NA,no SCAM alive
+216,fresh_5,3,8,cm6,0,1,1,1,1,1,rby,HBK,LCC,10 Oct 2019,34,3,0,NA,NA,5.0,0,NA,RNA stem not included in measurements; R and Y are dead
+217,fresh_5,4,1,cm1,1,0,0,0,0,0,none,JLS,JLS,7 Oct 2019,8,5,0,NA,0,2.5,0,NA,
+218,fresh_5,4,2,km3,0,1,1,0,0,0,by,JLS,JMc,7 Oct 2019,27,2,0,NA,NA,2.0,0,NA,R is dead
+219,fresh_5,4,3,ca4,1,0,0,0,0,0,none,HSK,WLV,7 Oct 2019,28,1,0,15.5,0,1.5,0,NA,
+220,fresh_5,4,4,cm9,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+221,fresh_5,4,5,ca3,0,1,1,0,0,1,none,HBK,LCC,10 Oct 2019,5,0,0,NA,NA,2.0,0,NA,RNA stem not included in measurements
+222,fresh_5,4,6,cm3,0,1,1,1,1,1,ry,JLS,JLS/DWS,10 Oct 2019,20,4,0,NA,NA,2.0,0,NA,RNA stem not included in measurements; R and Y are dead
+223,fresh_5,4,7,b3,0,1,1,0,0,0,y,HBK,MLV,7 Oct 2019,26,3,0,NA,NA,2.5,0,NA,
+224,fresh_5,4,8,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+225,fresh_5,5,1,km6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+226,fresh_5,5,2,cm7,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+227,fresh_5,5,3,ka1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+228,fresh_5,5,4,ca3,1,0,0,0,1,0,none,MLV,MLV,7 Oct 2019,5,4,0,0,0,1.5,0,NA,no SPPA found
+229,fresh_5,5,5,ca5,0,0,0,0,1,0,none,MLV,MLV,7 Oct 2019,11,2,0,NA,NA,4.0,0,NA,peat very uneven
+230,fresh_5,5,6,ca4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+231,fresh_5,5,7,cm9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+232,fresh_5,5,8,cm1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+233,fresh_5,6,1,cm7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+234,fresh_5,6,2,ka6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+235,fresh_5,6,3,ca2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+236,fresh_5,6,4,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+237,fresh_5,6,5,cm5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+238,fresh_5,6,6,cm2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+239,fresh_5,6,7,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+240,fresh_5,6,8,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+241,fresh_6,1,1,ca4,0,1,0,0,0,0,rby,JLS,JMc,7 Oct 2019,14,2,0,NA,NA,5.5,0,NA,B is dead
+242,fresh_6,1,2,ca5,1,0,0,0,0,0,r,HSK,WLV/MLV,7 Oct 2019,4,0,0,80.5,0,6.0,0,NA,"aboveground biomass out of dh; MLV 8 Oct 2019 found 4 SCAM stems in biomass bag that weren't found originally, but they were already dried so widths not taken"
+243,fresh_6,1,3,ka3,0,1,0,0,0,0,rby,HBK,AMH,9 Oct 2019,17,0,0,NA,NA,5.5,0,NA,
+244,fresh_6,1,4,cm9,1,0,0,0,0,0,ry,HSK,HCW,9 Oct 2019,14,1,0,92,0,4.0,0,NA,
+245,fresh_6,1,5,cm4,1,0,0,1,1,0,r,HSK,HSK/HBK,9 Oct 2019,12,1,0,64,0,4.0,0,NA,
+246,fresh_6,1,6,b1,0,1,0,0,0,0,rby,HBK,LCC,9 Oct 2019,14,1,0,NA,NA,6.0,0,NA,B is dead
+247,fresh_6,1,7,cm5,0,1,0,0,0,0,ry,HSK,HCW,9 Oct 2019,22,2,0,NA,0,5.5,0,NA,Y is dead
+248,fresh_6,1,8,ca10,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+249,fresh_6,2,1,b3,0,1,1,1,1,0,ry,HBK,AMH,9 Oct 2019,30,1,0,NA,NA,4.0,1,12,dh rhizome in separate bag
+250,fresh_6,2,2,cm2,0,1,1,0,0,0,ry,HSK,HCW,9 Oct 2019,18,2,0,NA,NA,5.0,0,NA,R is dead
+251,fresh_6,2,3,ca10,1,0,0,1,1,0,ry,AMH,HBK,9 Oct 2019,32,1,0,60,0,5.0,0,NA,Y is dead
+252,fresh_6,2,4,cm3,0,1,1,0,0,0,ry,HBK,LCC,9 Oct 2019,24,2,0,NA,NA,6.0,3,12,1 dh stem is dead
+253,fresh_6,2,5,ca4,0,1,1,1,1,0,rb,HBK,LCC,9 Oct 2019,29,0,0,NA,NA,5.0,0,NA,
+254,fresh_6,2,6,ca3,1,0,0,0,0,0,by,HSK,LCC,9 Oct 2019,10,3,0,90,0,5.5,0,NA,B is dead
+255,fresh_6,2,7,km1,0,1,1,0,0,0,rb,HSK,HCW,9 Oct 2019,27,1,0,NA,NA,3.5,0,NA,"R is dead, B is missing, Y is found"
+256,fresh_6,2,8,cm6,1,0,0,0,0,0,r,HBK,LCC,9 Oct 2019,33,3,0,62.5,0,5.0,0,NA,
+257,fresh_6,3,1,ka1,0,1,1,0,0,0,y,HSK,HCW,9 Oct 2019,24,1,0,NA,NA,3.5,0,NA,
+258,fresh_6,3,2,ca5,1,0,0,1,1,0,rb,HSK,LCC,9 Oct 2019,24,3,0,48.5,0,3.0,0,NA,R and B are dead
+259,fresh_6,3,3,km4,0,1,1,1,1,0,b,HBK,LCC,9 Oct 2019,18,1,0,NA,NA,4.5,0,NA,
+260,fresh_6,3,4,cm5,0,1,1,1,1,1,rb,HBK,LCC,10 Oct 2019,29,3,0,NA,NA,4.0,0,NA,RNA stem not included in measurements; R is dead
+261,fresh_6,3,5,cm9,1,0,0,0,0,0,r,HSK,HCW,9 Oct 2019,23,1,0,87.5,0,3.0,0,NA,
+262,fresh_6,3,6,cm9,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+263,fresh_6,3,7,ca1,0,1,1,0,0,1,ry,JLS,JMc,10 Oct 2019,40,0,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+264,fresh_6,3,8,cm1,1,0,0,0,0,0,y,HBK,KCC,9 Oct 2019,19,3,0,72,0,5.0,0,NA,
+265,fresh_6,4,1,cm4,1,0,0,0,0,0,y,AMH,HBK,9 Oct 2019,21,2,0,0,0,2.0,0,NA,no SPPA found
+266,fresh_6,4,2,ca10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+267,fresh_6,4,3,cm10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+268,fresh_6,4,4,ca8,1,0,0,0,0,0,none,HBK,LCC,9 Oct 2019,23,2,0,0,NA,2.0,0,NA,SPPA is dead
+269,fresh_6,4,5,cm4,0,1,1,0,0,1,b,HBK,LCC,10 Oct 2019,15,0,0,NA,NA,3.5,0,NA,RNA stem not included in measurements
+270,fresh_6,4,6,ca1,1,0,0,1,1,0,none,HSK,HCW,9 Oct 2019,21,1,0,24.5,0,2.5,0,NA,
+271,fresh_6,4,7,km6,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+272,fresh_6,4,8,ka5,0,0,0,0,0,0,by,HSK,LCC,9 Oct 2019,25,2,0,NA,NA,0.5,0,NA,"Phrag start found in pot; no roots pulled when taken off surface, but found vertical in pot (HSK)"
+273,fresh_6,5,1,ca8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+274,fresh_6,5,2,b4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+275,fresh_6,5,3,ca4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+276,fresh_6,5,4,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+277,fresh_6,5,5,cm2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+278,fresh_6,5,6,ka6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+279,fresh_6,5,7,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+280,fresh_6,5,8,ca2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+281,fresh_6,6,1,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+282,fresh_6,6,2,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+283,fresh_6,6,3,cm1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+284,fresh_6,6,4,ca7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+285,fresh_6,6,5,b3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+286,fresh_6,6,6,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+287,fresh_6,6,7,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+288,fresh_6,6,8,cm6,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+289,fresh_7,1,1,ca4,0,1,0,1,1,0,ry,AMH,LCC,9 Oct 2019,13,3,0,NA,NA,6.0,0,NA,R is dead
+290,fresh_7,1,2,cm9,1,0,0,0,0,0,rby,HBK,LCC,9 Oct 2019,16,2,0,16.5,0,6.0,0,NA,B is dead
+291,fresh_7,1,3,ca1,1,0,0,0,0,0,ry,HSK,HCW,9 Oct 2019,20,1,0,36.5,0,6.5,0,NA,
+292,fresh_7,1,4,cm1,1,0,0,1,1,0,by,HSK,HCW,9 Oct 2019,8,1,0,66,3,7.0,0,NA,
+293,fresh_7,1,5,ca6,0,1,0,0,0,0,rby,KBK,LCC,9 Oct 2019,18,0,0,NA,NA,7.0,0,NA,
+294,fresh_7,1,6,ka5,0,1,0,0,0,0,rby,HBK,LCC,9 Oct 2019,15,1,0,NA,NA,7.0,1,12,B is dead; dh rhizome
+295,fresh_7,1,7,cm4,0,1,0,0,0,0,rby,HBK,LCC,9 Oct 2019,17,3,0,NA,NA,6.5,0,NA,B and Y are dead
+296,fresh_7,1,8,km3,0,1,0,0,0,0,rby,HBK,LCC,9 Oct 2019,15,1,0,NA,NA,9.5,0,NA,R is dead
+297,fresh_7,2,1,cm5,1,0,0,1,1,0,b,HSK,HCW,9 Oct 2019,20,6,0,56,0,5.5,0,NA,B not found; likely W mistaken for B last time
+298,fresh_7,2,2,ca9,1,0,0,0,0,0,ry,HBK,LCC,9 Oct 2019,17,0,0,14,0,5.0,0,NA,
+299,fresh_7,2,3,ca5,0,1,1,0,0,0,rby,HBK,LCC,9 Oct 2019,17,3,0,NA,NA,5.0,0,NA,B is dead; allom #2 not noted
+300,fresh_7,2,4,cm8,0,1,1,0,0,0,by,HBK,LCC,9 Oct 2019,20,1,0,NA,NA,5.5,0,NA,
+301,fresh_7,2,5,ca2,1,0,0,0,0,0,ry,HSK,HCW,9 Oct 2019,19,3,0,48.5,0,5.0,0,NA,R is dead
+302,fresh_7,2,6,b1,0,1,1,1,1,0,rby,AMH,LCC,9 Oct 2019,25,1,0,NA,NA,6.0,1,12,
+303,fresh_7,2,7,ka3,0,1,1,1,1,0,rby,AMH,LCC,9 Oct 2019,16,1,0,NA,NA,6.0,0,NA,
+304,fresh_7,2,8,cm9,0,1,1,1,1,0,rby,AMH,LCC,9 Oct 2019,30,3,0,NA,NA,5.0,0,NA,R is dead
+305,fresh_7,3,1,km1,0,1,0,1,1,0,rb,AMS,HBK/LCC,9 Oct 2019,24,,0,NA,NA,3.5,1,11.5,missing scam_dead_density
+306,fresh_7,3,2,ca7,0,1,0,1,1,1,rb,HSK,LCC,10 Oct 2019,20,4,0,NA,NA,3.0,2,12,R is dead; dh stems are dead; RNA stem not included in measurements; dh rhizome saved separately
+307,fresh_7,3,3,cm10,0,1,0,0,0,1,b,HBK,LCC,10 Oct 2019,12,2,0,NA,NA,5.0,0,NA,RNA stem not included in measurements; B not found
+308,fresh_7,3,4,b2,0,1,0,1,1,0,ry,HBK,LCC,9 Oct 2019,25,1,0,NA,NA,5.0,0,NA,R is dead; epi taken but stem not noted
+309,fresh_7,3,5,cm3,1,0,0,1,1,0,b,HBK,HCW,9 Oct 2019,22,4,0,16,0,3.0,0,NA,B and R are dead
+310,fresh_7,3,6,ca6,0,1,0,1,1,1,rby,JLS,DWS,10 Oct 2019,17,1,0,NA,NA,3.5,0,NA,RNA stem not included in measurements; B is dead
+311,fresh_7,3,7,ka4,0,1,0,0,0,0,none,HSK,HCW,9 Oct 2019,42,7,0,NA,NA,0.5,0,NA,"pot fell over in truck, many stems damaged/bent, peat height inaccurate; stem40: stem torn, not sure which is bottom portion; stem 43: composed of all disconnected broken stems, all green stems except 4cm"
+312,fresh_7,3,8,ca1,1,0,0,0,0,0,rb,HSK,HCW,9 Oct 2019,34,4,0,41,0,3.5,0,NA,R is dead
+313,fresh_7,4,1,cm6,0,1,1,1,1,1,y,JLS,DWS,10 Oct 2019,25,5,0,NA,NA,1.0,1,2.5,RNA stem not included in measurements; W stem likely mistaken for Y last week (HSK)
+314,fresh_7,4,2,cm3,0,0,1,1,0,0,none,MLV,MLV,13 Oct 2019,1,0,0,NA,NA,2.5,0,NA,RNA sample not taken because only 1 small live stem; no allom no epi
+315,fresh_7,4,3,ca8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+316,fresh_7,4,4,km2,0,1,1,0,0,0,none,HBK,LCC,9 Oct 2019,14,1,0,NA,NA,5.0,0,NA,"last measured density was 7, we weren't sure if there was an error. MLV thinks this is the correct pot"
+317,fresh_7,4,5,cm7,1,0,0,1,1,0,b,JLS,DWS,10 Oct 2019,11,2,0,3.5,0,4.5,0,NA,"note about RNA stem, but this incorrect. this was the pot that was accidentally left in the frame on 9 Oct 19"
+318,fresh_7,4,6,cm4,1,0,0,0,0,0,none,HBK,LCC,9 Oct 2019,0,0,0,23,0,6.0,0,NA,no photo taken b/c SCAM dead
+319,fresh_7,4,7,b3,0,1,1,0,0,0,none,HSK,HCW,9 Oct 2019,23,3,0,NA,NA,2.5,0,NA,
+320,fresh_7,4,8,ca10,0,1,1,1,1,1,none,HSK,JMc,10 Oct 2019,6,1,0,NA,NA,4.0,0,NA,RNA stem not included in measurements; peat is washed out on edge; comp recorded as 1 but is actually 0
+321,fresh_7,5,1,ca3,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+322,fresh_7,5,2,cm2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+323,fresh_7,5,3,ca7,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+324,fresh_7,5,4,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+325,fresh_7,5,5,cm1,1,0,0,0,1,0,none,HSK,HCW,9 Oct 2019,2,1,0,0,0,4.0,0,NA,"peat higher in middle, washed away on edges; NA bag only dead stem; allom2 = 1/2 dead stem"
+326,fresh_7,5,6,ca6,0,0,0,0,1,0,none,HSK,HSK,9 Oct 2019,2,1,0,NA,NA,2.0,0,NA,"pot peat very uneven, higher in middle, washed out on edge; NA biomass bag is only dead stem; site_frame recorded as gcrew_7 but should be fresh_7"
+327,fresh_7,5,7,ka1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+328,fresh_7,5,8,cm5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+329,fresh_7,6,1,ka2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+330,fresh_7,6,2,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+331,fresh_7,6,3,ca5,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+332,fresh_7,6,4,cm8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+333,fresh_7,6,5,ca4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+334,fresh_7,6,6,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+335,fresh_7,6,7,cm4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+336,fresh_7,6,8,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+337,gcrew_1,1,1,ka4,0,1,1,0,0,0,r,MLV,WLV,6-Oct-19,27,4,0,NA,NA,4.5,0,NA,
+338,gcrew_1,1,2,km2,0,1,1,1,1,0,rby,JLS,JLS,6-Oct-19,15,0,0,NA,NA,5.5,0,NA,
+339,gcrew_1,1,3,cm5,0,1,1,0,0,0,by,JLS,HBK,6-Oct-19,28,4,0,NA,NA,5.5,0,NA,
+340,gcrew_1,1,4,ca4,0,1,1,1,1,0,rby,HBK,JLS,6-Oct-19,15,0,0,NA,NA,6.0,0,NA,
+341,gcrew_1,1,5,ca4,1,0,0,0,0,0,rb,HBK,JLS,6-Oct-19,7,0,0,73.5,1,5.5,0,NA,
+342,gcrew_1,1,6,ca1,0,1,1,1,1,0,y,JLS,HBK,5-Oct-19,22,2,0,NA,NA,5.5,1,12,red stem was dead
+343,gcrew_1,1,7,cm2,1,0,0,1,1,0,rby,MVG,HSK,6-Oct-19,5,0,0,85.5,3,6.0,0,NA,stem 3 - herbivory at top and middle (likely blue stem); stem 4 - herbivory near top
+344,gcrew_1,1,8,cm9,1,0,0,0,0,0,none,MVG,HSK,6-Oct-19,0,1,0,87,0,6.5,0,NA,
+345,gcrew_1,2,1,ca2,1,0,0,1,1,0,rby,MVG,HSK,6-Oct-19,14,2,0,60.5,0,5.5,0,0,
+346,gcrew_1,2,2,ca10,1,0,0,1,1,0,r,MLV,WLV,6-Oct-19,7,1,0,73.5,0,5.0,0,NA,
+347,gcrew_1,2,3,ca5,0,1,1,1,1,0,by,MLV,WLV,6-Oct-19,13,3,0,0,NA,5.0,0,NA,yellow stem dead
+348,gcrew_1,2,4,cm6,1,0,0,0,0,0,rby,MVG,HSK,6-Oct-19,23,0,0,43,0,5.0,0,0,
+349,gcrew_1,2,5,km3,0,1,1,0,0,0,rby,HBK,JLS,6-Oct-19,24,2,0,NA,NA,5.0,0,NA,blue and yellow are dead
+350,gcrew_1,2,6,cm2,0,1,1,1,1,0,rby,MLV,WLV,6-Oct-19,16,1,0,0,0,5.5,0,NA,
+351,gcrew_1,2,7,ka3,0,1,1,1,1,0,b,MVG,HSK,6-Oct-19,7,1,0,NA,NA,5.5,2,12,
+352,gcrew_1,2,8,cm8,0,1,1,0,0,0,rb,HBK,JLS,6-Oct-19,10,0,0,NA,NA,6.0,0,NA,
+353,gcrew_1,3,1,cm3,1,0,0,0,0,0,b,MLV,WLV,6-Oct-19,21,7,0,38,0,3.5,0,NA,
+354,gcrew_1,3,2,ca1,0,1,1,1,1,1,none,HBK,EAP,10-Oct-19,21,6,0,NA,NA,,0,0,white found; RNA stem not included in measurements
+355,gcrew_1,3,3,ka5,0,1,1,0,0,0,r,MVG,HSK,6-Oct-19,20,5,0,NA,NA,4.5,0,NA,red stem dead
+356,gcrew_1,3,4,km6,0,1,1,0,0,0,r,JLS,HBK,6-Oct-19,20,1,0,NA,NA,5.0,0,NA,red is dead
+357,gcrew_1,3,5,cm6,0,1,1,0,0,1,by,HBK,HBK,11-Oct-19,24,3,0,NA,NA,4.0,0,NA,blue is dead; 2 yellow stems in pot; RNA stem not included in measurements
+358,gcrew_1,3,6,ca10,0,1,1,0,0,1,rb,HDK,AM,11-Oct-19,22,3,0,NA,NA,3.0,0,NA,red is dead; RNA stem not included in measurements
+359,gcrew_1,3,7,cm10,1,0,0,0,0,0,r,MVG,HSK,6-Oct-19,23,5,0,45,0,5.5,0,NA,red stem dead
+360,gcrew_1,3,8,ca7,1,0,0,0,0,0,by,MVG,HSK,6-Oct-19,17,1,0,27.5,0,6.5,0,NA,
+361,gcrew_1,4,1,cm10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+362,gcrew_1,4,2,ca7,1,0,0,0,0,0,none,MLV,WLV,6-Oct-19,11,2,0,34,0,2.0,0,NA,
+363,gcrew_1,4,3,cm7,1,0,0,0,0,0,y,JLS,HBK,6-Oct-19,7,4,0,31.5,0,3.0,0,NA,yellow stem dead
+364,gcrew_1,4,4,ca3,1,0,0,0,0,0,r,MLV,WLV,6-Oct-19,19,6,0,0,NA,2.5,0,NA,"one in DH but dead, no spartina present"
+365,gcrew_1,4,5,ka1,0,1,1,0,0,0,none,MVG,HSK,6-Oct-19,3,1,0,NA,NA,4.0,0,NA,"uneven peat distribution, higher in middle of pot"
+366,gcrew_1,4,6,b1,0,1,1,0,0,0,y,HBK,JLS,6-Oct-19,22,4,0,NA,NA,4.5,0,NA,"very muddy, yellow is dead"
+367,gcrew_1,4,7,cm1,0,1,1,0,0,1,y,HDK,AM,11-Oct-19,9,2,0,NA,NA,4.0,0,NA,yellow is dead; RNA stem not included in measurements
+368,gcrew_1,4,8,ca4,0,1,1,0,0,1,ry,HBK,HBK,11-Oct-19,16,3,0,NA,NA,2.5,0,NA,red is dead; RNA stem not included in measurements
+369,gcrew_1,5,1,ca9,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+370,gcrew_1,5,2,km1,0,0,0,0,1,0,none,MVG,HSK,6-Oct-19,4,3,0,NA,NA,4.0,0,NA,peat very uneven
+371,gcrew_1,5,3,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+372,gcrew_1,5,4,cm1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+373,gcrew_1,5,5,b4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+374,gcrew_1,5,6,cm8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+375,gcrew_1,5,7,ca2,0,0,0,0,1,0,none,MLV,WLV,6-Oct-19,14,4,0,NA,NA,1.5,0,NA,
+376,gcrew_1,5,8,ka2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+377,gcrew_1,6,1,cm4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+378,gcrew_1,6,2,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+379,gcrew_1,6,3,cm7,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+380,gcrew_1,6,4,ca4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+381,gcrew_1,6,5,c6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+382,gcrew_1,6,6,ca3,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+383,gcrew_1,6,7,ca6,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+384,gcrew_1,6,8,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+385,gcrew_2,1,1,cm1,0,1,1,0,0,0,rby,MVG,HSK,6-Oct-19,8,0,0,NA,NA,6.0,0,NA,No blue stem found
+386,gcrew_2,1,2,ka1,0,1,1,0,0,0,r,MLV,WLV,6-Oct-19,7,1,0,NA,NA,6.0,0,NA,
+387,gcrew_2,1,3,ca8,1,0,0,0,0,0,rby,JLS,HBK,6-Oct-19,10,0,0,79,0,6.5,0,NA,
+388,gcrew_2,1,4,cm9,0,1,1,0,0,0,rby,HBK,JLS,6-Oct-19,22,0,0,NA,NA,5.0,0,NA,
+389,gcrew_2,1,5,cm5,1,0,0,0,0,0,rb,MLV,WLV,6-Oct-19,13,2,0,73,0,5.0,0,NA,spartina growing out of DH
+390,gcrew_2,1,6,ca5,0,1,1,0,0,0,rby,MGV,HSK,6-Oct-19,18,1,0,NA,NA,6.0,3,20,DH rhizome saved in separate bag
+391,gcrew_2,1,7,ca1,1,0,0,0,0,0,rby,JLS,JM,6-Oct-19,9,0,0,57.5,0,6.0,1,12,DH plant was sppa rhizome
+392,gcrew_2,1,8,b3,0,1,1,1,1,0,rby,JLS,J,6-Oct-19,26,1,0,NA,NA,5.0,0,NA,
+393,gcrew_2,2,1,ca10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+394,gcrew_2,2,2,cm2,1,0,0,0,0,0,ry,HSK,WLV,6-Oct-19,22,2,0,65.5,0,5.5,0,NA,yellow is dead
+395,gcrew_2,2,3,b2,0,1,1,0,0,0,rby,JLS,HBK,6-Oct-19,15,1,0,NA,NA,7.0,0,NA,red is dead
+396,gcrew_2,2,4,ca2,0,1,1,0,0,0,rby,HSK,WLV,6-Oct-19,20,1,0,0,NA,6.0,0,NA,
+397,gcrew_2,2,5,ca6,1,0,0,1,1,0,rby,MLV,WLV,6-Oct-19,22,4,0,52,0,4.0,0,NA,yellow is missing
+398,gcrew_2,2,6,km4,0,1,1,0,0,0,rb,MLV,WLV,6-Oct-19,12,1,0,NA,NA,5.0,0,NA,red is dead
+399,gcrew_2,2,7,cm10,1,0,0,1,1,0,b,HSK,WLV,6-Oct-19,8,3,0,77.5,0,6.0,0,NA,blue is dead
+400,gcrew_2,2,8,cm6,0,1,1,1,1,0,b,JLS,HSK,6-Oct-19,17,4,0,NA,NA,5.5,0,NA,blue is dead
+401,gcrew_2,3,1,cm5,0,1,1,0,0,1,r,JLS,PBK,11-Oct-19,22,3,0,NA,NA,3.5,0,NA,red is dead; RNA stem not included in measurements
+402,gcrew_2,3,2,km3,0,1,1,1,1,0,ry,JLS,HBK,6-Oct-19,17,3,0,NA,NA,2.5,0,NA,blue is dead; red is dead
+403,gcrew_2,3,3,cm4,1,0,0,0,0,0,b,HBK,JLS,6-Oct-19,16,2,0,68.5,0,4.0,0,NA,
+404,gcrew_2,3,4,ca3,1,0,0,0,0,0,ry,MLV,WLV,6-Oct-19,15,0,0,42.5,0,3.5,0,NA,
+405,gcrew_2,3,5,ca10,1,0,0,0,0,0,b,HSK,MLV,6-Oct-19,25,4,0,42,3.5,3.5,0,NA,
+406,gcrew_2,3,6,ka2,0,1,1,1,1,0,r,HBK,MLV,6-Oct-19,26,2,0,NA,NA,5.0,0,13,one in DH but dead
+407,gcrew_2,3,7,cm3,0,1,1,0,0,1,rby,JLS,PBK,11-Oct-19,16,1,0,NA,NA,5.0,0,NA,RNA stem not included in measurements
+408,gcrew_2,3,8,ca7,0,1,1,0,0,1,rby,JLS,PBK,11-Oct-19,20,2,0,NA,NA,4.5,0,NA,red and blue are dead; RNA stem not included in measurements
+409,gcrew_2,4,1,km5,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+410,gcrew_2,4,2,ca4,0,1,1,1,1,1,y,JLS,PBK,11-Oct-19,21,5,0,NA,NA,3.0,0,NA,yellow is dead; RNA stem not included in measurements
+411,gcrew_2,4,3,ca1,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+412,gcrew_2,4,4,cm8,1,0,0,0,0,0,y,HBK,MLV,6-Oct-19,28,4,0,39.5,0,3.0,0,NA,
+413,gcrew_2,4,5,cm3,1,0,0,0,0,0,0,HSK,WLV,6-Oct-19,16,10,0,0,NA,2.0,0,NA,Spartina is dead
+414,gcrew_2,4,6,ka6,0,1,1,0,0,0,by,HSK,MLV,6-Oct-19,19,6,0,NA,NA,2.0,0,NA,
+415,gcrew_2,4,7,cm6,0,1,1,0,0,1,y,JLS,PBK,11-Oct-19,29,6,0,NA,NA,2.0,0,NA,yellow is dead; RNA stem not included in measurements
+416,gcrew_2,4,8,ca7,1,0,0,1,1,0,y,MLV,HBK,6-Oct-19,21,4,0,0,NA,2.5,0,0,No Spartina found
+1617,gcrew_2,5,1,cm4,0,0,0,0,1,0,0,JLS,JLS,6-Oct-19,14,1,0,NA,NA,4.0,0,NA,Information is unreadable
+1618,gcrew_2,5,2,cm8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1619,gcrew_2,5,3,ca8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1620,gcrew_2,5,4,km1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1621,gcrew_2,5,5,b1,0,0,0,0,1,0,0,MLV,MLV,6-Oct-19,10,2,0,NA,NA,5.5,0,NA,peat very uneven
+1622,gcrew_2,5,6,ca4,1,0,0,0,1,0,0,MLV,MLV,6-Oct-19,8,0,0,0,NA,2.5,0,NA,Spartina not found
+1623,gcrew_2,5,7,ka4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1624,gcrew_2,5,8,ca6,0,0,0,0,1,0,0,MLV,MLV,6-Oct-19,15,1,0,NA,NA,3.5,0,NA,
+1625,gcrew_2,6,1,ca5,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1626,gcrew_2,6,2,km3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1627,gcrew_2,6,3,ca2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1628,gcrew_2,6,4,cm5,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1629,gcrew_2,6,5,cm8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1630,gcrew_2,6,6,b4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1631,gcrew_2,6,7,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1632,gcrew_2,6,8,cm2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1633,gcrew_3,1,1,ca10,1,0,0,0,0,0,0,MLV,MLV,6-Oct-19,0,0,0,66,NA,6.5,0,NA,only SPPA
+1634,gcrew_3,1,2,ca3,1,0,0,0,0,0,rby,HBK,WLV,6-Oct-19,8,1,0,78.5,NA,6.5,0,NA,red is dead
+1635,gcrew_3,1,3,cm1,0,1,0,0,0,0,rb,HBK,WLV,6-Oct-19,11,1,0,0,NA,6.0,0,NA,
+1636,gcrew_3,1,4,cm10,1,0,0,0,0,0,0,HBK,WLV,6-Oct-19,0,1,0,84,NA,6.0,0,NA,
+1637,gcrew_3,1,5,ka5,0,1,0,0,0,0,r,MLV/HSK,MLV/JMC,6-Oct-19,8,1,0,NA,NA,6.0,0,NA,
+1638,gcrew_3,1,6,ca10,0,1,0,0,0,0,r,HSK,WLV,6-Oct-19,9,1,0,NA,NA,8.0,0,NA,
+1639,gcrew_3,1,7,cm7,0,1,0,1,1,0,rby,JEN,WLV,6-Oct-19,9,1,0,NA,NA,6.0,0,NA,
+1640,gcrew_3,1,8,km5,0,1,0,0,0,0,rby,HBK,HBK,6-Oct-19,12,0,0,NA,NA,6.5,0,0,
+1641,gcrew_3,2,1,cm9,1,0,0,0,0,0,rby,JEN,WLV,6-Oct-19,29,3,0,60,0,5.0,0,NA,Blue is Dead
+1642,gcrew_3,2,2,ca1,0,1,1,0,0,0,rby,JEN,WLV,6-Oct-19,22,2,0,NA,NA,6.0,0,NA,yellow is dead
+1643,gcrew_3,2,3,cm5,0,1,1,0,0,0,b,JMC,HSK,6-Oct-19,20,5,0,NA,NA,4.5,0,NA,"Blue stem dead, Found 2 stems on ground and discarded them"
+1644,gcrew_3,2,4,ca8,1,0,0,0,0,0,rby,JEN,WLV,6-Oct-19,11,1,0,45,0,5.0,0,NA,Red is dead
+1645,gcrew_3,2,5,cm2,1,0,0,0,0,0,ry,HSK,JMC,6-Oct-19,8,3,0,42.5,0,5.0,0,NA,Red and yellow are dead
+1646,gcrew_3,2,6,b4,0,1,1,1,1,0,y,HBK,HBK,6-Oct-19,13,3,0,NA,NA,6.5,0,NA,Red is dead
+1647,gcrew_3,2,7,ka2,0,1,1,0,0,0,rb,JMC,HSK,6-Oct-19,19,3,0,NA,NA,6.0,0,NA,"Red is dead; blue is bent, perhaps sampling caused this"
+1648,gcrew_3,2,8,ca10,0,1,1,0,0,0,ry,JEN,WLV,6-Oct-19,15,0,0,NA,NA,6.0,0,NA,
+1649,gcrew_3,3,1,ca4,1,0,0,0,0,0,ry,JLS,JLS,6-Oct-19,18,6,0,31,0,4.5,0,NA,"Red is dead, yellow is dead"
+1650,gcrew_3,3,2,km2,0,1,0,0,0,0,rby,MLV,WLV,6-Oct-19,27,3,0,NA,NA,3.5,0,NA,Blue is dead
+1651,gcrew_3,3,3,cm8,1,0,0,0,0,0,0,MLV,MLV,6-Oct-19,0,0,0,52,0,5.5,0,NA,
+1652,gcrew_3,3,4,b1,0,1,0,0,0,0,rby,JLS,JLS,6-Oct-19,19,9,0,NA,NA,4.5,0,NA,Yellow is dead
+1653,gcrew_3,3,5,ca5,0,1,0,0,0,1,ry,JLS,HSK & Pat,11-Oct-19,16,4,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+1654,gcrew_3,3,6,cm1,0,1,0,1,1,1,ry,JLS,PBK,11-Oct-19,11,3,0,NA,NA,5.0,0,NA,Yellow is dead; RNA stem not included in measurements
+1655,gcrew_3,3,7,ca2,1,0,0,1,1,0,rby,JLS,JLS,6-Oct-19,18,0,0,66,0,5.5,0,NA,
+1656,gcrew_3,3,8,ka1,0,1,0,1,1,1,ry,MLV,MLV,6-Oct-19,14,2,0,NA,NA,5.5,0,NA,Yellow is dead
+1657,gcrew_3,4,1,cm4,1,0,0,0,0,0,y,MLV,MLV,6-Oct-19,16,3,0,NA,NA,3.0,0,NA,No SPPA found
+1658,gcrew_3,4,2,cm8,1,0,0,1,1,0,b,MLV,MLV,6-Oct-19,7,1,0,NA,NA,3.5,0,NA,No SPPA found
+1659,gcrew_3,4,3,cm3,0,1,1,1,1,1,y,HDK,AM,11-Oct-19,12,6,0,NA,NA,3.5,0,NA,RNA stem not included in measurements
+1660,gcrew_3,4,4,km3,0,1,1,0,0,0,0,JLS,JLS,6-Oct-19,13,4,0,NA,NA,4.5,0,NA,Core fell over
+1661,gcrew_3,4,5,cm6,0,1,1,0,0,1,ry,HDK,AM,11-Oct-19,22,18,0,NA,NA,4.0,0,NA,red is dead; yellow was not found; RNA stem not included in measurements
+1662,gcrew_3,4,6,b3,0,1,1,0,0,0,y,MLV,MLV,6-Oct-19,25,3,0,NA,NA,4.5,0,NA,
+1663,gcrew_3,4,7,ca4,1,0,0,0,0,0,y,JLS,JLS,6-Oct-19,13,4,0,22,0,4.0,0,NA,
+1664,gcrew_3,4,8,ca2,0,1,1,1,1,1,y,JLS,PBK,11-Oct-19,10,8,0,NA,NA,3.5,0,NA,yellow is dead; red is dead; RNA stem not included in measurements
+1665,gcrew_3,5,1,ca6,1,0,0,0,1,0,0,MLV,MLV,6-Oct-19,11,3,0,0,NA,3.0,0,NA,No SPPA found
+1666,gcrew_3,5,2,cm7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1667,gcrew_3,5,3,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1668,gcrew_3,5,4,km6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1669,gcrew_3,5,5,ca5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1670,gcrew_3,5,6,ka4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1671,gcrew_3,5,7,cm3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1672,gcrew_3,5,8,cm9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1673,gcrew_3,6,1,ca4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1674,gcrew_3,6,2,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1675,gcrew_3,6,3,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1676,gcrew_3,6,4,km1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1677,gcrew_3,6,5,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1678,gcrew_3,6,6,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1679,gcrew_3,6,7,ca1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1680,gcrew_3,6,8,cm5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1681,gcrew_4,1,1,cm4,1,0,0,0,0,0,rb,MLV,MLV,8-Oct-19,18,3,0,53.5,NA,6.5,0,NA,"red is dead, blue is dead"
+1682,gcrew_4,1,2,ca6,1,0,0,0,0,0,ryb,HBK,JLS,8-Oct-19,10,0,0,69.5,NA,7.0,0,NA,
+1683,gcrew_4,1,3,ka2,1,0,0,0,0,0,rby,HBK,PAL,8-Oct-19,23,2,0,64,NA,7.0,0,NA,
+1684,gcrew_4,1,4,cm3,0,1,0,1,1,0,ry,JLS,HBK,8-Oct-19,15,0,0,NA,NA,7.0,0,NA,
+1685,gcrew_4,1,5,cm7,0,1,0,0,0,0,r,HBK,JLS,8-Oct-19,8,1,0,NA,NA,7.0,0,NA,
+1686,gcrew_4,1,6,km3,0,1,0,0,0,0,b,MLV,MLV,8-Oct-19,18,3,0,NA,NA,5.0,0,NA,B is dead
+1687,gcrew_4,1,7,b2,0,1,0,0,0,0,rby,HBK,PAL,8-Oct-19,20,3,0,NA,NA,8.0,0,NA,"R is dead, B is dead"
+1688,gcrew_4,1,8,ca2,0,1,0,0,0,0,rby,JLG,TMR,8-Oct-19,30,3,0,NA,NA,5.0,0,NA,
+1689,gcrew_4,2,1,ca5,0,1,1,0,0,0,y,JLS,JMK,8-Oct-19,20,2,0,NA,NA,5.0,0,NA,
+1690,gcrew_4,2,2,cm10,0,1,1,1,1,0,0,JLS,JMR,8-Oct-19,12,3,0,NA,NA,7.0,0,NA,
+1691,gcrew_4,2,3,cm5,0,1,1,0,0,0,ry,MLV,WLV,8-Oct-19,19,6,0,NA,NA,5.5,0,NA,red and yellow are dead
+1692,gcrew_4,2,4,ca7,1,0,0,0,0,0,rby,MLV,WLV,8-Oct-19,10,0,0,68.5,0,5.5,0,NA,
+1693,gcrew_4,2,5,b2,0,1,1,0,0,0,r,MLV,WLV,8-Oct-19,8,2,0,NA,NA,6.5,0,NA,
+1694,gcrew_4,2,6,ca10,1,0,0,0,0,0,rby,JLS,JMR,8-Oct-19,15,1,0,71,5,0.0,0,NA,red is dead
+1695,gcrew_4,2,7,km2,0,1,1,0,0,0,rby,JLS,JMR,8-Oct-19,33,2,0,NA,NA,4.0,0,0,yellow is dead
+1696,gcrew_4,2,8,ka1,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1697,gcrew_4,3,1,ca4,1,0,0,0,0,0,0,MLV,WLV,8-Oct-19,6,3,0,68,0,6.0,0,NA,
+1698,gcrew_4,3,2,ka4,0,1,0,0,0,0,0,HBK,PAC,8-Oct-19,37,18,0,NA,NA,3.5,0,0,
+1699,gcrew_4,3,3,b3,0,1,0,0,0,0,y,HBK,PAC,8-Oct-19,23,6,0,NA,NA,4.5,0,0,yellow not found
+1700,gcrew_4,3,4,ca4,0,1,0,0,0,1,r,HDK,AM,11-Oct-19,26,3,0,NA,NA,4.0,0,NA,RNA stem not included in measurements
+1801,gcrew_4,3,5,ca10,0,1,0,0,0,1,none,JLS,PBK,11-Oct-19,10,0,0,NA,NA,5.5,0,NA,RNA stem not included in measurements
+1802,gcrew_4,3,6,cm8,0,1,0,0,0,1,by,HDK,AM,11-Oct-19,29,4,0,NA,NA,5.0,0,NA,red is dead; blue is dead; RNA stem is not included in measurements
+1803,gcrew_4,3,7,cm2,1,0,0,0,0,0,0,MLV,MLV,8-Oct-19,0,0,0,89,NA,5.0,0,NA,
+1804,gcrew_4,3,8,cm9,1,0,0,1,1,0,ry,MLV,WLV,8-Oct-19,30,3,0,65,0,4.5,0,NA,red is dead
+1805,gcrew_4,4,1,km1,0,1,1,1,1,0,0,JLS,JMR,8-Oct-19,11,3,0,NA,NA,4.5,0,NA,
+1806,gcrew_4,4,2,ca3,0,1,1,0,0,1,by,JLS,PBK,11-Oct-19,13,6,0,NA,NA,4.0,0,NA,blue is dead; yellow is dead; RNA stem is not included in measurements
+1807,gcrew_4,4,3,ca2,1,0,0,0,0,0,rb,HBK,PAC,8-Oct-19,14,2,0,22,0,4.5,0,NA,sp is dead. red and blue are dead.
+1808,gcrew_4,4,4,b2,0,1,1,1,1,0,by,JLS,JMR,8-Oct-19,19,0,0,NA,NA,2.5,0,0,
+1809,gcrew_4,4,5,cm10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1810,gcrew_4,4,6,ca5,1,0,0,1,1,0,ry,HBK,PAC,8-Oct-19,17,3,0,NA,NA,4.5,0,0,red is dead
+1811,gcrew_4,4,7,cm2,0,1,1,0,0,1,none,HDK,AM,11-Oct-19,17,7,0,NA,NA,3.0,0,NA,RNA stem not included in measurements
+1812,gcrew_4,4,8,cm5,1,0,0,0,0,0,none,MLV,WLV,8-Oct-19,8,1,0,0,0,5.5,0,NA,no SPPA found; peat uneven in pot
+1813,gcrew_4,5,1,cm6,0,0,0,0,1,0,none,HBK,PAC,8-Oct-19,16,6,0,NA,NA,2.5,0,NA,
+1814,gcrew_4,5,2,ca3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1815,gcrew_4,5,3,cm1,1,0,0,0,1,0,none,JLS,TMR,8-Oct-19,11,0,0,4.5,0,2.5,0,NA,
+1816,gcrew_4,5,4,km2,0,0,0,0,1,0,none,HBK,PAC,8-Oct-19,13,3,0,NA,NA,2.0,0,NA,
+1817,gcrew_4,5,5,ca9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1818,gcrew_4,5,6,ca7,1,0,0,0,1,0,b,HBK,PAC,8-Oct-19,17,2,0,0,0,3.5,0,NA,B not found; SPPA not found
+1819,gcrew_4,5,7,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1820,gcrew_4,5,8,cm9,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1821,gcrew_4,6,1,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1822,gcrew_4,6,2,cm7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1823,gcrew_4,6,3,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1824,gcrew_4,6,4,cm4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1825,gcrew_4,6,5,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1826,gcrew_4,6,6,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1827,gcrew_4,6,7,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1828,gcrew_4,6,8,ka3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1829,gcrew_5,1,1,cm8,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1830,gcrew_5,1,2,ca7,0,1,0,0,0,0,none,MLV,MLV/HSK,8-Oct-19,7,1,0,NA,NA,6.0,0,NA,caterpillar herbivory on stems 2-7 and 1 dead stem
+1831,gcrew_5,1,3,km6,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1832,gcrew_5,1,4,cm10,0,1,0,0,0,0,none,MLV,WLV,8-Oct-19,15,1,0,NA,NA,4.5,0,NA,caterpillar herbivory on cut stems
+1833,gcrew_5,1,5,cm6,1,0,0,0,0,0,b,MLV,WLV,8-Oct-19,7,1,0,82.5,0,6.0,0,NA,
+1834,gcrew_5,1,6,ca3,1,0,0,0,0,0,rby,MLV,WLV,8-Oct-19,8,0,0,70,0,6.0,0,NA,
+1835,gcrew_5,1,7,ka5,0,1,0,0,0,0,rby,HSK,HBK,8-Oct-19,18,0,0,NA,NA,6.0,0,NA,
+1836,gcrew_5,1,8,ca4,1,0,0,0,0,0,rb,MLV,WLV,8-Oct-19,7,1,0,62.5,0,7.0,0,NA,R is dead
+1837,gcrew_5,2,1,ca10,0,1,1,0,0,0,rby,HBK,AMD,8-Oct-19,21,1,0,NA,NA,4.5,0,NA,B is dead
+1838,gcrew_5,2,2,km5,0,1,1,1,1,0,by,HBK,TMR,8-Oct-19,10,3,0,NA,NA,7.5,0,NA,B is dead
+1839,gcrew_5,2,3,cm7,0,1,1,0,0,0,rby,JLS,EAP,8-Oct-19,13,1,0,NA,NA,6.0,0,NA,R is dead
+1840,gcrew_5,2,4,ca4,0,1,1,0,0,0,rby,JLS,JLS,8-Oct-19,28,4,0,NA,NA,5.5,0,NA,R and Y are dead
+1841,gcrew_5,2,5,cm8,1,0,0,0,0,0,rb,JLS,EAP,8-Oct-19,10,2,0,63.5,0,6.0,0,NA,R is dead
+1842,gcrew_5,2,6,ka6,0,1,1,0,0,0,r,MLV,JLS,8-Oct-19,13,,,NA,NA,5.5,0,NA,R is dead; missing scam_dead_density and scam_flowers
+1843,gcrew_5,2,7,ca8,1,0,0,1,1,0,rby,HBK,AMD,8-Oct-19,16,1,0,58.5,0,6.5,0,NA,R is dead
+1844,gcrew_5,2,8,cm4,1,0,0,0,0,0,rb,HBK,TMR,8-Oct-19,12,5,0,63,0,6.0,0,NA,B is dead
+1845,gcrew_5,3,1,km6,0,1,1,1,1,0,ry,HBK,TMR,8-Oct-19,23,4,0,NA,NA,4.0,0,NA,R and Y are dead; B dead
+1846,gcrew_5,3,2,b2,0,1,1,0,0,0,by,JLS,EAP,8-Oct-19,20,1,0,NA,NA,4.0,0,NA,
+1847,gcrew_5,3,3,ca1,1,0,0,1,1,0,rby,JLS,MLV,8-Oct-19,24,8,0,40,0,3.0,0,NA,R is dead
+1848,gcrew_5,3,4,ka6,0,1,1,1,1,0,by,JLS,TMR,8-Oct-19,23,3,0,NA,NA,6.0,0,NA,B and Y are dead
+1849,gcrew_5,3,5,cm4,0,1,1,1,1,1,rby,HDK,AM,11-Oct-19,22,4,0,NA,NA,5.0,0,NA,RNA stem is not included in measurements; Y is dead
+1850,gcrew_5,3,6,cm4,1,0,0,1,1,0,r,HBK,HBK,8-Oct-19,9,1,0,80,0,5.0,0,NA,
+1851,gcrew_5,3,7,ca5,0,1,1,1,1,1,rby,JLS,PBK,11-Oct-19,21,5,0,NA,NA,3.5,0,NA,RNA stem not included in measurements; B is dead
+1852,gcrew_5,3,8,ca2,1,0,1,0,0,0,by,JLS,EAP,8-Oct-19,27,2,0,57.5,0,2.5,0,NA,Y is dead
+1853,gcrew_5,4,1,cm1,0,1,1,0,0,1,rb,HDK,AM,11-Oct-19,7,6,9,NA,NA,3.0,0,NA,RNA stem not included in measurements; B is dead; R not found
+1854,gcrew_5,4,2,ca6,1,0,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1855,gcrew_5,4,3,ca10,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1856,gcrew_5,4,4,ka2,0,1,1,0,0,0,by,JLS,EAP,8-Oct-19,13,4,0,NA,NA,4.5,0,NA,B and Y are dead
+1857,gcrew_5,4,5,km3,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1858,gcrew_5,4,6,cm10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1859,gcrew_5,4,7,cm7,0,1,1,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1860,gcrew_5,4,8,ca4,0,1,1,1,1,1,ry,JLS,PBK,11-Oct-19,17,7,0,NA,NA,3.5,0,NA,RNA stem not included in measurements; R and Y are dead
+1861,gcrew_5,5,1,km3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1862,gcrew_5,5,2,ca5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1863,gcrew_5,5,3,cm3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1864,gcrew_5,5,4,cm4,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1865,gcrew_5,5,5,c10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1866,gcrew_5,5,6,ca1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1867,gcrew_5,5,7,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1868,gcrew_5,5,8,b3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1869,gcrew_5,6,1,cm6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1870,gcrew_5,6,2,ka4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1871,gcrew_5,6,3,cm10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1872,gcrew_5,6,4,ca4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1873,gcrew_5,6,5,cm3,1,0,0,0,1,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1874,gcrew_5,6,6,b1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1875,gcrew_5,6,7,ca3,0,0,0,0,1,0,none,MLV,HSK,8-Oct-19,1,1,0,NA,NA,,0,NA,N/A bag only has dead stem; soil_to_pot not recorded
+1876,gcrew_5,6,8,ca6,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1877,gcrew_6,1,1,km3,0,1,0,0,0,0,rb,HSK,MLV,8-Oct-19,13,3,0,NA,NA,6.0,0,NA,R and B are dead
+1878,gcrew_6,1,2,cm10,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1879,gcrew_6,1,3,cm1,1,0,0,0,0,0,rb,HBK,HMD,8-Oct-19,5,1,0,50,0,5.0,0,NA,
+1880,gcrew_6,1,4,b2,0,1,0,0,0,0,y,JLS,EAP,8-Oct-19,12,2,0,NA,NA,5.0,0,NA,R and B are dead
+1881,gcrew_6,1,5,cm4,1,0,0,1,1,0,b,HSK,MLV,8-Oct-19,3,2,0,75,0,4.5,0,NA,
+1882,gcrew_6,1,6,ca4,1,0,0,0,0,0,r,JLS,EAP,8-Oct-19,4,1,0,56,0,6.0,0,NA,
+1883,gcrew_6,1,7,ka5,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1884,gcrew_6,1,8,ca6,0,1,0,1,1,0,rby,HBK,AMD,8-Oct-19,10,2,0,NA,NA,6.0,0,NA,R and B are dead
+1885,gcrew_6,2,1,ca7,1,0,0,0,0,0,rby,JLS,EAP,8-Oct-19,11,0,0,37,0,7.0,0,NA,
+1886,gcrew_6,2,2,cm4,0,1,1,0,0,0,rby,HSK,MLV,8-Oct-19,18,1,0,NA,NA,6.0,0,NA,
+1887,gcrew_6,2,3,ca10,0,1,1,0,0,0,rby,JLS,JLS,8-Oct-19,19,1,0,NA,0,6.5,0,NA,
+1888,gcrew_6,2,4,ka5,0,1,1,1,1,0,rby,MLV,MLV,8-Oct-19,17,1,0,NA,NA,6.5,0,NA,
+1889,gcrew_6,2,5,km4,0,1,1,0,0,0,rby,HBK,HBK,8-Oct-19,16,1,0,NA,NA,6.5,0,NA,
+1890,gcrew_6,2,6,cm3,1,0,0,0,0,0,rby,MLV,HSK & JMc,8-Oct-19,11,3,0,30,2,6.0,0,NA,R is dead
+1891,gcrew_6,2,7,ca4,0,1,1,0,0,0,rby,MLV,HSK,8-Oct-19,14,1,0,NA,NA,5.5,0,NA,B is dead
+1892,gcrew_6,2,8,cm5,1,0,0,0,0,0,by,HSK,MLV,8-Oct-19,14,4,0,64.5,0,5.0,0,NA,Y is dead
+1893,gcrew_6,3,1,km1,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1894,gcrew_6,3,2,cm7,0,1,0,1,1,1,r,P,JLS,11-Oct-19,6,4,0,NA,NA,5.0,0,NA,RNA stem not included in measurements; R is dead
+1895,gcrew_6,3,3,cm5,1,0,0,1,1,0,y,JLS,HBK,8-Oct-19,18,4,0,49,0,4.0,0,NA,
+1896,gcrew_6,3,4,ca3,1,0,0,0,0,0,by,MLV,MLV,8-Oct-19,10,1,0,70.5,0,5.0,0,NA,
+1897,gcrew_6,3,5,ca9,1,0,0,0,0,0,b,HBK,AMD,8-Oct-19,5,1,0,68.5,0,5.0,0,NA,
+1898,gcrew_6,3,6,cm4,0,1,0,0,0,1,rby,JLS,PBK,11-Oct-19,14,1,0,NA,NA,5.0,0,12,RNA stem not included in measurements; R is dead; dh rhizome but no stem
+1899,gcrew_6,3,7,ca6,0,1,0,0,0,1,rb,JLS,PBK,11-Oct-19,14,1,0,NA,NA,4.5,0,NA,RNA stem not included in measurements
+1930,gcrew_6,3,8,ka4,0,1,0,0,0,0,rby,JLS,JLS & HBK,8-Oct-19,28,1,0,NA,NA,5.5,0,NA,B is dead
+1931,gcrew_6,4,1,cm3,1,0,0,0,0,0,none,HBK,AMD,8-Oct-19,4,1,0,23,0,3.0,0,NA,
+1932,gcrew_6,4,2,cm6,0,1,1,0,0,1,b,HBK,AMD,11-Oct-19,12,5,0,NA,NA,3.5,0,NA,RNA stem not included in measurements
+1933,gcrew_6,4,3,cm2,1,0,0,0,0,0,b,JLS,HBK,8-Oct-19,21,4,0,10,0,2.5,0,NA,B is dead
+1934,gcrew_6,4,4,b4,0,1,1,0,0,0,none,HSK,MLV,8-Oct-19,6,1,0,NA,NA,3.0,0,NA,
+1935,gcrew_6,4,5,ca5,1,0,0,0,0,0,rb,MLV,JMc,8-Oct-19,18,4,0,8.5,0,2.5,0,NA,B is dead; SPPA almost gone; R barely alive
+1936,gcrew_6,4,6,ca1,0,1,1,0,0,1,none,HBK,AMD,11-Oct-19,1,0,0,NA,NA,5.0,0,NA,RNA stem not included in measurements; only one bag
+1937,gcrew_6,4,7,km6,0,1,1,0,0,0,b,JLS,HBK,8-Oct-19,17,4,0,NA,NA,3.5,0,NA,R and B are dead
+1938,gcrew_6,4,8,ca10,0,1,1,0,0,1,b,JLS,PBK,11-Oct-19,13,3,0,NA,NA,3.0,0,NA,RNA stem not included in measurements; R and B are dead
+1939,gcrew_6,5,1,km2,0,1,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1940,gcrew_6,5,2,ca1,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1941,gcrew_6,5,3,cm6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1942,gcrew_6,5,4,cm3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1943,gcrew_6,5,5,ca7,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1944,gcrew_6,5,6,cm5,1,0,0,0,1,0,none,MLV,HSK,8-Oct-19,4,2,0,0,0,2.5,0,NA,SPPA dead
+1945,gcrew_6,6,1,ka6,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1946,gcrew_6,6,2,ca8,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1947,gcrew_6,6,3,b3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1948,gcrew_6,6,4,cm2,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1949,gcrew_6,6,5,cm9,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1950,gcrew_6,6,6,ca3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1951,gcrew_6,6,7,km5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1952,gcrew_6,6,8,ca5,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1953,gcrew_7,1,1,ca10,0,0,0,0,0,0,rby,MLV,MLV,9-Oct-19,26,2,0,NA,NA,6.5,0,NA,Red is dead
+1954,gcrew_7,1,2,cm3,1,0,0,0,0,0,rby,MLV,MLV,9-Oct-19,9,1,0,45,0,7.0,0,NA,
+1955,gcrew_7,1,3,cm4,0,0,0,0,0,0,r,MLV,MLV,9-Oct-19,5,0,0,NA,NA,7.0,0,NA,
+1956,gcrew_7,1,4,km1,0,0,0,0,0,0,rby,MLV,MLV,9-Oct-19,25,3,0,NA,NA,6.5,0,NA,Yellow is dead
+1957,gcrew_7,1,5,ca7,1,0,0,0,0,0,by,MLV,MLV,9-Oct-19,17,2,0,48,0,6.0,0,NA,
+1958,gcrew_7,1,6,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1959,gcrew_7,1,7,ca5,0,0,0,0,0,0,r,JLS,JMC,9-Oct-19,6,0,0,NA,NA,8.0,0,NA,
+1960,gcrew_7,1,8,b1,0,0,0,1,1,0,rby,MLV,JMC,9-Oct-19,31,1,0,NA,NA,6.5,0,NA,
+1961,gcrew_7,2,1,b3,0,0,0,0,0,0,rb,MLV,MLV,9-Oct-19,24,2,0,NA,NA,5.0,1,12,Blue is dead
+1962,gcrew_7,2,2,cm1,0,0,0,0,0,0,rb,JLS,JMc,9-Oct-19,21,0,0,NA,NA,4.5,0,NA,Unsure about stem 19 basal width
+1963,gcrew_7,2,3,ca6,0,0,0,0,0,0,rby,Madeline,MLV,9-Oct-19,19,0,0,NA,NA,5.5,0,NA,
+1964,gcrew_7,2,4,cm7,0,0,0,0,0,0,by,JLS,JMc,9-Oct-19,14,5,0,NA,NA,6.0,0,NA,Yellow is dead
+1965,gcrew_7,2,5,ca3,1,0,0,0,0,0,y,Madeline,MLV,9-Oct-19,11,2,0,70,0,7.0,0,NA,
+1966,gcrew_7,2,6,km2,0,0,0,1,1,0,rby,JLS,JLS/JMC,9-Oct-19,17,2,0,NA,NA,6.5,0,NA,"Red is dea, blue is dead"
+1967,gcrew_7,2,7,cm10,1,0,0,0,0,0,0,MLV,MLV,9-Oct-19,0,0,0,51,0,6.0,0,NA,Only SPPA
+1968,gcrew_7,2,8,ca9,1,0,0,1,1,0,rb,JLS,JMc,9-Oct-19,6,0,0,46.5,0,6.0,0,0,
+1969,gcrew_7,3,1,b4,0,0,0,0,0,0,0,Madeline,MLV,9-Oct-19,22,6,0,NA,NA,4.0,0,NA,
+1970,gcrew_7,3,2,cm2,1,0,0,0,0,0,0,JLS,JMc,9-Oct-19,0,0,0,67,1,4.0,0,NA,
+1971,gcrew_7,3,3,cm5,0,0,0,0,0,1,none,JLS,PBK,11-Oct-19,32,3,0,NA,NA,4.5,0,NA,Red is dead; RNA stem not included in measurements
+1972,gcrew_7,3,4,km5,0,0,0,0,0,0,rby,Madeline,MLV,9-Oct-19,32,3,0,NA,NA,5.5,0,NA,"Red is dead, blue is dead"
+1973,gcrew_7,3,5,cm9,1,0,0,0,0,0,rby,Madeline,MLV,9-Oct-19,23,2,0,74.5,0,5.0,0,NA,"Blue is dead, red is dead"
+1974,gcrew_7,3,6,ca7,0,0,0,0,0,1,rby,JLS,PBK,11-Oct-19,30,5,0,NA,NA,4.5,0,NA,yellow is dead; red is dead; blue is dead; RNA stem not included in measurements
+1975,gcrew_7,3,7,ka2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1976,gcrew_7,3,8,ca4,1,0,0,0,0,0,rb,Madeline,MLV,9-Oct-19,22,3,0,60,0,4.0,0,NA,
+1977,gcrew_7,4,1,ca6,0,0,0,0,0,1,none,HDK,AM,11-Oct-19,14,6,0,NA,NA,2.0,0,NA,RNA stem not included in measurements
+1978,gcrew_7,4,2,ca4,1,0,0,0,0,0,0,JLS,JMc,9-Oct-19,7,3,0,52,0,5.0,0,NA,
+1979,gcrew_7,4,3,cm5,0,0,0,0,0,1,by,JLS,PBK,11-Oct-19,19,4,0,NA,NA,3.5,0,NA,blue is dead; yellow is dead; RNA stem not included in measurements
+1980,gcrew_7,4,4,cm6,1,0,0,0,0,0,0,JLS,JMc,9-Oct-19,30,6,0,0,NA,3.0,1,12.5,
+1981,gcrew_7,4,5,ca8,1,0,0,0,0,0,y,JLS,JMc,9-Oct-19,30,5,0,31,0,4.0,0,NA,Yellow is dead
+1982,gcrew_7,4,6,km3,0,0,0,0,0,0,r,JLS,JMc,9-Oct-19,21,2,0,NA,NA,3.5,0,NA,Red is dead
+1983,gcrew_7,4,7,cm9,0,0,0,1,1,1,y,HDK,AM,11-Oct-19,28,6,0,NA,NA,3.5,0,NA,RNA stem not included in measurements
+1984,gcrew_7,4,8,ka4,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1985,gcrew_7,5,1,ca10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1986,gcrew_7,5,2,ka6,0,0,0,0,1,0,none,JLS,JMc,9-Oct-19,7,1,0,NA,NA,6.5,0,NA,
+1987,gcrew_7,5,3,cm2,1,0,0,0,1,0,none,JLS,JMc,9-Oct-19,4,1,0,0,0,2.5,0,NA,
+1988,gcrew_7,5,4,b2,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1989,gcrew_7,5,5,cm10,0,0,0,0,1,0,y,JLS,JMc,9-Oct-19,10,3,0,NA,NA,5.5,0,NA,Y is dead
+1990,gcrew_7,5,6,cm4,1,0,0,0,1,0,ry,MLV,MLV,9-Oct-19,15,6,0,0,0,0.0,0,NA,no SPPA found; R and Y are dead
+1991,gcrew_7,5,7,ca6,1,0,0,0,1,0,b,JLS,JMc,9-Oct-19,15,2,0,0,0,3.0,0,NA,
+1992,gcrew_7,5,8,ca4,0,0,0,0,1,0,none,Madeline,MLV,9-Oct-19,8,2,0,NA,NA,2.0,0,NA,
+1993,gcrew_7,6,1,cm8,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1994,gcrew_7,6,2,cm10,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1995,gcrew_7,6,3,cm1,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1996,gcrew_7,6,4,ca7,0,0,0,0,1,0,none,Madeline,MLV,9-Oct-19,6,1,0,NA,NA,3.0,0,NA,
+1997,gcrew_7,6,5,ca10,1,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+1998,gcrew_7,6,6,ca2,1,0,0,0,1,0,none,Madeline,MLV,9-Oct-19,3,2,0,0,0,5.0,0,NA,no SPPA found
+1999,gcrew_7,6,7,ka3,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,
+2000,gcrew_7,6,8,ka5,0,0,0,0,0,0,none,NA,NA,NA,0,0,0,NA,NA,NA,0,NA,

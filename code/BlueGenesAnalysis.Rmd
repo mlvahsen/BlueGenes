@@ -1,0 +1,80 @@
+---
+title: "Blue Genes Analysis"
+author: "Megan Vahsen"
+date: "10/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message = FALSE, warning = FALSE, results=FALSE}
+# Read in libraries 
+library(here); library(tidyverse); library(emmeans);
+library(lme4); library(lmerTest); library(kableExtra)
+
+# Read in compiled trait data
+source(here("supp_code", "CompileTraitData.R"))
+```
+
+# Data Subsetting
+
+For most analyses we are going to need to subset the data into the competition data set (all Corn Island -- these were the only genotypes that had competition; and the no competition pots). For the no competition pots, we are also dropping out the Blackwater genotypes because they can't really be separated into age and location cohorts. We are also going to focus in on levels 1-4 where most clones survived.
+
+## Summarizing by cohort and genotype for the all Corn Island dataset
+
+```{r, message = F, echo = F}
+bg_corn <- bg_full %>% filter(location == "corn" & level < 5)
+
+bg_corn %>% 
+  group_by(age, location) %>% 
+  summarize(n = n()) %>% 
+  knitr::kable() %>% 
+  kable_styling(full_width = F)
+
+bg_corn %>% 
+  group_by(genotype) %>% 
+  summarize(n = n()) %>% 
+  arrange(n) %>% 
+  knitr::kable() %>% 
+  kable_styling(full_width = F)
+```
+
+## Summarizing by cohort and genotype for the no competition dataset
+
+```{r, message = F, echo = F}
+bg_nocomp <- bg_full %>% filter(comp == 0 & location != "blackwater" & level < 5)
+
+bg_nocomp %>% 
+  group_by(age, location) %>% 
+  summarize(n = n()) %>% 
+  knitr::kable() %>% 
+  kable_styling(full_width = F)
+
+bg_nocomp %>% 
+  group_by(genotype) %>% 
+  summarize(n = n()) %>% 
+  arrange(n) %>%  
+  knitr::kable() %>% 
+  kable_styling(full_width = F)
+
+bg_corn %>% 
+  group_by(age, comp, co2, salinity) %>% 
+  summarize(n = n())
+```
+
+
+```{r, fig.align='center'}
+rs10_mod_corn_step <- lmer(sqrt(agb_scam) ~ weight_init + date_planted_grp + salinity*co2 + elevation*co2 + I(elevation^2) + (1 | genotype), data = bg_nocomp)
+emmeans(rs10_mod_corn_step, ~co2)
+
+emmip(rs10_mod_corn_step, co2 ~ salinity, CIs = T, type = "response",
+      style = "factor") +
+  geom_jitter(aes(x = salinity, y = agb_scam, color = co2), 
+              data = bg_nocomp, pch = 16, width = 0.1, alpha = 0.2) +
+  theme_bw()
+```
+
+
+
