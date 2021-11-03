@@ -47,13 +47,13 @@ merge(elevation_data, inits, by = "site_level") -> inits_elev
 # Add pot numbers
 inits_elev %>% 
   mutate(id = paste(site_level, position, sep = "_")) %>% 
-  select(-site_frame.y, -level.y) %>% 
+  dplyr::select(-site_frame.y, -level.y) %>% 
   rename(site_frame = site_frame.x,
          level = level.x) -> inits_elev
 
 pot_ids %>% 
   mutate(id = paste(`site_ frame`, level, pos, sep = "_")) %>% 
-  select(id, pot_no) -> pot_ids_only
+  dplyr::select(id, pot_no) -> pot_ids_only
 
 merge(inits_elev, pot_ids_only, by = "id") -> inits_ids
 
@@ -61,11 +61,11 @@ merge(inits_elev, pot_ids_only, by = "id") -> inits_ids
 
 # Get total weight of biomass that was weighed in bags
 abg %>% 
-  select(-Date) %>% # Helps deal with the double entry problem
-  select(-Recorder) %>% 
+  dplyr::select(-Date) %>% # Helps deal with the double entry problem
+  dplyr::select(-Recorder) %>% 
   filter(notes != "dh rhizome" & notes != "dh stem" | is.na(notes)) %>%  
   filter(!grepl("dh rhizome",notes)) %>% 
-  select(-notes) %>% 
+  dplyr::select(-notes) %>% 
   mutate(allom = ifelse(allom == "N/A", NA, allom)) %>% 
   # Deal with the double entry problem
   distinct() %>% 
@@ -80,7 +80,7 @@ pot_ids %>%
   filter(!pot_no %in% abg_no_zeros$pot_no) %>% 
   mutate(scam = 0,
          sppa = 0) %>% 
-  select(pot_no, scam, sppa) -> abg_zeros
+  dplyr::select(pot_no, scam, sppa) -> abg_zeros
 
 # Bind together
 abg_all <- rbind(abg_no_zeros, abg_zeros)
@@ -90,7 +90,7 @@ full_data <- merge(inits_ids, abg_all, by = "pot_no")
 
 # Match up initial conditions with harvest census
 reap_pot %>% 
-  select(pot_no, scam_live_density, scam_dead_density, max_sppa_height,
+  dplyr::select(pot_no, scam_live_density, scam_dead_density, max_sppa_height,
          soil_to_pot, dh_count) %>% 
   mutate(max_sppa_height = ifelse(max_sppa_height == "N/A", NA, max_sppa_height)) -> reap_sum
 
@@ -118,7 +118,7 @@ reap_stem %>%
 # Create rows for data that does not have measurements for scam
 pot_ids %>% 
   filter(!pot_no %in% reap_height_sum$pot_no) %>% 
-  select(pot_no) %>% 
+  dplyr::select(pot_no) %>% 
   mutate(mean_tot_ht = NA,
          mean_grn_ht = NA,
          mean_mid_wd = NA,
@@ -134,28 +134,28 @@ full_data <- merge(full_data, reap_all, by = "pot_no")
 # Check to see if we have any instances where we don't have height/width data
 # but do have biomass data
 full_data %>% filter(is.na(mean_tot_ht)) %>% 
-  select(scam_live_density, pot_no) %>% 
+  dplyr::select(scam_live_density, pot_no) %>% 
   filter(scam_live_density > 0)
 # Harvest date on this is 13 October so this must be the pot that MLV pulled
 # late that actually had biomass in it
 
 # Check to see where there is biomass but there were no live stems
 full_data[which(full_data$scam != 0 & full_data$scam_live_density == 0),] %>% 
-  select(pot_no, scam, scam_live_density, mean_tot_ht)
+  dplyr::select(pot_no, scam, scam_live_density, mean_tot_ht)
 # These are all just dead biomass so this makes sense
 
 # Check to see where there was no biomass but there were live stems
 full_data[which(full_data$scam == 0 & full_data$scam_live_density != 0),] %>% 
-  select(pot_no, scam, scam_live_density, mean_tot_ht)
+  dplyr::select(pot_no, scam, scam_live_density, mean_tot_ht)
 # Good!
 
 # Group date_cloned and date_planted data information so it can be used in the
-# models in a meaningful way. Clean up data and select what we want for models.
+# models in a meaningful way. Clean up data and dplyr::select what we want for models.
 full_data %>% 
   mutate(date_cloned_grp = factor(ifelse(date_cloned %in% c("5/22/19", "5/28/19", "5/27/19"), 1,
                                          ifelse(date_cloned %in% c("6/9/19", "6/10/19"), 2, 3))),
          date_planted_grp = factor(ifelse(date_planted %in% c("6/13/19", "6/14/19", "6/17/19"), 1, 2))) %>% 
-  select(pot_no,site_frame,level,position,
+  dplyr::select(pot_no,site_frame,level,position,
          co2,
          salinity,
          comp,
@@ -212,12 +212,12 @@ zero_stems <- full_data %>% filter(dens_scam_live == 0)
 # Filter those out in census data
 census %>% 
   filter(id %in% zero_stems$id) %>% 
-  select(id, live, day) -> zero_decision_data
+  dplyr::select(id, live, day) -> zero_decision_data
 
 # Now figure out which pots were continuing to increase after certain dates
 zero_decision_data %>% 
   spread(key = day, value = live) %>% 
-  select(id,
+  dplyr::select(id,
          day1 = `1`,
          day2 = `2`,
          day3 = `3`,
@@ -239,7 +239,7 @@ zero_decision_data %>%
 abg %>% 
   filter(allom %in% c(1,2)) %>% 
   mutate(stem_id = paste(pot_no, allom, sep = "_")) %>% 
-  select(stem_id, weight) %>% 
+  dplyr::select(stem_id, weight) %>% 
   # deals with double entry of some biomass data
   distinct() -> allom_biomass
 
@@ -248,7 +248,7 @@ abg %>%
 reap_stem %>% 
   filter(allom %in% c(1,2)) %>% 
   mutate(stem_id = paste(pot_no, allom, sep = "_")) %>% 
-  select(stem_id, tot_ht, grn_ht, mid_wd, bas_wd) -> allom_hw
+  dplyr::select(stem_id, tot_ht, grn_ht, mid_wd, bas_wd) -> allom_hw
 
 dim(allom_biomass)
 dim(allom_hw) # doesn't quite match up so filter out ids that match up
@@ -272,11 +272,11 @@ rna_harvest %>%
   filter(!complete.cases(mid_wd)) -> rna_h
 
 # Predict mass for stems we have height and widths
-rna_hw$biomass <- exp(predict(hw_mod, newdata = rna_hw %>% select(tot_ht, mid_wd)))
-rna_h$biomass <- exp(predict(h_mod, newdata = rna_h %>% select(tot_ht)))
+rna_hw$biomass <- exp(predict(hw_mod, newdata = rna_hw %>% dplyr::select(tot_ht, mid_wd)))
+rna_h$biomass <- exp(predict(h_mod, newdata = rna_h %>% dplyr::select(tot_ht)))
 rna_pred <- rbind(rna_hw, rna_h) 
 
-# Sum biomass and select pot_id and additional biomass column
+# Sum biomass and dplyr::select pot_id and additional biomass column
 rna_pred %>% 
   group_by(pot_no) %>% 
   summarize(biomass_add = sum(biomass)) -> rna_pred
@@ -376,7 +376,7 @@ bgb_beta_analysis_zeros <- rbind(for_adding_zeros, bgb_beta_analysis) %>%
                                  segment_top == 10 ~ 20,
                                  T ~ 70)) %>% 
   arrange(pot_no, depth_roots) %>% 
-  select(pot_no, depth_roots, biomass, cum_sum)
+  dplyr::select(pot_no, depth_roots, biomass, cum_sum)
 
 ## Run non-linear regression on cumulative probability for each pot
 
@@ -393,7 +393,7 @@ for_adding_zeros$beta <- beta
 
 # Merge together with the rest of the data
 for_adding_zeros %>% 
-  select(pot_no, beta) %>% 
+  dplyr::select(pot_no, beta) %>% 
   # Add NAs for dropped pots
   add_row(pot_no = dropped_pots[1], beta = NA) %>%
   add_row(pot_no = dropped_pots[2], beta = NA) %>%
