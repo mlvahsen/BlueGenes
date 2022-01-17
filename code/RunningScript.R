@@ -1,6 +1,6 @@
 # Read in libraries 
 library(here); library(tidyverse); library(emmeans);
-library(lme4); library(lmerTest)
+library(lme4); library(lmerTest); library(blme)
 
 # Read in compiled trait data
 source(here("supp_code", "CompileTraitData.R"))
@@ -52,74 +52,61 @@ bg_nocomp %>%
 # We are going to have to analyze the competition pots separately, so first look
 # at no competition only. Also drop blackwater for simplicity.
 
-full_data_merged %>% 
+bg_full %>% 
   filter(comp == 0 & location != "blackwater") -> full_data_nocomp
 
 
 ## Fit model ####
 
 # Fit a logistic GLMM
-extinct_mod_nocomp <- glm(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^2 +
-                            I(elevation^2) + co2:age:location, data = full_data_nocomp, family = "binomial")
+extinct_mod_nocomp <- glmer(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
+                            I(elevation^2) + (1|genotype) + (1|site_frame), data = full_data_nocomp, family = "binomial")
 
+# Random effect estimated at zero
 summary(extinct_mod_nocomp)
+# Looks like both are estimated to be zero
 
-car::Anova(extinct_mod_nocomp)
-# LR Chisq Df Pr(>Chisq)    
-# weight_init          34.304  1  4.714e-09 ***
-#   date_planted_grp      3.948  1  0.0469330 *  
-#   origin_lab           22.140  1  2.535e-06 ***
-#   co2                   3.278  1  0.0702104 .  
-# salinity             11.467  1  0.0007085 ***
-#   elevation           129.339  1  < 2.2e-16 ***
-#   age                   0.033  1  0.8557289    
-# location              2.120  1  0.1454125    
-# I(elevation^2)       49.793  1  1.709e-12 ***
-#   co2:salinity          0.678  1  0.4102277    
-# co2:elevation         1.508  1  0.2194777    
-# co2:age               1.468  1  0.2256791    
-# co2:location          0.644  1  0.4224116    
-# salinity:elevation    9.522  1  0.0020298 ** 
-#   salinity:age          4.594  1  0.0320819 *  
-#   salinity:location     3.872  1  0.0490909 *  
-#   elevation:age         4.569  1  0.0325647 *  
-#   elevation:location    4.700  1  0.0301642 *  
-#   age:location          0.252  1  0.6157333    
-# co2:age:location      4.527  1  0.0333712 * 
+# Now fit a glm
+extinct_mod_nocomp_fixed <- glm(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
+                              I(elevation^2), data = full_data_nocomp, family = "binomial")
+
+car::Anova(extinct_mod_nocomp_fixed)
+
+# No 4-way or 5-way interactions are significant so drop to 3-way model
+extinct_mod_nocomp_fixed3 <- brglm(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^3 +
+                                  I(elevation^2), data = full_data_nocomp, family = "binomial")
+
+extinct_mod_nocomp_fixed3_noCAL <- update(extinct_mod_nocomp_fixed3, .~.-co2:age:location)
+
+anova(extinct_mod_nocomp_fixed3_noCAL, extinct_mod_nocomp_fixed3)
+# Calculate deviance and estimate p-value that way
+pchisq(5.7602,df=2,lower.tail = FALSE)
+
+car::Anova(extinct_mod_nocomp_fixed3)
+
+emmeans(extinct_mod_nocomp_fixed3, ~ co2)
 
 ## Make plots to look at interactions ####
 
+extinct_mod_nocomp_noCAL <- update(extinct_mod_nocomp_fixed3, .~.-co2:age:location)
+anova(extinct_mod_nocomp_fixed3, extinct_mod_nocomp_noCAL)
 # Significant age x location x co2
-plot(emmeans(extinct_mod_nocomp, ~ co2:age:location, type = "response"), comparisons = T)
-plot_model(extinct_mod_nocomp, terms = c("co2", "age", "location"), type = "emm")
+plot(emmeans(extinct_mod_nocomp_fixed3, ~ co2:age:location, type = "response"), comparisons = T)
+plot_model(extinct_mod_nocomp_fixed3, terms = c("co2", "age", "location"), type = "emm")
+pairs(emmeans::emmeans(extinct_mod_nocomp_fixed3, ~co2|age:location))
 # Corn ancestral are really not happy with elevated co2 conditions
 
-# Significant age x elevation
-plot_model(extinct_mod_nocomp, terms = c("elevation[all]", "age"), type = "emm")
-# Modern more likely to go extinct at intermediate elevations
+# Significant salinity x age x elevation
+plot_model(extinct_mod_nocomp_fixed3, terms = c("elevation[all]", "age", "salinity"), type = "emm",
+           show.data = T, show.values = T, colors = c("black", "purple"))
+# At gcrew, modern has higher extinction rate than ancestral consistently,
+# whereas ancestral are particularly prone to extinction at high elevation
+# freshwater conditions
 
-# Significant location x elevation
-plot_model(extinct_mod_nocomp, terms = c("elevation[all]", "location"), type = "emm")
-# Corn more likely to go extinct at intermediate elevations
+plot_model(extinct_mod_nocomp_fixed3, terms = c("elevation[all]", "location", "salinity"), type = "emm",
+           show.data = T, show.values = T, colors = c("black", "purple"))
+# Kirkpatrick does better at freshwater and Corn does better at saltwater
 
-# Significant elevation x salinity
-plot_model(extinct_mod_nocomp, terms = c("elevation[all]", "salinity"), type = "emm")
-# Freshwater more likely to go extinct at intermediate elevations
-
-# Significant salinity x age
-plot_model(extinct_mod_nocomp, terms = c("salinity", "age"), type = "emm")
-pairs(emmeans(extinct_mod_nocomp,~salinity|age))
-# Ancestral genotypes are more likely to go extinct in freshwater than brackish.
-# Modern genotypes have similar extinction rates across environments.
-
-# Significant salinity x location
-plot_model(extinct_mod_nocomp, terms = c("salinity", "location"), type = "emm")
-pairs(emmeans(extinct_mod_nocomp,~location|salinity))
-# In salty conditions, Kirk is more likely to go extinct than Corn.
-pairs(emmeans(extinct_mod_nocomp,~salinity|location))
-# Corn genotypes are more likely to go extinct in freshwater than brackish
-# conditions. Kirkpatrick genotypes have similar extinction rates across
-# environments.
 
 ## Experimental artifact effects
 
