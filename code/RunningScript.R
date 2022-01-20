@@ -1,6 +1,7 @@
 # Read in libraries 
 library(here); library(tidyverse); library(emmeans);
-library(lme4); library(lmerTest); library(blme)
+library(lme4); library(lmerTest); library(blme);
+library(brglm); library(lmtest); library(sjPlot)
 
 # Read in compiled trait data
 source(here("supp_code", "CompileTraitData.R"))
@@ -55,76 +56,402 @@ bg_nocomp %>%
 bg_full %>% 
   filter(comp == 0 & location != "blackwater") -> full_data_nocomp
 
+# Recode extinction values to be survival values to make the graph easier to
+# interpret
+
+full_data_nocomp %>% 
+  mutate(survive = ifelse(extinct == 0, 1, 0)) -> full_data_nocomp
 
 ## Fit model ####
 
 # Fit a logistic GLMM
-extinct_mod_nocomp <- glmer(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
-                            I(elevation^2) + (1|genotype) + (1|site_frame), data = full_data_nocomp, family = "binomial")
+extinct_mod_nocomp <- glm(survive ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^3 +
+                            I(elevation^2) + genotype, data = full_data_nocomp, family = "binomial")
 
 # Random effect estimated at zero
 summary(extinct_mod_nocomp)
 # Looks like both are estimated to be zero
 
-# Now fit a glm
-extinct_mod_nocomp_fixed <- glm(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
+# Now fit a glm without random effects
+extinct_mod_nocomp_fixed <- glm(survive ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
                               I(elevation^2), data = full_data_nocomp, family = "binomial")
 
 car::Anova(extinct_mod_nocomp_fixed)
 
 # No 4-way or 5-way interactions are significant so drop to 3-way model
-extinct_mod_nocomp_fixed3 <- brglm(extinct ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^3 +
+extinct_mod_nocomp_fixed3 <- glm(survive ~ weight_init + origin_lab + (co2 + salinity + elevation + age + location)^3 +
                                   I(elevation^2), data = full_data_nocomp, family = "binomial")
 
-extinct_mod_nocomp_fixed3_noCAL <- update(extinct_mod_nocomp_fixed3, .~.-co2:age:location)
-
-anova(extinct_mod_nocomp_fixed3_noCAL, extinct_mod_nocomp_fixed3)
-# Calculate deviance and estimate p-value that way
-pchisq(5.7602,df=2,lower.tail = FALSE)
-
+# Check significance of terms
 car::Anova(extinct_mod_nocomp_fixed3)
 
-emmeans(extinct_mod_nocomp_fixed3, ~ co2)
+# There is some complete separation (i.e. all reps with the same covariate
+# combinations have the same predicted value) at low elevations where everything
+# went extinct. So we should fit this with a bias reduction method using the
+# package 'brglm'
 
-## Make plots to look at interactions ####
+extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab +
+                                        (co2 + salinity + elevation + age + location)^3 +
+                                      I(elevation^2), data = full_data_nocomp,
+                                    family = binomial(logit))
 
-extinct_mod_nocomp_noCAL <- update(extinct_mod_nocomp_fixed3, .~.-co2:age:location)
-anova(extinct_mod_nocomp_fixed3, extinct_mod_nocomp_noCAL)
-# Significant age x location x co2
-plot(emmeans(extinct_mod_nocomp_fixed3, ~ co2:age:location, type = "response"), comparisons = T)
-plot_model(extinct_mod_nocomp_fixed3, terms = c("co2", "age", "location"), type = "emm")
-pairs(emmeans::emmeans(extinct_mod_nocomp_fixed3, ~co2|age:location))
-# Corn ancestral are really not happy with elevated co2 conditions
+summary(extinct_mod_nocomp_fixed3_BR)
 
-# Significant salinity x age x elevation
-plot_model(extinct_mod_nocomp_fixed3, terms = c("elevation[all]", "age", "salinity"), type = "emm",
-           show.data = T, show.values = T, colors = c("black", "purple"))
-# At gcrew, modern has higher extinction rate than ancestral consistently,
-# whereas ancestral are particularly prone to extinction at high elevation
-# freshwater conditions
+a <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "age", "salinity"), type = "emm")
 
-plot_model(extinct_mod_nocomp_fixed3, terms = c("elevation[all]", "location", "salinity"), type = "emm",
-           show.data = T, show.values = T, colors = c("black", "purple"))
-# Kirkpatrick does better at freshwater and Corn does better at saltwater
+plot_data <- tibble(survive = a$data$predicted,
+                    elevation = a$data$x,
+                    lower.ci = a$data$conf.low,
+                    upper.ci = a$data$conf.high,
+                    salinity = a$data$facet,
+                    age = a$data$group)
+
+plot_data %>% 
+  ggplot(aes(x = elevation, y = survive, color = age)) +
+  geom_line() +
+  facet_wrap(~salinity) +
+  geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = age), alpha = 0.2, color = NA) +
+  geom_jitter(data = full_data_nocomp, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3)
+  
+
+b <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "age", "co2"), type = "emm")
+
+plot_data_b <- tibble(survive = b$data$predicted,
+                    location = c("kirkpatrick", "corn")[b$data$x],
+                    lower.ci = b$data$conf.low,
+                    upper.ci = b$data$conf.high,
+                    co2 = b$data$facet,
+                    age = b$data$group)
+
+pd <- position_dodge(width = 0.2)
+
+plot_data_b %>% 
+  ggplot(aes(x = location, y = survive, color = age)) +
+  geom_point(size = 2, position = pd) +
+  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd) +
+  facet_wrap(~co2) +
+  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
+             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05))
+
+c <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "salinity"), type = "emm")
+
+plot_data_c <- tibble(survive = c$data$predicted,
+                      location = c("kirkpatrick", "corn")[c$data$x],
+                      lower.ci = c$data$conf.low,
+                      upper.ci = c$data$conf.high,
+                      salinity = c$data$group)
+
+plot_data_c %>% 
+  ggplot(aes(x = location, y = survive, color = salinity)) +
+  geom_point(size = 2, position = pd) +
+  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd) +
+  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
+             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05))
+
+# Do all significance tests as likelihood ratio tests following the principle of
+# marginality
+
+##
+# 3-way interactions
+##
+
+# co2:salinity:age (ns)
+extinct_mod_noCSA <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:age)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSA)
+
+# co2:salinity:location (ns)
+extinct_mod_noCSL <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:location)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSL)
+
+# co2:salinity:elevation (ns)
+extinct_mod_noCSE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSE)
+
+# co2:age:location (*)
+extinct_mod_noCAL <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:age:location)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAL)
+
+# co2:age:elevation (ns)
+extinct_mod_noCAE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:age:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAE)
+
+# co2:location:elevation (ns)
+extinct_mod_noCLE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:location:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCLE)
+
+# salinity:age:location (ns)
+extinct_mod_noSAL <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:location)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAL)
+
+# salinity:age:elevation (*)
+extinct_mod_noSAE <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAE)
+
+# salinity:location:elevation (ns)
+extinct_mod_noSLE <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:location:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSLE)
+
+# age:location:elevation (ns)
+extinct_mod_noALE <- update(extinct_mod_nocomp_fixed3_BR, .~.-age:location:elevation)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noALE)
+
+##
+# 2-way interactions
+##
+
+# co2:salinity (ns)
+extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab +
+                              (co2 + salinity + elevation + age + location)^2 +
+                              (co2 + elevation + age + location)^3 +
+                             (salinity + elevation + age + location)^3 +
+                              I(elevation^2), data = full_data_nocomp,
+                            family = binomial(logit))
+extinct_mod_noCS <- update(extinct_mod_forCS, .~.-co2:salinity)
+lrtest(extinct_mod_forCS, extinct_mod_noCS)
+
+# co2:age (ns)
+extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + elevation + salinity + location)^3 +
+                             (salinity + elevation + age + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noCA <- update(extinct_mod_forCA, .~.-co2:age)
+lrtest(extinct_mod_forCA, extinct_mod_noCA)
+
+# co2:location (ns)
+extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + elevation + salinity + age)^3 +
+                             (salinity + elevation + age + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noCL <- update(extinct_mod_forCL, .~.-co2:location)
+lrtest(extinct_mod_forCL, extinct_mod_noCL)
+
+# co2:elevation (ns)
+extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + location + salinity + age)^3 +
+                             (salinity + elevation + age + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noCE <- update(extinct_mod_forCE, .~.-co2:elevation)
+lrtest(extinct_mod_forCE, extinct_mod_noCE)
+
+# salinity:age (*)
+extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + location + salinity + elevation)^3 +
+                             (co2 + elevation + age + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noSA <- update(extinct_mod_forSA, .~.-salinity:age)
+lrtest(extinct_mod_forSA, extinct_mod_noSA)
+
+# salinity:location (*)
+extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + location + age + elevation)^3 +
+                             (co2 + elevation + age + salinity)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noSL <- update(extinct_mod_forSL, .~.-salinity:location)
+lrtest(extinct_mod_forSL, extinct_mod_noSL)
+
+# salinity:elevation (***)
+extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + location + salinity + age)^3 +
+                             (co2 + elevation + age + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noSE <- update(extinct_mod_forSE, .~.-salinity:elevation)
+lrtest(extinct_mod_forSE, extinct_mod_noSE)
+
+# age:location (ns)
+extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + elevation + salinity + age)^3 +
+                             (co2 + elevation + salinity + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noAL <- update(extinct_mod_forAL, .~.-age:location)
+lrtest(extinct_mod_forAL, extinct_mod_noAL)
+
+# age:elevation (*)
+extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + location + salinity + elevation)^3 +
+                             (co2 + age + salinity + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noAE <- update(extinct_mod_forAE, .~.-age:elevation)
+lrtest(extinct_mod_forAE, extinct_mod_noAE)
+
+# location:elevation (*)
+extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + location)^2 +
+                             (co2 + age + salinity + elevation)^3 +
+                             (co2 + age + salinity + location)^3 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noLE <- update(extinct_mod_forLE, .~.-location:elevation)
+lrtest(extinct_mod_forLE, extinct_mod_noLE)
+
+##
+# Main terms
+##
+
+# co2 (*)
+extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +
+                             (salinity + elevation + age + location)^3 + co2 +
+                             I(elevation^2), data = full_data_nocomp,
+                           family = binomial(logit))
+extinct_mod_noC <- update(extinct_mod_forC, .~.-co2)
+lrtest(extinct_mod_forC, extinct_mod_noC)
+
+# salinity (ns)
+extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + age + location)^3 + salinity +
+                            I(elevation^2), data = full_data_nocomp,
+                          family = binomial(logit))
+extinct_mod_noS <- update(extinct_mod_forS, .~.-salinity)
+lrtest(extinct_mod_forS, extinct_mod_noS)
+
+# age (ns)
+extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + salinity + location)^3 + age +
+                            I(elevation^2), data = full_data_nocomp,
+                          family = binomial(logit))
+extinct_mod_noA <- update(extinct_mod_forA, .~.-age)
+lrtest(extinct_mod_forA, extinct_mod_noA)
+
+# location (ns)
+extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + salinity + age)^3 + location +
+                            I(elevation^2), data = full_data_nocomp,
+                          family = binomial(logit))
+extinct_mod_noL <- update(extinct_mod_forL, .~.-location)
+lrtest(extinct_mod_forL, extinct_mod_noL)
+
+# elevation (***)
+extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + location + salinity + age)^3 + elevation +
+                            I(elevation^2), data = full_data_nocomp,
+                          family = binomial(logit))
+extinct_mod_noE <- update(extinct_mod_forE, .~.-elevation)
+lrtest(extinct_mod_forE, extinct_mod_noE)
+
+##
+# Covariate terms
+##
+
+# weight_init (***)
+extinct_mod_noW <- update(extinct_mod_nocomp_fixed3_BR, .~.-weight_init)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noW)
+
+# origin_lab (***)
+extinct_mod_noO <- update(extinct_mod_nocomp_fixed3_BR, .~.-origin_lab)
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noO)
+
+# elevation^2 (***)
+extinct_mod_noE2 <- update(extinct_mod_nocomp_fixed3_BR, .~.-I(elevation^2))
+lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noE2)
 
 
-## Experimental artifact effects
+##
+# Make plots
+##
 
-# If you are too small, you'll die
-plot_model(extinct_mod_nocomp, terms = c("weight_init[all]"), type = "emm")
-full_data_nocomp %>% 
-  ggplot(aes(x = weight_init, y = extinct)) +
-  geom_point()
+plot_colors <- c("#fc8d62", "#8da0cb")
+plot_shapes <- c(15, 17)
 
-# If you came from ND (and sat in the growth chamber for too long), you are more
-# likely to die
+# A = elevation:age:salinity interaction
+a <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "age", "salinity"), type = "emm")
 
-plot_model(extinct_mod_nocomp, terms = "origin_lab", type = "emm")
+plot_data_a <- tibble(survive = a$data$predicted,
+                    elevation = a$data$x,
+                    lower.ci = a$data$conf.low,
+                    upper.ci = a$data$conf.high,
+                    salinity = a$data$facet,
+                    age = a$data$group)
 
-# If you were planted late (and were a "leftover" propagule) you were more
-# likely to die
+plot_raw_data <- full_data_nocomp %>% 
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (6ppt)", "brackish site (8ppt)"))
 
-plot_model(extinct_mod_nocomp, terms = "date_planted_grp", type = "emm")
+plot_data_a %>% 
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (6ppt)", "brackish site (8ppt)")) %>% 
+  ggplot(aes(x = elevation, y = survive, color = age)) +
+  geom_line(size = 1) +
+  facet_wrap(~salinity) +
+  geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = age), alpha = 0.2, color = NA) +
+  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3, size = 1) +
+  ylab("survival rate") + xlab("elevation (m NAVD88)") +
+  scale_fill_manual(values = plot_colors, labels = c("ancestral (1900-1960)", "modern (2000-2020)")) +
+  scale_color_manual(values = plot_colors, labels = c("ancestral (1900-1960)", "modern (2000-2020)")) +
+  theme_bw() +
+  theme(legend.position = "right") +
+  guides(fill=guide_legend(title="age cohort"),
+         color = guide_legend(title="age cohort")) -> plot_a
+
+# B = elevation:location:salinity interaction
+b <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "location", "salinity"), type = "emm")
+
+plot_data_b <- tibble(survive = b$data$predicted,
+                      elevation = b$data$x,
+                      lower.ci = b$data$conf.low,
+                      upper.ci = b$data$conf.high,
+                      salinity = b$data$facet,
+                      location = b$data$group)
+
+plot_data_b %>% 
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (6ppt)", "brackish site (8ppt)")) %>% 
+  ggplot(aes(x = elevation, y = survive, color = location, shape = location)) +
+  geom_line(size = 1) +
+  facet_wrap(~salinity) +
+  geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = location), alpha = 0.2, color = NA) +
+  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive, shape = location),
+              height = 0.05, width = 0, alpha = 0.7, size = 1) +
+  scale_color_manual(values = c("gray57", "black")) +
+  scale_fill_manual(values = c("gray57", "black")) +
+  scale_shape_manual(values = plot_shapes) +
+  guides(fill=guide_legend(title="provenance"),
+         color = guide_legend(title="provenance"),
+         shape = guide_legend(title="provenance")) + 
+  theme_bw() + labs(x = "elevation (m NAVD88)", y = "survival rate") -> plot_b
+  
+
+# C = location:age:co2 interaction
+c <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "age", "co2"), type = "emm")
+
+plot_data_c <- tibble(survive = c$data$predicted,
+                      location = c("kirkpatrick", "corn")[c$data$x],
+                      lower.ci = c$data$conf.low,
+                      upper.ci = c$data$conf.high,
+                      co2 = c$data$facet,
+                      age = c$data$group)
+
+pd <- position_dodge(width = 0.2)
+
+my_labels <- c(ambient = "ambient~CO[2]", elevated = "elevated~CO[2]")
+my_labeller <- as_labeller(my_labels,
+                           default = label_parsed)
+
+plot_data_c %>% 
+  ggplot(aes(x = location, y = survive, color = age, shape = location)) +
+  geom_point(size = 2, position = pd) +
+  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd, size = 1) +
+  facet_wrap(~co2, labeller = my_labeller) +
+  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
+             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05), size = 1) +
+  theme_bw() +
+  theme(legend.position = "none") +
+  labs(x = "provenance", y = "survival rate") +
+  scale_shape_manual(values = plot_shapes) +
+  scale_color_manual(values = plot_colors) -> plot_c
+
+plot_a / plot_b / plot_c + patchwork::plot_layout(guides = "collect")
 
 ## Does competition mediate this response?
 
