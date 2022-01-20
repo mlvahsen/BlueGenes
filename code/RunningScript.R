@@ -383,17 +383,17 @@ plot_raw_data <- full_data_nocomp %>%
 plot_data_a %>% 
   mutate(salinity = ifelse(salinity == "fresh", "freshwater site (6ppt)", "brackish site (8ppt)")) %>% 
   ggplot(aes(x = elevation, y = survive, color = age)) +
-  geom_line(size = 1) +
+  geom_line() +
   facet_wrap(~salinity) +
   geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = age), alpha = 0.2, color = NA) +
-  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3, size = 1) +
+  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3) +
   ylab("survival rate") + xlab("elevation (m NAVD88)") +
   scale_fill_manual(values = plot_colors, labels = c("ancestral (1900-1960)", "modern (2000-2020)")) +
   scale_color_manual(values = plot_colors, labels = c("ancestral (1900-1960)", "modern (2000-2020)")) +
   theme_bw() +
-  theme(legend.position = "right") +
+  theme(legend.position = "right", legend.background = element_rect(color = "gray47")) +
   guides(fill=guide_legend(title="age cohort"),
-         color = guide_legend(title="age cohort")) -> plot_a
+         color = guide_legend(title="age cohort"))-> plot_a
 
 # B = elevation:location:salinity interaction
 b <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "location", "salinity"), type = "emm")
@@ -406,20 +406,22 @@ plot_data_b <- tibble(survive = b$data$predicted,
                       location = b$data$group)
 
 plot_data_b %>% 
+  mutate(location = factor(location, levels = c("corn", "kirkpatrick"))) %>% 
   mutate(salinity = ifelse(salinity == "fresh", "freshwater site (6ppt)", "brackish site (8ppt)")) %>% 
   ggplot(aes(x = elevation, y = survive, color = location, shape = location)) +
-  geom_line(size = 1) +
+  geom_line() +
   facet_wrap(~salinity) +
   geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = location), alpha = 0.2, color = NA) +
   geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive, shape = location),
-              height = 0.05, width = 0, alpha = 0.7, size = 1) +
+              height = 0.05, width = 0, alpha = 0.7) +
   scale_color_manual(values = c("gray57", "black")) +
   scale_fill_manual(values = c("gray57", "black")) +
   scale_shape_manual(values = plot_shapes) +
   guides(fill=guide_legend(title="provenance"),
          color = guide_legend(title="provenance"),
-         shape = guide_legend(title="provenance")) + 
-  theme_bw() + labs(x = "elevation (m NAVD88)", y = "survival rate") -> plot_b
+         shape = guide_legend(title="provenance"))  +
+  theme_bw() + theme(legend.background = element_rect(color = "gray47"))+
+  labs(x = "elevation (m NAVD88)", y = "survival rate") -> plot_b
   
 
 # C = location:age:co2 interaction
@@ -432,7 +434,7 @@ plot_data_c <- tibble(survive = c$data$predicted,
                       co2 = c$data$facet,
                       age = c$data$group)
 
-pd <- position_dodge(width = 0.2)
+pd <- position_dodge(width = 0.4)
 
 my_labels <- c(ambient = "ambient~CO[2]", elevated = "elevated~CO[2]")
 my_labeller <- as_labeller(my_labels,
@@ -441,17 +443,22 @@ my_labeller <- as_labeller(my_labels,
 plot_data_c %>% 
   ggplot(aes(x = location, y = survive, color = age, shape = location)) +
   geom_point(size = 2, position = pd) +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd, size = 1) +
+  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd) +
   facet_wrap(~co2, labeller = my_labeller) +
-  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
-             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05), size = 1) +
+  #geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
+             #position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05, dodge.width = 1)) +
   theme_bw() +
   theme(legend.position = "none") +
+  guides(colour = "none",
+         shape = "none") +
   labs(x = "provenance", y = "survival rate") +
   scale_shape_manual(values = plot_shapes) +
   scale_color_manual(values = plot_colors) -> plot_c
 
-plot_a / plot_b / plot_c + patchwork::plot_layout(guides = "collect")
+png("figs/Fig1_Extinction.png", res = 300, units = "in", height = 5, width = 8.2)
+plot_a + plot_c + plot_b + guide_area() + plot_annotation(tag_levels = 'a')+
+  plot_layout(guides = "collect", widths = c(4,3)) & theme(legend.justification = "left")
+dev.off()
 
 ## Does competition mediate this response?
 
