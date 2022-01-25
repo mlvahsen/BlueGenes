@@ -1,7 +1,8 @@
 # Read in libraries 
 library(here); library(tidyverse); library(emmeans);
 library(lme4); library(lmerTest); library(blme);
-library(brglm); library(lmtest); library(sjPlot)
+library(brglm); library(lmtest); library(sjPlot);
+library(kableExtra)
 
 # Read in compiled trait data
 source(here("supp_code", "CompileTraitData.R"))
@@ -95,59 +96,6 @@ extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab +
                                       I(elevation^2), data = full_data_nocomp,
                                     family = binomial(logit))
 
-summary(extinct_mod_nocomp_fixed3_BR)
-
-a <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "age", "salinity"), type = "emm")
-
-plot_data <- tibble(survive = a$data$predicted,
-                    elevation = a$data$x,
-                    lower.ci = a$data$conf.low,
-                    upper.ci = a$data$conf.high,
-                    salinity = a$data$facet,
-                    age = a$data$group)
-
-plot_data %>% 
-  ggplot(aes(x = elevation, y = survive, color = age)) +
-  geom_line() +
-  facet_wrap(~salinity) +
-  geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = age), alpha = 0.2, color = NA) +
-  geom_jitter(data = full_data_nocomp, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3)
-  
-
-b <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "age", "co2"), type = "emm")
-
-plot_data_b <- tibble(survive = b$data$predicted,
-                    location = c("kirkpatrick", "corn")[b$data$x],
-                    lower.ci = b$data$conf.low,
-                    upper.ci = b$data$conf.high,
-                    co2 = b$data$facet,
-                    age = b$data$group)
-
-pd <- position_dodge(width = 0.2)
-
-plot_data_b %>% 
-  ggplot(aes(x = location, y = survive, color = age)) +
-  geom_point(size = 2, position = pd) +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd) +
-  facet_wrap(~co2) +
-  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
-             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05))
-
-c <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "salinity"), type = "emm")
-
-plot_data_c <- tibble(survive = c$data$predicted,
-                      location = c("kirkpatrick", "corn")[c$data$x],
-                      lower.ci = c$data$conf.low,
-                      upper.ci = c$data$conf.high,
-                      salinity = c$data$group)
-
-plot_data_c %>% 
-  ggplot(aes(x = location, y = survive, color = salinity)) +
-  geom_point(size = 2, position = pd) +
-  geom_errorbar(aes(ymin = lower.ci, ymax = upper.ci), width = 0.2, position = pd) +
-  geom_point(data = full_data_nocomp, aes(x = location, y = survive), alpha = 0.2,
-             position = position_jitterdodge(jitter.width = 0.2, jitter.height = 0.05))
-
 # Do all significance tests as likelihood ratio tests following the principle of
 # marginality
 
@@ -155,45 +103,55 @@ plot_data_c %>%
 # 3-way interactions
 ##
 
+extinct_tab <- matrix(NA, 28, 4)
+
+get_lr_results <- function(large_model, small_model, rep, term){
+  out <- lrtest(large_model, small_model)
+  df <- abs(out$Df[2])
+  chisq <- out$Chisq[2]
+  p <- out$`Pr(>Chisq)`[2]
+  return(c(term, df, chisq, p))
+}
+
 # co2:salinity:age (ns)
 extinct_mod_noCSA <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:age)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSA)
+extinct_tab[1,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSA, 1, "co2:salinity:age")
 
 # co2:salinity:location (ns)
 extinct_mod_noCSL <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:location)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSL)
+extinct_tab[2,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSL, 2, "co2:salinity:location")
 
 # co2:salinity:elevation (ns)
 extinct_mod_noCSE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:salinity:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSE)
+extinct_tab[3,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCSE, 3, "co2:salinity:elevation")
 
 # co2:age:location (*)
 extinct_mod_noCAL <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:age:location)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAL)
+extinct_tab[4,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAL, 4, "co2:age:location")
 
 # co2:age:elevation (ns)
 extinct_mod_noCAE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:age:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAE)
+extinct_tab[5,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCAE, 5, "co2:age:elevation")
 
 # co2:location:elevation (ns)
 extinct_mod_noCLE <- update(extinct_mod_nocomp_fixed3_BR, .~.-co2:location:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCLE)
+extinct_tab[6,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCLE, 6, "co2:location:elevation")
 
 # salinity:age:location (ns)
 extinct_mod_noSAL <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:location)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAL)
+extinct_tab[7,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAL, 7, "salinity:age:location")
 
 # salinity:age:elevation (*)
 extinct_mod_noSAE <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAE)
+extinct_tab[8,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAE, 8, "salinity:age:elevation")
 
 # salinity:location:elevation (ns)
 extinct_mod_noSLE <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:location:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSLE)
+extinct_tab[9,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSLE, 9, "salinity:location:elevation")
 
 # age:location:elevation (ns)
 extinct_mod_noALE <- update(extinct_mod_nocomp_fixed3_BR, .~.-age:location:elevation)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noALE)
+extinct_tab[10,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noALE, 10, "age:location:elevation")
 
 ##
 # 2-way interactions
@@ -207,7 +165,7 @@ extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab +
                               I(elevation^2), data = full_data_nocomp,
                             family = binomial(logit))
 extinct_mod_noCS <- update(extinct_mod_forCS, .~.-co2:salinity)
-lrtest(extinct_mod_forCS, extinct_mod_noCS)
+extinct_tab[11,] <- get_lr_results(extinct_mod_forCS, extinct_mod_noCS, 11, "co2:salinity")
 
 # co2:age (ns)
 extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
@@ -217,7 +175,7 @@ extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noCA <- update(extinct_mod_forCA, .~.-co2:age)
-lrtest(extinct_mod_forCA, extinct_mod_noCA)
+extinct_tab[12,] <- get_lr_results(extinct_mod_forCA, extinct_mod_noCA, 12, "co2:age")
 
 # co2:location (ns)
 extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
@@ -227,7 +185,7 @@ extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noCL <- update(extinct_mod_forCL, .~.-co2:location)
-lrtest(extinct_mod_forCL, extinct_mod_noCL)
+extinct_tab[13,] <- get_lr_results(extinct_mod_forCL, extinct_mod_noCL, 13, "co2:location")
 
 # co2:elevation (ns)
 extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
@@ -237,7 +195,7 @@ extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noCE <- update(extinct_mod_forCE, .~.-co2:elevation)
-lrtest(extinct_mod_forCE, extinct_mod_noCE)
+extinct_tab[14,] <- get_lr_results(extinct_mod_forCE, extinct_mod_noCE, 14, "co2:elevation")
 
 # salinity:age (*)
 extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
@@ -247,7 +205,7 @@ extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noSA <- update(extinct_mod_forSA, .~.-salinity:age)
-lrtest(extinct_mod_forSA, extinct_mod_noSA)
+extinct_tab[15,] <- get_lr_results(extinct_mod_forSA, extinct_mod_noSA, 15, "salinity:age")
 
 # salinity:location (*)
 extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
@@ -257,7 +215,7 @@ extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noSL <- update(extinct_mod_forSL, .~.-salinity:location)
-lrtest(extinct_mod_forSL, extinct_mod_noSL)
+extinct_tab[16,] <- get_lr_results(extinct_mod_forSL, extinct_mod_noSL, 16, "salinity:location")
 
 # salinity:elevation (***)
 extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
@@ -267,7 +225,7 @@ extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noSE <- update(extinct_mod_forSE, .~.-salinity:elevation)
-lrtest(extinct_mod_forSE, extinct_mod_noSE)
+extinct_tab[17,] <- get_lr_results(extinct_mod_forSE, extinct_mod_noSE, 17, "salinity:elevation")
 
 # age:location (ns)
 extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
@@ -277,7 +235,7 @@ extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noAL <- update(extinct_mod_forAL, .~.-age:location)
-lrtest(extinct_mod_forAL, extinct_mod_noAL)
+extinct_tab[18,] <- get_lr_results(extinct_mod_forAL, extinct_mod_noAL, 18, "age:location")
 
 # age:elevation (*)
 extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
@@ -287,7 +245,7 @@ extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noAE <- update(extinct_mod_forAE, .~.-age:elevation)
-lrtest(extinct_mod_forAE, extinct_mod_noAE)
+extinct_tab[19,] <- get_lr_results(extinct_mod_forAE, extinct_mod_noAE, 19, "age:elevation")
 
 # location:elevation (*)
 extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
@@ -297,7 +255,7 @@ extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noLE <- update(extinct_mod_forLE, .~.-location:elevation)
-lrtest(extinct_mod_forLE, extinct_mod_noLE)
+extinct_tab[20,] <- get_lr_results(extinct_mod_forLE, extinct_mod_noLE, 20, "location:elevation")
 
 ##
 # Main terms
@@ -309,7 +267,7 @@ extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
 extinct_mod_noC <- update(extinct_mod_forC, .~.-co2)
-lrtest(extinct_mod_forC, extinct_mod_noC)
+extinct_tab[21,] <- get_lr_results(extinct_mod_forC, extinct_mod_noC, 21, "co2")
 
 # salinity (ns)
 extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
@@ -317,7 +275,7 @@ extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
 extinct_mod_noS <- update(extinct_mod_forS, .~.-salinity)
-lrtest(extinct_mod_forS, extinct_mod_noS)
+extinct_tab[22,] <- get_lr_results(extinct_mod_forS, extinct_mod_noS, 22, "salinity")
 
 # age (ns)
 extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
@@ -325,7 +283,7 @@ extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
 extinct_mod_noA <- update(extinct_mod_forA, .~.-age)
-lrtest(extinct_mod_forA, extinct_mod_noA)
+extinct_tab[23,] <- get_lr_results(extinct_mod_forA, extinct_mod_noA, 23, "age")
 
 # location (ns)
 extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
@@ -333,7 +291,7 @@ extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
 extinct_mod_noL <- update(extinct_mod_forL, .~.-location)
-lrtest(extinct_mod_forL, extinct_mod_noL)
+extinct_tab[24,] <- get_lr_results(extinct_mod_forL, extinct_mod_noL, 24, "location")
 
 # elevation (***)
 extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
@@ -341,7 +299,7 @@ extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
 extinct_mod_noE <- update(extinct_mod_forE, .~.-elevation)
-lrtest(extinct_mod_forE, extinct_mod_noE)
+extinct_tab[25,] <- get_lr_results(extinct_mod_forE, extinct_mod_noE, 25, "elevation")
 
 ##
 # Covariate terms
@@ -349,16 +307,30 @@ lrtest(extinct_mod_forE, extinct_mod_noE)
 
 # weight_init (***)
 extinct_mod_noW <- update(extinct_mod_nocomp_fixed3_BR, .~.-weight_init)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noW)
+extinct_tab[26,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noW, 26, "weight_init")
 
 # origin_lab (***)
 extinct_mod_noO <- update(extinct_mod_nocomp_fixed3_BR, .~.-origin_lab)
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noO)
+extinct_tab[27,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noO, 27, "origin_lab")
 
 # elevation^2 (***)
 extinct_mod_noE2 <- update(extinct_mod_nocomp_fixed3_BR, .~.-I(elevation^2))
-lrtest(extinct_mod_nocomp_fixed3_BR, extinct_mod_noE2)
+extinct_tab[28,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noE2, 28, "elevation^2")
 
+# Make tabular results into a tibble
+colnames(extinct_tab) <- c("term", "df", "chisq", "p")
+as_tibble(extinct_tab) %>% 
+  mutate(rank = 1:28) %>% 
+  arrange(-rank) %>% 
+  select(-rank) %>% 
+  mutate(chisq = round(as.numeric(chisq), 3),
+         p = round(as.numeric(p),3)) %>% 
+  mutate(sig = case_when(0.01 < p & p < 0.05 ~ "*",
+                         0.001 < p & p < 0.01 ~ "**",
+                         p < 0.001 ~ "***",
+                         T ~ "")) -> extinct_tab_out
+
+knitr::kable(extinct_tab_out, "simple")
 
 ##
 # Make plots
@@ -455,101 +427,285 @@ plot_data_c %>%
   scale_shape_manual(values = plot_shapes) +
   scale_color_manual(values = plot_colors) -> plot_c
 
-png("figs/Fig1_Extinction.png", res = 300, units = "in", height = 5, width = 8.2)
+#png("figs/Fig1_Extinction.png", res = 300, units = "in", height = 5, width = 8.2)
 plot_a + plot_c + plot_b + guide_area() + plot_annotation(tag_levels = 'a')+
   plot_layout(guides = "collect", widths = c(4,3)) & theme(legend.justification = "left")
-dev.off()
+#dev.off()
 
-## Does competition mediate this response?
+# Calculate predicted probability of survival for differing levels of elevation
+# (averaged across all other treatments)
+
+emmeans(extinct_mod_nocomp_fixed3_BR, ~elevation,
+        at = list(elevation = c(0,0.1,0.2)), type = "response")
+
+## Does competition mediate this response? ####
 
 # We can only look at this for Corn genotypes
-full_data_merged %>% 
+bg_full %>% 
   filter(location == "corn") %>% 
-  mutate(extinct = case_when(agb_scam > 0 ~ 0,
-                             T ~ 1)) %>% 
+  mutate(survive = case_when(agb_scam > 0 ~ 1,
+                             T ~ 0)) %>% 
   mutate(age = case_when(grepl("ancestral", cohort) ~ "ancestral",
                          T ~ "modern")) -> corn_only
 
 # Fit a logistic GLMM
-extinct_mod_corn <- glm(extinct ~ weight_init + date_planted_grp + origin_lab + (salinity + elevation)^2 +
-                          I(elevation^2) + co2 + age + comp, data = corn_only, family = "binomial")
+extinct_mod_corn <- glmer(survive ~ weight_init + date_planted_grp + origin_lab + 
+                          (co2 + salinity + elevation + age + comp)^5 + I(elevation^2) +
+                            (1|site_frame) + (1|genotype), data = corn_only, family = "binomial")
 
-# See much fewer significant interactions in this model
+summary(extinct_mod_corn)
+# random effects estimated to be zero
 
-# Check to see if salinity by elevation interaction is in the same direction as
-# the other model
+extinct_mod_corn_fixed <- glm(survive ~ weight_init + date_planted_grp + origin_lab + 
+                                  (co2 + salinity + elevation + age + comp)^4 + I(elevation^2),
+                              data = corn_only, family = "binomial")
 
-plot_model(extinct_mod_corn, terms = c("elevation[all]", "salinity"), type = "emm")
-# Yep!
+car::Anova(extinct_mod_corn_fixed)
+
+# Need to fit brglm to deal with complete separation
+
+extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_planted_grp + origin_lab + 
+                             (co2 + salinity + elevation + age + comp)^3 + I(elevation^2),
+                           data = corn_only, family = "binomial")
+
+# Competition doesn't seem to drastically influence things (no significant
+# effect or significant interactions)
+
+# Just run the significance tests and we can put that table in the supplement
+
+# Do all significance tests as likelihood ratio tests following the principle of
+# marginality
+
+##
+# 3-way interactions
+##
+
+extinct_tab_comp <- matrix(NA, 28, 4)
+
+# co2:salinity:age (ns)
+extinct_mod_corn_noCSA <- update(extinct_mod_corn_BR, .~.-co2:salinity:age)
+extinct_tab_comp[1,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCSA, 1, "co2:salinity:age")
+
+# co2:salinity:comp (ns)
+extinct_mod_corn_noCSL <- update(extinct_mod_corn_BR, .~.-co2:salinity:comp)
+extinct_tab_comp[2,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCSL, 2, "co2:salinity:comp")
+
+# co2:salinity:elevation (ns)
+extinct_mod_corn_noCSE <- update(extinct_mod_corn_BR, .~.-co2:salinity:elevation)
+extinct_tab_comp[3,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCSE, 3, "co2:salinity:elevation")
+
+# co2:age:comp (*)
+extinct_mod_corn_noCAL <- update(extinct_mod_corn_BR, .~.-co2:age:comp)
+extinct_tab_comp[4,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCAL, 4, "co2:age:comp")
+
+# co2:age:elevation (ns)
+extinct_mod_corn_noCAE <- update(extinct_mod_corn_BR, .~.-co2:age:elevation)
+extinct_tab_comp[5,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCAE, 5, "co2:age:elevation")
+
+# co2:comp:elevation (ns)
+extinct_mod_corn_noCLE <- update(extinct_mod_corn_BR, .~.-co2:comp:elevation)
+extinct_tab_comp[6,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noCLE, 6, "co2:comp:elevation")
+
+# salinity:age:comp (ns)
+extinct_mod_corn_noSAL <- update(extinct_mod_corn_BR, .~.-salinity:age:comp)
+extinct_tab_comp[7,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noSAL, 7, "salinity:age:comp")
+
+# salinity:age:elevation (*)
+extinct_mod_corn_noSAE <- update(extinct_mod_corn_BR, .~.-salinity:age:elevation)
+extinct_tab_comp[8,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noSAE, 8, "salinity:age:elevation")
+
+# salinity:comp:elevation (ns)
+extinct_mod_corn_noSLE <- update(extinct_mod_corn_BR, .~.-salinity:comp:elevation)
+extinct_tab_comp[9,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noSLE, 9, "salinity:comp:elevation")
+
+# age:comp:elevation (ns)
+extinct_mod_corn_noALE <- update(extinct_mod_corn_BR, .~.-age:comp:elevation)
+extinct_tab_comp[10,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noALE, 10, "age:comp:elevation")
+
+##
+# 2-way interactions
+##
+
+# co2:salinity (ns)
+extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + elevation + age + comp)^3 +
+                             (salinity + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noCS <- update(extinct_mod_forCS, .~.-co2:salinity)
+extinct_tab_comp[11,] <- get_lr_results(extinct_mod_forCS, extinct_mod_corn_noCS, 11, "co2:salinity")
+
+# co2:age (ns)
+extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + elevation + salinity + comp)^3 +
+                             (salinity + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noCA <- update(extinct_mod_forCA, .~.-co2:age)
+extinct_tab_comp[12,] <- get_lr_results(extinct_mod_forCA, extinct_mod_corn_noCA, 12, "co2:age")
+
+# co2:comp (ns)
+extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + elevation + salinity + age)^3 +
+                             (salinity + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noCL <- update(extinct_mod_forCL, .~.-co2:comp)
+extinct_tab_comp[13,] <- get_lr_results(extinct_mod_forCL, extinct_mod_corn_noCL, 13, "co2:comp")
+
+# co2:elevation (ns)
+extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + comp + salinity + age)^3 +
+                             (salinity + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noCE <- update(extinct_mod_forCE, .~.-co2:elevation)
+extinct_tab_comp[14,] <- get_lr_results(extinct_mod_forCE, extinct_mod_corn_noCE, 14, "co2:elevation")
+
+# salinity:age (*)
+extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + comp + salinity + elevation)^3 +
+                             (co2 + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noSA <- update(extinct_mod_forSA, .~.-salinity:age)
+extinct_tab_comp[15,] <- get_lr_results(extinct_mod_forSA, extinct_mod_corn_noSA, 15, "salinity:age")
+
+# salinity:comp (*)
+extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + comp + age + elevation)^3 +
+                             (co2 + elevation + age + salinity)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noSL <- update(extinct_mod_forSL, .~.-salinity:comp)
+extinct_tab_comp[16,] <- get_lr_results(extinct_mod_forSL, extinct_mod_corn_noSL, 16, "salinity:comp")
+
+# salinity:elevation (***)
+extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + comp + salinity + age)^3 +
+                             (co2 + elevation + age + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noSE <- update(extinct_mod_forSE, .~.-salinity:elevation)
+extinct_tab_comp[17,] <- get_lr_results(extinct_mod_forSE, extinct_mod_corn_noSE, 17, "salinity:elevation")
+
+# age:comp (ns)
+extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + elevation + salinity + age)^3 +
+                             (co2 + elevation + salinity + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noAL <- update(extinct_mod_forAL, .~.-age:comp)
+extinct_tab_comp[18,] <- get_lr_results(extinct_mod_forAL, extinct_mod_corn_noAL, 18, "age:comp")
+
+# age:elevation (*)
+extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + comp + salinity + elevation)^3 +
+                             (co2 + age + salinity + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noAE <- update(extinct_mod_forAE, .~.-age:elevation)
+extinct_tab_comp[19,] <- get_lr_results(extinct_mod_forAE, extinct_mod_corn_noAE, 19, "age:elevation")
+
+# comp:elevation (*)
+extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
+                             (co2 + salinity + elevation + age + comp)^2 +
+                             (co2 + age + salinity + elevation)^3 +
+                             (co2 + age + salinity + comp)^3 +
+                             I(elevation^2), data = corn_only,
+                           family = binomial(logit))
+extinct_mod_corn_noLE <- update(extinct_mod_forLE, .~.-comp:elevation)
+extinct_tab_comp[20,] <- get_lr_results(extinct_mod_forLE, extinct_mod_corn_noLE, 20, "comp:elevation")
+
+##
+# Main terms
+##
+
+# co2 (*)
+extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +
+                            (salinity + elevation + age + comp)^3 + co2 +
+                            I(elevation^2), data = corn_only,
+                          family = binomial(logit))
+extinct_mod_corn_noC <- update(extinct_mod_forC, .~.-co2)
+extinct_tab_comp[21,] <- get_lr_results(extinct_mod_forC, extinct_mod_corn_noC, 21, "co2")
+
+# salinity (ns)
+extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + age + comp)^3 + salinity +
+                            I(elevation^2), data = corn_only,
+                          family = binomial(logit))
+extinct_mod_corn_noS <- update(extinct_mod_forS, .~.-salinity)
+extinct_tab_comp[22,] <- get_lr_results(extinct_mod_forS, extinct_mod_corn_noS, 22, "salinity")
+
+# age (ns)
+extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + salinity + comp)^3 + age +
+                            I(elevation^2), data = corn_only,
+                          family = binomial(logit))
+extinct_mod_corn_noA <- update(extinct_mod_forA, .~.-age)
+extinct_tab_comp[23,] <- get_lr_results(extinct_mod_forA, extinct_mod_corn_noA, 23, "age")
+
+# comp (ns)
+extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + elevation + salinity + age)^3 + comp +
+                            I(elevation^2), data = corn_only,
+                          family = binomial(logit))
+extinct_mod_corn_noL <- update(extinct_mod_forL, .~.-comp)
+extinct_tab_comp[24,] <- get_lr_results(extinct_mod_forL, extinct_mod_corn_noL, 24, "comp")
+
+# elevation (***)
+extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
+                            (co2 + comp + salinity + age)^3 + elevation +
+                            I(elevation^2), data = corn_only,
+                          family = binomial(logit))
+extinct_mod_corn_noE <- update(extinct_mod_forE, .~.-elevation)
+extinct_tab_comp[25,] <- get_lr_results(extinct_mod_forE, extinct_mod_corn_noE, 25, "elevation")
+
+##
+# Covariate terms
+##
+
+# weight_init (***)
+extinct_mod_corn_noW <- update(extinct_mod_corn_BR, .~.-weight_init)
+extinct_tab_comp[26,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noW, 26, "weight_init")
+
+# origin_lab (***)
+extinct_mod_corn_noO <- update(extinct_mod_corn_BR, .~.-origin_lab)
+extinct_tab_comp[27,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noO, 27, "origin_lab")
+
+# elevation^2 (***)
+extinct_mod_corn_noE2 <- update(extinct_mod_corn_BR, .~.-I(elevation^2))
+extinct_tab_comp[28,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noE2, 28, "elevation^2")
+
+# Make tabular results into a tibble
+colnames(extinct_tab_comp) <- c("term", "df", "chisq", "p")
+as_tibble(extinct_tab_comp) %>% 
+  mutate(rank = 1:28) %>% 
+  arrange(-rank) %>% 
+  select(-rank) %>% 
+  mutate(chisq = round(as.numeric(chisq), 3),
+         p = round(as.numeric(p),3)) %>% 
+  mutate(sig = case_when(0.01 < p & p < 0.05 ~ "*",
+                         0.001 < p & p < 0.01 ~ "**",
+                         p < 0.001 ~ "***",
+                         T ~ "")) -> extinct_tab_comp_out
+
+knitr::kable(extinct_tab_comp_out, "simple")
+
 
 # Competition did not seem to drive or mediate the likelihood of extinction in
-# our experiment (no siginificant interactions with competition and no
+# our experiment (no significant interactions with competition and no
 # significant main effect). Careful with this because it's "confirming the
 # null".
-
-
-## Zeros that are just due to failing to establish ####
-
-# We can see if there are different factors that predict whether or not plants
-# will just fail to establish, not establish and then die.
-
-# First, create an indicator for this in the no comp data set. This should be
-# the pots that are NOT in the blue_genes dataset.
-
-full_data_nocomp %>% 
-  mutate(failed_establish = case_when(pot_no %in% blue_genes$pot_no ~ 0,
-                                      T ~ 1)) -> full_data_nocomp
-# Fit the same model as previously
-
-
-establish_mod_nocomp <- glm(failed_establish ~ weight_init + origin_lab + (co2 + salinity + elevation + age + location)^2 +
-                              I(elevation^2) + salinity:elevation:age + salinity:elevation:location, data = full_data_nocomp, family = "binomial")
-
-car::Anova(establish_mod_nocomp)
-
-# Looks like different interactions are significant so we'll need to think about
-# what makes the most sense (and is the most justifiable) and go with that.
-
-# Look at interactions
-plot_model(establish_mod_nocomp, terms = c("elevation[all]", "salinity", "age"), type = "emm")
-# Modern genotypes basically all failed to establish at low elevations at
-# freshwater, but did well in brackish conditions. This pattern existed for
-# ancestral genotypes but the differences between freshwater and brackish
-# conditions were smaller.
-
-plot_model(establish_mod_nocomp, terms = c("elevation[all]", "salinity", "location"), type = "emm")
-# More deaths at freshwater overall, but for Kirk genotypes, there were
-# basically no deaths at higher elevations at freshwater but there were some in
-# more brackish conditions.
-
-plot_model(establish_mod_nocomp, terms = c("co2"), type = "emm")
-# Plants were more likely to fail to establish when in elevated vs ambient
-# conditions
-
-# Do the same for the corn dataset (i.e. with competition)
-corn_only %>% 
-  mutate(failed_establish = case_when(pot_no %in% blue_genes$pot_no ~ 0,
-                                      T ~ 1)) -> corn_only 
-
-
-establish_mod_corn <- glm(failed_establish ~ weight_init + origin_lab + (co2 + salinity + elevation + age + comp)^2 +
-                            I(elevation^2), data = corn_only, family = "binomial")
-
-car::Anova(establish_mod_corn)
-
-# It looks like competition mediates it now
-plot_model(establish_mod_corn, terms = c("age", "comp"), type = "emm")
-# Only modern genotypes had an increased likelihood of failing to establish when
-# in the presence of competition.
-
-plot_model(establish_mod_corn, terms = c("elevation[all]", "salinity"), type = "emm")
-# Basically all failed to establish at low levels at freshwater, but differences
-# between the establishment rates between sites decreases with increasing
-# elevation.
-
-plot_model(establish_mod_corn, terms = c("co2", "comp"), type = "emm")
-# Only in ambient conditions was there an increased likelihood of failing to
-# establish when in the presence of competition.
 
 
 ##################
