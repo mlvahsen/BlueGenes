@@ -14,7 +14,7 @@ sal_gc <- rbind(sal_gc1, sal_gc2)
 # Clean up an convert conductivities to mS/cm -- use swSCTp() to calculate
 # salinity
 sal_fw %>%
-  select(date_time = `Date Time, GMT-04:00`,
+  dplyr::select(date_time = `Date Time, GMT-04:00`,
          conductivity = `Full Range, μS/cm (LGR S/N: 20625411, SEN S/N: 20625411)`,
          temperature = `Temp, °C (LGR S/N: 20625411, SEN S/N: 20625411)`) %>%
   mutate(date_time = mdy_hms(date_time)) %>%
@@ -31,7 +31,7 @@ sal_fw %>%
 
 # Now calculate salinity for GCREW
 sal_gc %>%
-  select(date_time = `Date Time, GMT-05:00`,
+  dplyr::select(date_time = `Date Time, GMT-05:00`,
          conductivity = `High Range, μS/cm (LGR S/N: 20625481, SEN S/N: 20625481)`,
          temperature = `Temp, °C (LGR S/N: 20625481, SEN S/N: 20625481)`) %>%
   mutate(date_time = mdy_hms(date_time)) %>%
@@ -50,6 +50,8 @@ sal_gc %>%
 salinity_all <- rbind(sal_tab_swSCTp, sal_gc_tab_swSCTp)
 
 # Plot both sites together
+salinity_colors <- c("#ff7f00", "#fdbf6f")
+
 salinity_all %>%
   filter(date_time < "2019-10-12") %>% 
   mutate(site = case_when(site == "fw" ~ "freshwater site",
@@ -67,7 +69,7 @@ salinity_all %>%
         axis.text.y = element_text(size = 12)) +
   xlab("") +
   ylab("salinity (ppt)") +
-  scale_color_manual(values = c("orange", "dodgerblue")) -> salinity_plot
+  scale_color_manual(values = salinity_colors) -> salinity_plot
   
   
 # Calculate total average and averages by month for each site
@@ -97,7 +99,7 @@ predicted_values %>%
 
 # Calculate overall averages by site for july - october
 predicted_values %>% 
-  select(site = group,
+  dplyr::select(site = group,
          y = y) %>% 
   group_by(site) %>% 
   summarize(salinity = round(mean(y),2))

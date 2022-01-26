@@ -10,7 +10,7 @@ nut %>%
                                 "2019-08-13", "2019-08-20", "2019-08-26",
                                 "2019-09-10", "2019-09-19", "2019-09-25",
                                 "2019-10-02")), each = 2)) %>% 
-  select(site,
+  dplyr::select(site,
          sample_day,
          p_dissolved = `Total Dissolved Phosphorus (mg-P/L)`,
          p = `Total Phosphorus (mg-P/L)`,
@@ -24,6 +24,8 @@ nut %>%
 #   xlab("sample day") +
 #   ylab("total dissolved phosphorus (mg-P/L)")-> p_dissolved_graph
 
+salinity_colors <- c("#ff7f00", "#fdbf6f")
+
 nut_tab %>% 
   ggplot(aes(x = sample_day, y = p, color = site)) + 
   geom_line() +
@@ -35,7 +37,7 @@ nut_tab %>%
         axis.text.x = element_text(size = 14),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = c("dodgerblue", "orange"))+
+  scale_color_manual(values = salinity_colors)+
   scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct")) -> phosphorus_plot
 
 nut_tab %>% 
@@ -49,7 +51,7 @@ nut_tab %>%
         axis.text.x = element_text(size = 14),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = c("dodgerblue", "orange")) +
+  scale_color_manual(values = salinity_colors) +
   scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct")) -> ammonia_plot
 
 # nut_tab %>% 
