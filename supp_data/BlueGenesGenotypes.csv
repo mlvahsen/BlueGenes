@@ -1,0 +1,37 @@
+bluegenes_code,lab_id,lab,old_id,lat,long,core_length,depth_top,depth_bottom,date_collected,dated_year,total_seeds,seeds_live,seeds_dead,date_germtrial,total_germtrial_planted,total_germtrial_success,all_germ_trials,exp,notes
+cm1,C4AS-8,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm2,C4AS-4,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm3,C4AS-7,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm4,C2AT-9,utk,NA,38.87566,-76.54361,39,0,1,5/12/2016,NA,7,6,1,4/3/17,6,3,4/3/17,unknown,
+cm5,C4AS-2,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm6,C4AS-5,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm7,C4AS-13,utk,NA,38.87653,-76.54357,39,0,2,5/12/2016,NA,152,143,9,12/10/16,84,13,"12/10/16, 3/4/17, 6/7/17",Summers_2018,
+cm8,127,nd,C1BR,38.87537,-76.54329,39,0,3,5/11/2016,NA,7,3,4,7/21/17,3,2,7/21/17,Vahsen_2018,
+cm9,128,nd,C2BT,38.87566,-76.54361,40,0,3.5,5/11/2016,NA,23,22,1,9/27/17,21,6,"7/21/17, 9/27/17",Vahsen_2018,
+cm10,139,nd,C3AS,38.87591,-76.54324,38,0,2.25,5/12/2016,NA,80,60,20,9/27/17,58,30,"7/21/17, 9/27/17",Vahsen_2018,
+ca1,C4BH-6,utk,NA,38.87653,-76.54357,37,20.75,22.75,5/12/2016,NA,139,103,36,3/22/17,64,8,3/22/17,Summers_2018,
+ca2,C4BI-7,utk,NA,38.87653,-76.54357,37,18.75,20.75,5/12/2016,NA,97,81,16,3/23/17,60,12,3/23/17,Summers_2018,
+ca3,C4BI-6,utk,NA,38.87653,-76.54357,37,18.75,20.75,5/12/2016,NA,97,81,16,3/23/17,60,12,3/23/17,Summers_2018,
+ca4,C4BH-11,utk,NA,38.87653,-76.54357,37,20.75,22.75,5/12/2016,NA,139,103,36,3/22/17,64,8,3/22/17,Summers_2018,
+ca5,C4BI-5,utk,NA,38.87653,-76.54357,37,18.75,20.75,5/12/2016,NA,97,81,16,3/23/17,60,12,3/23/17,Summers_2018,
+ca6,C4BH-3,utk,NA,38.87653,-76.54357,37,20.75,22.75,5/12/2016,NA,139,103,36,3/22/17,64,8,3/22/17,Summers_2018,
+ca7,C4BH-7,utk,NA,38.87653,-76.54357,37,20.75,22.75,5/12/2016,NA,139,103,36,3/22/17,64,8,3/22/17,Summers_2018,
+ca8,130,nd,C2BM,38.87566,-76.54361,40,15,16.75,5/11/2016,NA,55,53,2,9/27/17,27,7,"7/21/17, 9/27/17",Vahsen_2018,
+ca9,133,nd,C1BL,38.87537,-76.54329,39,14.25,16.75,5/11/2016,NA,53,43,10,9/27/17,43,1,"7/21/17, 9/27/17",Vahsen_2018,
+ca10,138,nd,C2BL,38.87566,-76.54361,40,16.75,18.75,5/11/2016,NA,204,182,22,9/27/17,56,3,"7/21/17, 9/27/17, 11/20/17",Vahsen_2018,
+km1,KM1B1Q-3,utk,NA,38.87601,-76.54945,34,0,2,5/12/2016,NA,66,66,0,3/15/17,66,24,3/15/17,unknown,
+km2,KM1B1Q-5,utk,NA,38.87601,-76.54945,34,0,2,5/12/2016,NA,66,66,0,3/15/17,66,24,3/15/17,unknown,
+km3,KM1B1Q-1,utk,NA,38.87601,-76.54945,34,0,2,5/12/2016,NA,66,66,0,3/15/17,66,24,3/15/17,unknown,
+km4,155,nd,MDM5,38.87406,-76.54811,NA,modern,NA,2002,2002,NA,NA,NA,NA,NA,NA,NA,"Gentile_CO2, Gentile_SERC",
+km5,159,nd,MDM3,38.87406,-76.54811,NA,modern,NA,2002,2002,NA,NA,NA,NA,NA,NA,NA,"Gentile_CO2, Gentile_SERC",
+km6,141,nd,KM1B2P,38.87601,-76.54945,36,0,3.5,5/12/2016,NA,150,135,15,11/20/17,99,22,"7/21/17, 9/27/17, 11/20/17",Vahsen_2018,
+ka1,Flat 3 D2 MD1 18-20,utk,NA,38.87406,-76.54811,unknown,18,20,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,"Gentile_CO2, Gentile_SERC",
+ka2,146,"nd,utk",14-16E,38.87406,-76.54811,35,14,16,2002,1947,unknown,unknown,unknown,2003,337,8,"2003, 2004","Gentile_CO2, Gentile_SERC",germ_trial data aggregated from all Saunders 2003-2004 experiments for Kirkpatrick and for that specific layer; core depth is if seed is from monolith
+ka3,143,"nd,utk",14-16D,38.87406,-76.54811,35,14,16,2002,1947,unknown,unknown,unknown,2003,337,8,"2003, 2004",Gentile_SERC,germ_trial data aggregated from all Saunders 2003-2004 experiments for Kirkpatrick and for that specific layer; core depth is if seed is from monolith
+ka4,153,nd,20-22 Pot B,38.87406,-76.54811,35,20,22,2002,1908,unknown,unknown,unknown,2003,376,11,"2003, 2004","Gentile_CO2, Gentile_SERC",germ_trial data aggregated from all Saunders 2003-2004 experiments for Kirkpatrick and for that specific layer; core depth is if seed is from monolith
+ka5,156,nd,20-22,38.87406,-76.54811,35,20,22,2002,1908,unknown,unknown,unknown,2003,376,11,"2003, 2004",Gentile_SERC,germ_trial data aggregated from all Saunders 2003-2004 experiments for Kirkpatrick and for that specific layer; core depth is if seed is from monolith
+ka6,Flat 3 B5 MD2 16-18,utk,NA,38.87406,-76.54811,unknown,16,18,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,unknown,"Gentile_CO2, Gentile_SERC",
+b1,219,nd,BW12AW,38.39734,-76.07005,51,2,4,10/19/2017,NA,105,102,3,10/30/18,96,50,"10/30/18, 2/29/19",NA,
+b2,191,nd,BW12AS,38.39734,-76.07005,51,10,12,10/19/2017,NA,36,36,0,10/30/18,36,9,10/30/18,NA,"total number of seeds not recorded right away, so number of seeds is based on germ trial; need to go back and get data from seeds in fridge at ND"
+b3,235,nd,BW12AT,38.39734,-76.07005,51,8,10,10/19/2017,NA,42,40,2,10/30/18,40,12,10/30/18,NA,double check number of seeds planted (recorded as # seeds planted > # seeds sieved)
+b4,217,nd,BW12AS,38.39734,-76.07005,51,10,12,10/19/2017,NA,36,36,0,10/30/18,36,9,10/30/18,NA,"total number of seeds not recorded right away, so number of seeds is based on germ trial; need to go back and get data from seeds in fridge at ND"
