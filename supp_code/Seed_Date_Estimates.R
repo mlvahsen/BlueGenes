@@ -1,7 +1,7 @@
 # Estimate age of seeds as predicted from 3 Kirkpatrick cores collected in 2002.
 # Data from Gentile 2015 dissertation documents
 
-library(tidyverse); library(lubridate); library(strex)
+library(tidyverse); library(lubridate); library(strex); library(here)
 
 # Read in soil dating data
 soil <- read_csv(here("supp_data","SoilDateEst.csv"))
@@ -75,7 +75,7 @@ genotype_with_ages %>%
 genotype_with_ages %>% 
   filter(substr(genotype_with_ages$bluegenes_code, 1, 1) != "b") %>% 
   dplyr::select(bluegenes_code, lab, lat, long, pred_year) %>% 
-  mutate(pred_year = round(pred_year)) %>% 
+  mutate(pred_year = trunc(pred_year)) %>% 
   arrange(bluegenes_code)
 
 
