@@ -29,7 +29,7 @@ bg_full %>%
   group_by(level) %>% 
   summarize(mean_elev = mean(elevation)) -> elev_tab
 
-# Calculate percent flooded
+# Calculate percent flooded for each level at average elevation
 perc_elev_store <- NULL
 
 for(i in 1:nrow(elev_tab)){
@@ -63,3 +63,12 @@ tidal_all %>%
 # Save plot
 ggsave(here("figs", "tidal_chart.png"), tidal_plot, height = 2.8, width = 9, units = "in")
 
+# Calculate percent flooded for a variety of elevations NADV88 in-text
+perc_elev_store_text <- NULL
+
+for(i in 1:2){
+  perc_elev_store_text[i] <- length(which(tidal_all$elevation > c(0.1, 0.2)[i])) / nrow(tidal_all)
+}
+
+perc_elev_store_text
+# 0.8364413 0.6446721
