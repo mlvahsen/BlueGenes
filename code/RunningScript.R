@@ -2,7 +2,7 @@
 library(here); library(tidyverse); library(emmeans);
 library(lme4); library(lmerTest); library(blme);
 library(brglm); library(lmtest); library(sjPlot);
-library(kableExtra); library(geomtextpath)
+library(kableExtra); library(geomtextpath); library(patchwork)
 
 # Read in compiled trait data
 source(here("supp_code", "CompileTraitData.R"))
@@ -1135,71 +1135,51 @@ plot_model(rs_step_mod, terms = c("elevation[all]", "salinity", "location"), typ
 rs_ECA_plot <- emmeans::emmeans(rs_step_mod, ~elevation:co2:age, at = list(elevation = seq(0.156, 0.544, length.out = 50)))
 rs_ELS_plot <- emmeans::emmeans(rs_step_mod, ~elevation:location:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50)))
 
+traits_nocomp_plot %>% 
+  filter(pot_no %in% traits_nocomp_rs$pot_no) %>% 
+  mutate(rs = total_bg / agb_scam)-> traits_nocomp_rs_plot
+
 # Age:co2:elevation interaction
-traits_nocomp_rs %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)",
-                              T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)",
-                         T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
+summary(rs_ECA_plot) %>% 
+  # mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
+  #                             T ~ "brackish site (6ppt)")) %>% 
+  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
+                         T ~ "descendant cohort (2000-2020)")) %>% 
+  mutate(rs = emmean) %>% 
   ggplot(aes(x = elevation, y = rs, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  facet_grid(~ age) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Root-to-Shoot Ratio") +
-  xlab("Elevation (m NAVD88)") +
+  geom_point(data = traits_nocomp_rs_plot, aes(x = elevation, y = log(rs)), shape = 1, stroke = 0.8, alpha = 0.4, size = 0.8) +
+  geom_textline(aes(label = co2), fontface = 2, linewidth = 1.2, size = 3) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = co2), alpha = 0.2, color = NA) +
+  facet_wrap(~age) +
+  ylab('ln(root-to-shoot ratio)') +
+  xlab('elevation (m NAVD88') +
+  scale_color_manual(values = c("#b2df8a","#33a02c")) +
+  scale_fill_manual(values = c("#b2df8a","#33a02c")) +
   theme_bw() +
-  theme(legend.position = "top")
+  theme(legend.position = "none") -> rs_interaction_1
 
-# Salinity:elevation interaction
-traits_nocomp_rs %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)",
-                              T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)",
-                         T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
+# salinity:elevation and location:elevation interactions
+summary(rs_ELS_plot) %>% 
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site",
+                              T ~ "brackish site")) %>%
+  mutate(rs = emmean) %>% 
   ggplot(aes(x = elevation, y = rs, color = salinity)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  scale_color_manual(values = c("#fb8072", "#80b1d3")) +
-  ylab("Root-to-Shoot Ratio") +
-  xlab("Elevation (m NAVD88)") +
-  guides(color=guide_legend(title="Salinity")) +
+  geom_point(data = traits_nocomp_rs_plot %>% 
+               mutate(salinity = case_when(salinity == "freshwater site (4ppt)" ~ "freshwater site",
+                                           T ~ "brackish site")), aes(x = elevation, y = log(rs)), shape = 1, stroke = 0.8, size = 0.8, alpha = 0.3) +
+  geom_textline(aes(label = salinity), fontface = 2, size = 3, linewidth = 1.2, hjust = 0.1) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = salinity), alpha = 0.2, color = NA) +
+  facet_wrap(~location) +
+  ylab('') +
+  xlab('elevation (m NAVD88') +
+  scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
+  scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
   theme_bw() +
-  theme(legend.position = "top")
+  theme(legend.position = "none") -> rs_interaction_2
 
-# Random slopes plot
-out <- plot_model(rs_mod8, type = "pred", pred.type = "re", 
-                  terms = c("elevation_sc[all]", "salinity", "genotype")) +
-  scale_color_manual(values = c("#78c679", "#006837"))
+rs_interaction_1 + rs_interaction_2 + plot_annotation(tag_levels = "a") -> rs_fig
 
-# Collect the predicted values
-scale(traits_nocomp_rs$elevation)
-
-rs_preds <- tibble(elevation = out$data$x * sd(traits_nocomp_rs$elevation) +
-                     mean(traits_nocomp_rs$elevation),
-                   rootshoot = out$data$predicted,
-                   salinity = out$data$group,
-                   genotype = out$data$facet)
-
-# Example of different functional responses for 10 Kirkpatrick genotypes
-rs_preds %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)",
-                              T ~ "Brackish Site (8ppt)")) %>%
-  filter(genotype %in% c("km1", "km2", "km3", "km4", "km5", "km6",
-                         "ka1", "ka2", "ka3", "ka4", "ka5", "ka6")) %>% 
-  ggplot(aes(x = elevation, y = rootshoot, color = salinity)) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F) +
-  facet_wrap(~genotype, nrow = 2) +
-  guides(color=guide_legend(title="Salinity")) +
-  theme_bw() +
-  ylab("Predicted Root-to-Shoot Ratio") +
-  xlab("Elevation (m NAVD88)") +
-  scale_color_manual(values = c("#fb8072", "#80b1d3"))+
-  theme(legend.position = "top")
-
+ggsave(here("figs", "Fig3_rs.png"), rs_fig, height = 3, width = 9, units = "in")
 
 ##########################################
 ## Root distribution parameter analysis ##
@@ -1210,116 +1190,62 @@ rs_preds %>%
 # This is for the pots we are doing trait analysis for (no comp for right now
 # for the same reasons as the root:shoot analysis)
 
-merge(traits_nocomp_rs, betas_to_merge, by = "pot_no") -> traits_nocomp_rs
-
-traits_nocomp_rs %>% 
-  ggplot(aes(x = reorder(genotype, beta, FUN = median, na.rm = T), y = beta)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.1, alpha = 0.5, size = 1.5) +
-  ylab("Root Distribution Parameter") +
-  xlab("Genotype ID") +
-  geom_hline(aes(yintercept = mean(beta, na.rm = T)), linetype = "dashed") +
-  theme_bw() 
-
-
-
 
 ## Fit model and model selection (fixed effects) ####
 
 # Most complex model
 beta_mod <- lmer(beta ~ weight_init + date_planted_grp + origin_lab +
-                   (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
+                   (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
                    (1|site_frame) + (1|genotype), data = traits_nocomp_rs)
 
 # Try lmerTest::step
-lmerTest::step(beta_mod, keep = c("co2", "salinity", "age", "elevation_sc", "location"))
+get_model(lmerTest::step(beta_mod, keep = keep_model_terms_nocomp))
 
-beta_step_mod <- lmer(beta ~ age + location + co2 + salinity + elevation_sc +
-                        (1 | genotype) + salinity:elevation_sc, data = traits_nocomp_rs)
+beta_step_mod <- lmer(beta ~ age + location + co2 + salinity + elevation + (1 | genotype) +  
+                        salinity:elevation, data = traits_nocomp_rs)
 
-MuMIn::r.squaredGLMM(beta_step_mod)
-plot_model(beta_step_mod, terms =c("elevation_sc[all]", "salinity"), type = "emm")
-plot_model(beta_step_mod, terms = c("age"), type = "emm")
-
-# Look for highest order significant interaction
-car::Anova(beta_mod)
-# This would be a bunch of 2-way interactions 
-
-# Create a model that keeps all significant 2-way interactions
-beta_mod2 <- lmer(beta ~ weight_init + date_planted_grp + origin_lab +
-                    salinity*elevation_sc + co2*elevation_sc + location*salinity + age + I(elevation_sc^2) +
-                    (1|site_frame) + (1|genotype), data = traits_nocomp_rs)
-# Look for highest order significant terms that are NOT contained in that
-# interaction. 
-car::Anova(beta_mod2)
-
-# This is the final FIXED effects model. Check assumptions.
-plot_model(beta_mod2, type = "diag") # All looks good!
+# Check assumptions
+plot_model(beta_step_mod, type = "diag")
 
 ## Model selection (random slopes) ####
 
 # Now we are going to try and add up to 2-way interactions as random slopes.
 
-# Here are the possibilities:
-# co2:elevation
-# co2:salinity
-# salinity:elevation
-# co2 + elevation
-# co2 + salinity
-# salinity + elevation
-# co2
-# elevation
-# salinity
-
-beta_mod3 <- update(beta_mod2, .~.-(1|genotype) + (1+co2*elevation|genotype))
-beta_mod4 <- update(beta_mod2, .~.-(1|genotype) + (1+co2*salinity|genotype))
-beta_mod5 <- update(beta_mod2, .~.-(1|genotype) + (1+elevation*salinity|genotype)) # fit
-beta_mod6 <- update(beta_mod2, .~.-(1|genotype) + (1+co2+elevation|genotype))
-beta_mod7 <- update(beta_mod2, .~.-(1|genotype) + (1+elevation + salinity|genotype)) # fit
-beta_mod8 <- update(beta_mod2, .~.-(1|genotype) + (1+salinity + co2|genotype))
-beta_mod9 <- update(beta_mod2, .~.-(1|genotype) + (1+co2|genotype))
-beta_mod10<- update(beta_mod2, .~.-(1|genotype) + (1+elevation|genotype)) # fit
-beta_mod11 <- update(beta_mod2, .~.-(1|genotype) + (1+salinity|genotype)) # fit
-
-# The only ones that did not have convergence issues were models 3, 7, 9, 10, 11.
-# Compare this to the base model.
-MuMIn::r.squaredGLMM(beta_mod3)
-MuMIn::r.squaredGLMM(beta_mod7)
-MuMIn::r.squaredGLMM(beta_mod9)
-MuMIn::r.squaredGLMM(beta_mod10)
-MuMIn::r.squaredGLMM(beta_mod11)
+beta_mod1 <- update(beta_step_mod, .~.-(1|genotype) + (1+elevation*salinity|genotype)) # fit
+beta_mod2 <- update(beta_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))# fit
+beta_mod3 <- update(beta_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype)) # fit
+beta_mod4 <- update(beta_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+beta_mod5 <- update(beta_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+beta_mod6<- update(beta_step_mod, .~.-(1|genotype) + (1+elevation|genotype)) # fit
+beta_mod7 <- update(beta_step_mod, .~.-(1|genotype) + (1+salinity|genotype)) # fit
 
 # Compare to the original models
-anova(beta_mod2, beta_mod3)
-anova(beta_mod2, beta_mod7)# This has highest explained deviance
-anova(beta_mod2, beta_mod9)
-anova(beta_mod2, beta_mod10)
-anova(beta_mod2, beta_mod11)
+anova(beta_step_mod, beta_mod1, refit = F) # this is the best model
+anova(beta_step_mod, beta_mod2 ,refit = F)
+anova(beta_step_mod, beta_mod3, refit = F)
+anova(beta_step_mod, beta_mod6, refit = F)
+anova(beta_step_mod, beta_mod7, refit = F)
 
-plot_model(beta_mod5, type = "pred", pred.type = "re",
-           terms = c("elevation_sc[all]", "salinity", "genotype"))
-# This seems meaningful, so let's keep it in.
-
-# Final model is beta_mod5
+# Final model is beta_mod1
 
 ## Comparison to null model ####
 
 # Now construct a null model that does not have age, location, or genotype in it
-beta_modelnull <- lmer(beta ~ weight_init + date_planted_grp + origin_lab + I(elevation_sc^2) +
-                         elevation_sc*salinity + co2*elevation_sc + I(elevation_sc^2) + (1|site_frame),
-                       data = traits_nocomp_rs)
+beta_modelnull <- lmer(beta ~ weight_init + date_planted_grp + origin_lab +
+                         (co2 + salinity + elevation)^3 + I(elevation^2) +
+                         (1|site_frame), data = traits_nocomp_rs)
 
-car::Anova(beta_modelnull)
-# If no age, location, or genotype, we would say that elevation and co2
-# influence biomass
-plot_model(beta_modelnull, terms = c("elevation_sc[all]", "salinity"), type = "emm")
-plot_model(beta_modelnull, terms = c("elevation_sc[all]", "co2"), type = "emm")
+
+get_model(lmerTest::step(beta_modelnull))
+
+beta_modelnull_step <- lm(beta ~ co2 + salinity + elevation + co2:elevation + 
+                            salinity:elevation, data = traits_nocomp_rs)
 
 # Compare R2 from models
-MuMIn::r.squaredGLMM(beta_modelnull)
-# Conditional R2 = 0.49
-MuMIn::r.squaredGLMM(beta_mod7)
-# Conditional R2 = 0.72
+MuMIn::r.squaredGLMM(beta_modelnull_step)
+# Conditional R2 = 0.47
+MuMIn::r.squaredGLMM(beta_mod1)
+# Conditional R2 = 0.76
 
 # Create predicted vs observed plots for each model
 
@@ -1327,7 +1253,7 @@ MuMIn::r.squaredGLMM(beta_mod7)
 traits_nocomp_rs %>% 
   filter(complete.cases(beta)) -> traits_nocomp_rs_noNAs
 
-tibble(predicted = c(predict(beta_modelnull), predict(beta_mod5)),
+tibble(predicted = c(predict(beta_modelnull_step), predict(beta_mod1)),
        observed = rep(traits_nocomp_rs_noNAs$beta, 2),
        model = c(rep(c("null", "evolution"), each = nrow(traits_nocomp_rs_noNAs)))) %>% 
   ggplot(aes(x = predicted, y = observed)) +
@@ -1346,150 +1272,59 @@ tibble(predicted = c(predict(beta_modelnull), predict(beta_mod5)),
 # only separated in the top 10cm). Use the same subset of data as for the
 # root:shoot analysis for now.
 
-## Data manipulation ####
-
 ## Fit model and model selection (fixed effects) ####
 
 # Most complex model
 bg_mod <- lmer(total_bg ~ weight_init + date_planted_grp + origin_lab +
-                 (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                 (1|genotype), data = traits_nocomp_rs)
-
-summary(bg_mod)
+                 (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
+                 (1|genotype) + (1|site_frame), data = traits_nocomp_rs)
 
 # Try stepwise
-lmerTest::step(bg_mod)
+get_model(lmerTest::step(bg_mod, keep = keep_model_terms_nocomp))
 
-bg_step_mod <- lmer(total_bg ~ weight_init + date_planted_grp + co2 + I(elevation_sc^2) + 
-                      (1 | genotype), data = traits_nocomp_rs)
-
-# Look for highest order significant interaction. No significant interactions.
-car::Anova(bg_mod)
-
-# Create a model that keeps all main terms
-bg_mod2 <- lmer(total_bg ~ weight_init + date_planted_grp + origin_lab +
-                  age + location + co2 + salinity + elevation_sc + I(elevation_sc^2) +
-                  (1|site_frame) + (1|genotype), data = traits_nocomp_rs)
-
-# This is the final FIXED effects model. Check assumptions.
-plot_model(bg_mod2, type = "diag") # All looks good!
-
-# Overall significance of terms in final fixed effects model
-car::Anova(bg_mod2)
-# Of interest are just additive terms of co2 and elevation
+bg_step_mod <- lmer(total_bg ~ weight_init + date_planted_grp + age + location +  
+                      co2 + salinity + elevation + I(elevation^2) + (1 | genotype), data = traits_nocomp_rs)
 
 ## Model selection (random slopes) ####
 
-# Now we are going to try and add up to 2-way interactions as random slopes.
+bg_mod1 <- update(bg_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))#*
+bg_mod2 <- update(bg_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))
+bg_mod3 <- update(bg_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+bg_mod4 <- update(bg_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+bg_mod5<- update(bg_step_mod, .~.-(1|genotype) + (1+elevation|genotype))
+bg_mod6 <- update(bg_step_mod, .~.-(1|genotype) + (1+salinity|genotype))
 
-# Here are the possibilities:
-# co2 + elevation
-# co2 + salinity
-# salinity + elevation
-# co2
-# elevation
-# salinity
-
-bg_mod3 <- update(bg_mod2, .~.-(1|genotype) + (1+co2+elevation|genotype))
-bg_mod4 <- update(bg_mod2, .~.-(1|genotype) + (1+elevation + salinity|genotype))
-bg_mod5 <- update(bg_mod2, .~.-(1|genotype) + (1+salinity + co2|genotype))
-bg_mod6 <- update(bg_mod2, .~.-(1|genotype) + (1+co2|genotype))
-bg_mod7<- update(bg_mod2, .~.-(1|genotype) + (1+elevation|genotype))
-bg_mod8 <- update(bg_mod2, .~.-(1|genotype) + (1+salinity|genotype))
-
-# Nothing converged, so base model is the best
-
-# Look at fixed effects
-plot_model(bg_mod2, type = "emm", terms = "elevation_sc[all]")
-plot_model(bg_mod2, type = "emm", terms = "co2")
+# Compare to base model (ns)
+anova(bg_step_mod, bg_mod1, refit = F)
 
 ## Comparison to null model ####
 
 # Now construct a null model that does not have age, location, or genotype in it
 bg_modelnull <- lmer(total_bg ~ weight_init + date_planted_grp + origin_lab +
-                       co2 + salinity + elevation_sc + I(elevation_sc^2) +
+                       (co2 + salinity + elevation)^3 + I(elevation^2) +
                        (1|site_frame),
                      data = traits_nocomp_rs)
 
-car::Anova(bg_modelnull)
-# If no age, location, or genotype, we would say that elevation and co2
-# influence biomass still
+get_model(step(bg_modelnull, keep = keep_model_terms_nocomp_null))
+
+# Fit stepwise null model
+bg_modelnull_step <- lm(total_bg ~ weight_init + date_planted_grp + co2 + 
+                          salinity + elevation + I(elevation^2), data = traits_nocomp_rs)
 
 # Compare R2 from models
-MuMIn::r.squaredGLMM(bg_modelnull)
-# Conditional R2 = 0.23
-MuMIn::r.squaredGLMM(bg_mod2)
-# Conditional R2 = 0.31
+MuMIn::r.squaredGLMM(bg_modelnull_step)
+# Conditional R2 = 0.21
+MuMIn::r.squaredGLMM(bg_step_mod)
+# Conditional R2 = 0.29
 
 # Create predicted vs observed plots for each model
-tibble(predicted = c(predict(bg_modelnull), predict(bg_mod2)),
+tibble(predicted = c(predict(bg_modelnull_step), predict(bg_step_mod)),
        observed = rep(traits_nocomp_rs$total_bg, 2),
        model = c(rep(c("null", "evolution"), each = nrow(traits_nocomp_rs)))) %>% 
   ggplot(aes(x = predicted, y = observed)) +
   geom_point(alpha = 0.3) +
   facet_wrap(~model) +
   geom_abline(aes(slope = 1, intercept = 0))
-
-
-## Plot of fixed effects ####
-
-# Effect of  interaction
-traits_nocomp_rs %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)",
-                              T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)",
-                         T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
-  ggplot(aes(x = elevation, y = total_bg, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Total belowground biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top")
-
-predict_frame <- expand.grid(elevation = seq(min(traits_nocomp_rs$total_bg), max(traits_nocomp_rs$total_bg), length.out = 100),
-                             co2 = c("ambient", "elevated"))
-
-# Get predicted means of each co2 treatment
-bg_means <- emmeans(bg_mod2, ~elevation_sc:co2, at = list(elevation_sc = seq(min(traits_nocomp_rs$elevation_sc),
-                                                                             max(traits_nocomp_rs$elevation_sc), length.out = 113)))
-# Get true elevations
-elevation <- seq(min(traits_nocomp_rs$elevation),
-                 max(traits_nocomp_rs$elevation), length.out = 113)
-
-# Make a data frame of predictions
-predict_frame <- data.frame(total_bg = summary(bg_means)$emmean,
-                            elevation = rep(elevation,2),
-                            co2 = rep(c("ambient", "elevated"), each = 113)) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)"))
-
-ggplot(dta, aes(math, num_awards, col = prog)) +
-  geom_point() +
-  geom_smooth(method = "glm", se = FALSE,
-              method.args = list(family = "poisson"), linetype = "dashed")+
-  geom_line(data=pframe)  ## use prediction data here
-## (inherits aesthetics etc. from main ggplot call)
-
-# Salinity:elevation interaction
-traits_nocomp_rs %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)",
-                              T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)",
-                         T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) -> plot_data
-
-ggplot(plot_data, aes(x = elevation, y = total_bg, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  scale_color_manual(values = c("#78c679", "#006837")) +
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  geom_line(aes(x = predict_frame$elevation, y = predict_frame$total_bg, color = predict_frame$co2), size = 1.5) +
-  ylab("Belowground biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top") 
-
 
 ##########################
 ## Stem height analysis ##
@@ -1519,26 +1354,16 @@ car::Anova(height_mod)
 
 traits_nocomp_noOut <- traits_nocomp[-186,]
 height_mod_noOut <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                           (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                           (1|genotype), data = traits_nocomp_noOut)
+                           (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
+                           (1|genotype) + (1|site_frame), data = traits_nocomp_noOut)
 plot(height_mod_noOut)
 car::Anova(height_mod_noOut) # That seemed to be driving somethings. So let's drop it!
 
 # Try step
-lmerTest::step(height_mod_noOut)
+get_model(lmerTest::step(height_mod_noOut, keep = keep_model_terms_nocomp))
 
-height_step_mod <- lmer(height_scam_tot ~ date_planted_grp + elevation_sc + (1 | genotype), data = traits_nocomp_noOut)
-
-# Create a model that keeps location:salinity; also drop site_frame because it
-# does not converge now
-height_mod_noOut2 <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                            age + co2 + elevation_sc + I(elevation_sc^2) +
-                            location*salinity + (1|genotype), data = traits_nocomp_noOut)
-
-car::Anova(height_mod_noOut2)
-
-# This is the final FIXED effects model. Check assumptions.
-plot_model(height_mod_noOut2, type = "diag") # All looks good!
+height_step_mod <- lmer(height_scam_tot ~ date_planted_grp + age + location + co2 + salinity +  
+                          elevation + (1 | genotype), data = traits_nocomp_noOut)
 
 ## Model selection (random slopes) ####
 
@@ -1552,55 +1377,43 @@ plot_model(height_mod_noOut2, type = "diag") # All looks good!
 # elevation
 # salinity
 
-height_mod_noOut3 <- update(height_mod_noOut2, .~.-(1|genotype) + (1+co2+elevation|genotype))
-height_mod_noOut4 <- update(height_mod_noOut2, .~.-(1|genotype) + (1+elevation + salinity|genotype))
-height_mod_noOut5 <- update(height_mod_noOut2, .~.-(1|genotype) + (1+salinity + co2|genotype))
-height_mod_noOut6 <- update(height_mod_noOut2, .~.-(1|genotype) + (1+co2|genotype))
-height_mod_noOut7<- update(height_mod_noOut2, .~.-(1|genotype) + (1+elevation|genotype))
-height_mod_noOut8 <- update(height_mod_noOut2, .~.-(1|genotype) + (1+salinity|genotype))
+height_mod_noOut1 <- update(height_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))#*
+height_mod_noOut2 <- update(height_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))#*
+height_mod_noOut3 <- update(height_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+height_mod_noOut4 <- update(height_step_mod, .~.-(1|genotype) + (1+co2|genotype))#*
+height_mod_noOut5<- update(height_step_mod, .~.-(1|genotype) + (1+elevation|genotype))#*
+height_mod_noOut6 <- update(height_step_mod, .~.-(1|genotype) + (1+salinity|genotype))
 
-# The only ones that did not have estimated zeros were 3, 6, and 7
-MuMIn::r.squaredGLMM(height_mod_noOut3)
-MuMIn::r.squaredGLMM(height_mod_noOut6)
-MuMIn::r.squaredGLMM(height_mod_noOut7)
-
-# Compare to base model
-anova(height_mod_noOut2, height_mod_noOut3)
-anova(height_mod_noOut2, height_mod_noOut6)
-anova(height_mod_noOut2, height_mod_noOut7) 
-
-# None improve the model significantly
-
-plot_model(height_mod_noOut3, type = "pred", pred.type = "re",
-           terms = c("elevation_sc[all]", "co2", "genotype"))
-# This doesn't seem meaningful so it seems like the best (and most parsimonious
-# model) does not have a random slope.
-
-# Look at random intercepts
-plot_model(height_mod_noOut2, type = "re")
+# Compare to base model (all ns)
+anova(height_step_mod, height_mod_noOut1, refit = F)
+anova(height_step_mod, height_mod_noOut2, refit = F)
+anova(height_step_mod, height_mod_noOut4, refit = F) 
+anova(height_step_mod, height_mod_noOut5, refit = F) 
 
 ## Comparison to null model ####
 
 # Now construct a null model that does not have age, location, or genotype in it
-height_model_noOut_null <- lm(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                                co2 + salinity + elevation_sc + I(elevation_sc^2),
+height_model_noOut_null <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
+                                (co2 + salinity + elevation)^3 + I(elevation^2) +
+                                (1|site_frame),
                               data = traits_nocomp_noOut)
 
-car::Anova(height_model_noOut_null)
-# If no age, location, or genotype, we would say that elevation was the only
-# thing that influenced height.
-plot_model(height_model_noOut_null, terms = "elevation_sc[all]", type = "emm")
+get_model(step(height_model_noOut_null, keep = keep_model_terms_nocomp_null))
+
+# Fit step model
+height_model_noOut_null_step <- lm(height_scam_tot ~ weight_init + co2 + salinity + 
+                                     elevation, data = traits_nocomp_noOut)
 
 # Compare R2 from models
-summary(height_model_noOut_null)
-# Adjusted R2 = 0.38
-MuMIn::r.squaredGLMM(height_mod_noOut2)
-# Conditional R2 = 0.61
+MuMIn::r.squaredGLMM(height_model_noOut_null)
+# Adjusted R2 = 0.39
+MuMIn::r.squaredGLMM(height_step_mod)
+# Conditional R2 = 0.60
 
 # Create predicted vs observed plots for each model
 observed <- rep(traits_nocomp_noOut[!is.na(traits_nocomp_noOut$height_scam_tot), "height_scam_tot"], 2)
 
-tibble(predicted = c(predict(height_model_noOut_null), predict(height_mod_noOut2)),
+tibble(predicted = c(predict(height_model_noOut_null_step), predict(height_step_mod)),
        observed = observed,
        model = c(rep(c("null", "evolution"), each =length(observed)/2))) %>% 
   ggplot(aes(x = predicted, y = observed)) +
@@ -1618,177 +1431,48 @@ tibble(predicted = c(predict(height_model_noOut_null), predict(height_mod_noOut2
 
 # Most complex model
 height_mod_corn <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                          (age + comp + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                          (1|genotype), data = traits_corn)
+                          (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
+                          (1|genotype) + (1|site_frame), data = traits_corn)
 
-# Try step
-lmerTest::step(height_mod_corn)
+which(resid(height_mod_corn) < -15)
 
-traits_corn %>% filter(height_scam_tot > 20) ->traits_corn_sub
-height_corn_step_mod <- lmer(height_scam_tot ~ weight_init + age*comp*co2*salinity + (1 | genotype)  + 
-                               age*comp*co2*elevation_sc, data = traits_corn_sub)
+# Need to remove pot 1830 because most of the stems were cut
 
-plot_model(height_corn_step_mod, terms = c("salinity", "age", "comp", "co2"), type = "emm")
+traits_corn %>% filter(pot_no !=1830 ) ->traits_corn_sub
+height_corn_noOut_mod <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
+                               (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
+                               (1|genotype) + (1|site_frame), data = traits_corn_sub)
 
-traits_corn %>% 
-  ggplot(aes(x = salinity, y = height_scam_tot, color = age)) +
-  geom_boxplot() +
-  facet_wrap(~comp + co2) +
-  geom_smooth(method = "lm")
+get_model(step(height_corn_noOut_mod, keep = keep_model_terms_corn))
+
+height_corn_noOut_mod_step <- lmer(height_scam_tot ~ weight_init + age + comp + co2 + salinity +  
+                                     elevation + (1 | genotype) + co2:elevation, data = traits_corn_sub)
 
 
-car::Anova(height_corn_step_mod)
-# This would be age:co2:elevation:comp (4-way interaction)
-
-# Fit model with that 4-way interaction and all possible 3-way interactions
-height_mod_corn3 <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                           (age + comp + co2 + salinity + elevation_sc)^3 + I(elevation_sc^2) +
-                           age:co2:elevation_sc:comp + (1|genotype), data = traits_corn)
-
-car::Anova(height_mod_corn3) # Should drop out 4-way interaction
-
-height_mod_corn4 <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                           (age + comp + co2 + salinity + elevation_sc)^3 + I(elevation_sc^2) +
-                           (1|genotype), data = traits_corn)
-
-car::Anova(height_mod_corn4) # Drop all 3-way interactions but comp:co2:salinity
-
-height_mod_corn5 <- lmer(height_scam_tot ~ weight_init + date_planted_grp + origin_lab +
-                           (age + comp + co2 + salinity + elevation_sc)^2 + I(elevation_sc^2) +
-                           comp:co2:salinity + (1|genotype), data = traits_corn)
-
-car::Anova(height_mod_corn5) 
-# Now drop any 2-way interactions that are not included and are not
-# co2:elevation_sc
-
-height_mod_corn6 <- lmer(height_scam_tot ~ weight_init + date_planted_grp +
-                           origin_lab + age + I(elevation_sc^2) +
-                           comp*co2*salinity + co2*elevation_sc +
-                           (1|genotype), data = traits_corn)
-
-car::Anova(height_mod_corn6)
-
-# This is the final FIXED effects model. Check assumptions.
-plot_model(height_mod_corn6, type = "diag") # All looks good!
+# Check assumptions
+plot_model(height_corn_noOut_mod_step, type = "diag")
 
 ## Model selection (random slopes) ####
 
 # Now we are going to try and add up to 2-way interactions as random slopes.
 
-# Here are the possibilities:
-# co2:elevation
-# co2:salinity
-# salinity:elevation
-# co2 + elevation
-# co2 + salinity
-# salinity + elevation
-# co2
-# elevation
-# salinity
+height_mod_corn1 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+co2*elevation|genotype))
+height_mod_corn2 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+co2+elevation|genotype))#*
+height_mod_corn3 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+co2+comp|genotype))
+height_mod_corn4 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+comp+elevation|genotype))
+height_mod_corn5 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+comp+salinity|genotype))
+height_mod_corn6 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+elevation + salinity|genotype))
+height_mod_corn7 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+salinity + co2|genotype))
+height_mod_corn8 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+co2|genotype))#*
+height_mod_corn9<- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+elevation|genotype))#*
+height_mod_corn10 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+salinity|genotype))
+height_mod_corn11 <- update(height_corn_noOut_mod_step, .~.-(1|genotype) + (1+comp|genotype))
 
-height_mod_corn7 <- update(height_mod_corn6, .~.-(1|genotype) + (1+co2*elevation|genotype))
-height_mod_corn8 <- update(height_mod_corn6, .~.-(1|genotype) + (1+co2*salinity|genotype))
-height_mod_corn9 <- update(height_mod_corn6, .~.-(1|genotype) + (1+elevation*salinity|genotype))
-height_mod_corn10 <- update(height_mod_corn6, .~.-(1|genotype) + (1+co2+elevation|genotype))
-height_mod_corn11 <- update(height_mod_corn6, .~.-(1|genotype) + (1+elevation + salinity|genotype))
-height_mod_corn12 <- update(height_mod_corn6, .~.-(1|genotype) + (1+salinity + co2|genotype))
-height_mod_corn13 <- update(height_mod_corn6, .~.-(1|genotype) + (1+co2|genotype))
-height_mod_corn14<- update(height_mod_corn6, .~.-(1|genotype) + (1+elevation|genotype))
-height_mod_corn15 <- update(height_mod_corn6, .~.-(1|genotype) + (1+salinity|genotype))
+# Compare to base model (all ns)
 
-# The only one that did not have convergence issues or 0 variance was the
-# elevation random slope.
-MuMIn::r.squaredGLMM(height_mod_corn6)
-MuMIn::r.squaredGLMM(height_mod_corn14)
-
-anova(height_mod_corn6, height_mod_corn14)
-
-plot_model(height_mod_corn14, type = "pred", pred.type = "re",
-           terms = c("elevation_sc[all]", "genotype")) +
-  scale_color_manual(values = rainbow(32))
-# This doesn't seem meaningful so it seems like the best (and most parsimonious
-# model) does not have a random slope.
-
-## Comparison to null model ####
-
-# Now construct a null model that does not have age, location, or genotype in it
-height_model_cornnull <- lm(height_scam_tot ~ weight_init + date_planted_grp +
-                              origin_lab + I(elevation_sc^2) +
-                              comp*co2*salinity + co2*elevation_sc, data = traits_corn)
-
-car::Anova(height_model_cornnull)
-# If no age, location, or genotype, we would say that co2 x elevation
-# influences biomass
-plot_model(height_model_cornnull, terms = c("elevation_sc[all]", "co2"), type = "emm")
-
-# Compare R2 from models
-summary(height_model_cornnull)
-# Adjusted R2 = 0.40
-MuMIn::r.squaredGLMM(height_mod_corn6)
-# Conditional R2 = 0.60
-
-# Create predicted vs observed plots for each model
-observed_height <- rep(traits_corn[!is.na(traits_corn$height_scam_tot), "height_scam_tot"], 2)
-
-tibble(predicted = c(predict(height_model_cornnull), predict(height_mod_corn6)),
-       observed = observed_height,
-       model = c(rep(c("null", "evolution"), each = length(observed)/2))) %>% 
-  ggplot(aes(x = predicted, y = observed)) +
-  geom_point(alpha = 0.3) +
-  facet_wrap(~model) +
-  ylim(10,80) + xlim(10,80) +
-  geom_abline(aes(slope = 1, intercept = 0))
-
-
-## Plot of fixed effects ####
-traits_corn %>% 
-  filter(comp == 0) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)", T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)", T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
-  ggplot(aes(x = elevation, y = agb_scam, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  facet_grid(salinity ~ age) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Aboveground Biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top") +
-  ggtitle("WITHOUT competition")
-
-traits_corn %>% 
-  filter(comp == 1) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)", T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)", T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
-  ggplot(aes(x = elevation, y = agb_scam, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  facet_grid(salinity ~ age) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Aboveground Biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top") +
-  ggtitle("WITH competition")
-
-## Plot of random effects ####
-traits_corn %>% 
-  filter(complete.cases(height_scam_tot)) %>% 
-  ggplot(aes(x = reorder(genotype, height_scam_tot, FUN = median), y = height_scam_tot)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.1, alpha = 0.5, size = 1.5) +
-  ylab("Mean stem height (cm)") +
-  xlab("Genotype") +
-  geom_hline(aes(yintercept = mean(height_scam_tot, na.rm = T)), linetype = "dashed") +
-  theme_bw() #+
-#theme(axis.text.x = element_blank())
-
-
-
+anova(height_corn_noOut_mod_step, height_mod_corn2)
+anova(height_corn_noOut_mod_step, height_mod_corn8)
+anova(height_corn_noOut_mod_step, height_mod_corn9)
 
 ##########################
 ## Stem width analysis ##
@@ -1806,100 +1490,61 @@ traits_corn %>%
 
 # Most complex model
 width_mod <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                    (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                    (1|genotype), data = traits_nocomp)
+                    (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
+                    (1|genotype) + (1|site_frame), data = traits_nocomp)
+
+plot(width_mod)
 
 # Step mod
 
-lmerTest::step(width_mod, keep = c("co2", "salinity", "elevation_sc", "location", "age"))
+get_model(lmerTest::step(width_mod, keep = keep_model_terms_nocomp))
 
-width_step_mod <- lmer(width_scam_mid ~ date_planted_grp + location + elevation_sc + 
-                         salinity + (1 | genotype) + location*elevation_sc + location*salinity, data = traits_nocomp)
-
-summary(width_mod) # Looks like we could probably drop site_frame
-plot_model(width_mod, type = "diag") # Looks good
-
-# Look at overall differences and then drop and see if outlier mattered
-car::Anova(width_mod)
-
-# Create a model that keeps location:salinity and location:elevation_sc; also drop site_frame because it
-# does not converge now
-width_mod2 <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                     age + co2 + I(elevation_sc^2) + location*salinity + location*elevation_sc + (1|genotype), data = traits_nocomp)
-
-car::Anova(width_mod2)
+width_step_mod <- lmer(width_scam_mid ~ date_planted_grp + age + location + co2 + salinity +  
+                         elevation + (1 | genotype) + location:salinity + location:elevation, data = traits_nocomp)
 
 # This is the final FIXED effects model. Check assumptions.
-plot_model(width_mod2, type = "diag") # All looks good!
+plot_model(width_step_mod, type = "diag") # All looks good!
 
 ## Model selection (random slopes) ####
 
 # Now we are going to try and add up to 2-way interactions as random slopes.
 
-# Here are the possibilities:
-# co2 + elevation
-# co2 + salinity
-# salinity + elevation
-# co2
-# elevation
-# salinity
+width_mod1 <- update(width_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))#*
+width_mod2 <- update(width_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))#*
+width_mod3 <- update(width_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+width_mod4 <- update(width_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+width_mod5<- update(width_step_mod, .~.-(1|genotype) + (1+elevation|genotype))#*
+width_mod6 <- update(width_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
 
-width_mod3 <- update(width_mod2, .~.-(1|genotype) + (1+co2+elevation|genotype))
-width_mod4 <- update(width_mod2, .~.-(1|genotype) + (1+elevation + salinity|genotype))
-width_mod5 <- update(width_mod2, .~.-(1|genotype) + (1+salinity + co2|genotype))
-width_mod6 <- update(width_mod2, .~.-(1|genotype) + (1+co2|genotype))
-width_mod7<- update(width_mod2, .~.-(1|genotype) + (1+elevation|genotype))
-width_mod8 <- update(width_mod2, .~.-(1|genotype) + (1+salinity|genotype))
-
-# The only ones that did not have estimated zeros were 3, 4, 7 and 8
-MuMIn::r.squaredGLMM(width_mod3)
-MuMIn::r.squaredGLMM(width_mod4) # This seems to take into account the most
-MuMIn::r.squaredGLMM(width_mod7)
-MuMIn::r.squaredGLMM(width_mod8)
-
-# Compare to base model
-anova(width_mod2, width_mod3)
-anova(width_mod2, width_mod4)
-anova(width_mod2, width_mod7) 
-anova(width_mod2, width_mod8)
-
-# None improve the model significantly
-
-plot_model(width_mod3, type = "pred", pred.type = "re",
-           terms = c("elevation_sc[all]", "co2", "genotype"))
-# This doesn't seem meaningful so it seems like the best (and most parsimonious
-# model) does not have a random slope.
-
-# Look at random intercepts
-plot_model(width_mod2, type = "re")
-
-# Look at fixed effects
-plot_model(width_mod2, type = "emm", terms = c("salinity", "location"))
-# Kirkpatrick genotypes are sensitive to saline conditions
-plot_model(width_mod2, type = "emm", terms = c("elevation_sc[all]", "location"))
+# Compare to base model (ns)
+anova(width_step_mod, width_mod1, refit = F)
+anova(width_step_mod, width_mod2, refit = F)
+anova(width_step_mod, width_mod5, refit = F) 
+anova(width_step_mod, width_mod6, refit = F)
 
 ## Comparison to null model ####
 
 # Now construct a null model that does not have age, location, or genotype in it
-width_model_null <- lm(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                         co2 + salinity + elevation_sc + I(elevation_sc^2),
+width_model_null <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
+                         (co2 + salinity + elevation)^5 + I(elevation^2) +
+                         (1|site_frame),
                        data = traits_nocomp)
 
-car::Anova(width_model_null)
-# If no age, location, or genotype, we would say that elevation was the only
-# thing that influenced height.
-plot_model(width_model_null, terms = "elevation_sc[all]", type = "emm")
+get_model(step(width_model_null, keep = keep_model_terms_nocomp_null))
+
+width_model_null_step <- lm(width_scam_mid ~ weight_init + co2 + salinity + 
+                              elevation, traits_nocomp)
 
 # Compare R2 from models
-summary(width_model_null)
+MuMIn::r.squaredGLMM(width_model_null_step)
 # Adjusted R2 = 0.42
-MuMIn::r.squaredGLMM(width_mod2)
-# Conditional R2 = 0.63
+MuMIn::r.squaredGLMM(width_step_mod)
+# Conditional R2 = 0.62
 
 # Create predicted vs observed plots for each model
 observed <- rep(traits_nocomp[!is.na(traits_nocomp$width_scam_mid), "width_scam_mid"], 2)
 
-tibble(predicted = c(predict(width_model_null), predict(width_mod2)),
+tibble(predicted = c(predict(width_model_null_step), predict(width_step_mod)),
        observed = observed,
        model = c(rep(c("null", "evolution"), each =length(observed)/2))) %>% 
   ggplot(aes(x = predicted, y = observed)) +
@@ -1918,43 +1563,19 @@ tibble(predicted = c(predict(width_model_null), predict(width_mod2)),
 
 # Most complex model
 width_mod_corn <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                         (age + comp + co2 + salinity + elevation_sc)^3 + I(elevation_sc^2) +
+                         (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
                          (1|site_frame) + (1|genotype), data = traits_corn)
 
 # Try step mod
-lmerTest::step(width_mod_corn)
+get_model(lmerTest::step(width_mod_corn, keep = keep_model_terms_corn))
 
 # Step mod
-width_corn_step_mod <- lmer(width_scam_mid ~ weight_init + comp + co2 + salinity + 
-                              elevation_sc + (1 | genotype) + 
-                              co2*elevation_sc + I(elevation_sc^2) +
-                              age*co2*salinity + age*salinity*elevation_sc, data = traits_corn)
-
-plot_model(width_corn_step_mod, terms = c("co2", "age", "salinity"), type = "emm")
-
-pairs(emmeans::emmeans(width_corn_step_mod, ~ co2|salinity|age))
-
-summary(width_mod_corn)
-
-car::Anova(width_mod_corn)
-# This would be age:salinity:elevation and age:co2:salinity (3-way interactions)
-
-# Fit model with that 4-way interaction and all possible 3-way interactions
-width_mod_corn2 <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                          (age + comp + co2 + salinity + elevation_sc)^2 + I(elevation_sc^2) +
-                          age:salinity:elevation_sc + age:co2:salinity + (1|genotype), data = traits_corn)
-
-car::Anova(width_mod_corn2) # Keep 3 way interactions (and dependents) as well as co2:elevation
-
-width_mod_corn3 <- lmer(width_scam_mid ~ weight_init + date_planted_grp + origin_lab +
-                          comp + salinity*co2*age + salinity*age*elevation_sc + elevation_sc*co2 + I(elevation_sc^2) +
-                          (1|genotype), data = traits_corn)
-
-car::Anova(width_mod_corn3) # Final fixed effects model
-
+width_corn_step_mod <- lmer(width_scam_mid ~ weight_init + age + comp + co2 + salinity +  
+                              elevation + (1 | genotype) + age:co2 + age:salinity + age:elevation +  
+                              co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity +      age:salinity:elevation, data = traits_corn)
 
 # This is the final FIXED effects model. Check assumptions.
-plot_model(width_mod_corn3, type = "diag") # All looks good!
+plot_model(width_corn_step_mod, type = "diag") # All looks good!
 
 ## Model selection (random slopes) ####
 
@@ -1971,141 +1592,26 @@ plot_model(width_mod_corn3, type = "diag") # All looks good!
 # elevation
 # salinity
 
-width_mod_corn4 <- update(width_mod_corn3, .~.-(1|genotype) + (1+co2*elevation|genotype))
-width_mod_corn5 <- update(width_mod_corn3, .~.-(1|genotype) + (1+co2*salinity|genotype))
-width_mod_corn6 <- update(width_mod_corn3, .~.-(1|genotype) + (1+elevation*salinity|genotype))
-width_mod_corn7 <- update(width_mod_corn3, .~.-(1|genotype) + (1+co2+elevation|genotype))
-width_mod_corn8 <- update(width_mod_corn3, .~.-(1|genotype) + (1+elevation + salinity|genotype))
-width_mod_corn9 <- update(width_mod_corn3, .~.-(1|genotype) + (1+salinity + co2|genotype))
-width_mod_corn10 <- update(width_mod_corn3, .~.-(1|genotype) + (1+co2|genotype))
-width_mod_corn11<- update(width_mod_corn3, .~.-(1|genotype) + (1+elevation|genotype))
-width_mod_corn12 <- update(width_mod_corn3, .~.-(1|genotype) + (1+salinity|genotype))
+width_mod_corn1 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2*elevation|genotype))
+width_mod_corn2 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2*salinity|genotype))
+width_mod_corn3 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation*salinity|genotype))
+width_mod_corn4 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp*salinity|genotype))#*
+width_mod_corn5 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation*comp|genotype))
+width_mod_corn6 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp*co2|genotype))
+width_mod_corn7 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))
+width_mod_corn8 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))
+width_mod_corn9 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+width_mod_corn10 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp+salinity|genotype))#*
+width_mod_corn11 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation+comp|genotype))
+width_mod_corn12<- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp+co2|genotype))
+width_mod_corn13<- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+width_mod_corn14<- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp|genotype))
+width_mod_corn15<- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation|genotype))
+width_mod_corn16 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
 
-# The only ones that did not have convergence issues or 0 variance were 6,8,11,12.
-MuMIn::r.squaredGLMM(width_mod_corn6)
-MuMIn::r.squaredGLMM(width_mod_corn8)
-MuMIn::r.squaredGLMM(width_mod_corn11)
-MuMIn::r.squaredGLMM(width_mod_corn12)
-
-anova(width_mod_corn6, width_mod_corn3)
-anova(width_mod_corn8, width_mod_corn3)
-anova(width_mod_corn11, width_mod_corn3)
-anova(width_mod_corn12, width_mod_corn3)
-
-plot_model(width_mod_corn6, type = "pred", pred.type = "re",
-           terms = c("elevation_sc[all]", "salinity", "genotype")) +
-  scale_color_manual(values = rainbow(32))
-# This doesn't seem meaningful so it seems like the best (and most parsimonious
-# model) does not have a random slope.
-
-## Comparison to null model ####
-
-# Now construct a null model that does not have age, location, or genotype in it
-width_model_cornnull <- lm(width_scam_mid ~ weight_init + date_planted_grp +
-                             origin_lab + I(elevation_sc^2) + comp + 
-                             (salinity + elevation_sc + co2)^2, data = traits_corn)
-
-car::Anova(width_model_cornnull)
-# If no age, location, or genotype, we would say that co2 x elevation
-# influences width as well as salinity x elevation and comp
-plot_model(width_model_cornnull, terms = c("elevation_sc[all]", "co2"), type = "emm")
-
-# Compare R2 from models
-summary(width_model_cornnull)
-# Adjusted R2 = 0.54
-MuMIn::r.squaredGLMM(width_mod_corn3)
-# Conditional R2 = 0.67
-
-# Create predicted vs observed plots for each model
-observed_width <- rep(traits_corn[!is.na(traits_corn$width_scam_mid), "width_scam_mid"], 2)
-
-tibble(predicted = c(predict(width_model_cornnull), predict(width_mod_corn3)),
-       observed = observed_width,
-       model = c(rep(c("null", "evolution"), each = length(observed)/2))) %>% 
-  ggplot(aes(x = predicted, y = observed)) +
-  geom_point(alpha = 0.3) +
-  facet_wrap(~model) + xlim(1.5,5.5) + ylim(1.5,5.5) +
-  geom_abline(aes(slope = 1, intercept = 0))
-
-## Plot of fixed effects ####
-
-plot_model(width_mod_corn3, type = "emm", terms = c("salinity", "age", "co2"))
-
-traits_corn %>% 
-  filter(complete.cases(width_scam_mid)) -> test_data
-
-traits_corn %>% 
-  filter(comp == 0) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)", T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)", T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
-  ggplot(aes(x = elevation, y = agb_scam, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  facet_grid(salinity ~ age) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Aboveground Biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top") +
-  ggtitle("WITHOUT competition")
-
-traits_corn %>% 
-  filter(comp == 1) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "Freshwater Site (6ppt)", T ~ "Brackish Site (8ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "Ancestral Cohort (1900-1960)", T ~ "Modern Cohort (2000-2020)")) %>% 
-  mutate(co2 = case_when(co2 == "elevated" ~ "Elevated (700ppm)", T ~ "Ambient (400ppm)")) %>%
-  ggplot(aes(x = elevation, y = agb_scam, color = co2)) +
-  geom_point(size = 2, alpha = 0.5) +
-  geom_smooth(method = "lm", formula = y ~ x + I(x^2), se = F, size = 1.5) +
-  facet_grid(salinity ~ age) +
-  scale_color_manual(values = c("#78c679", "#006837"))+
-  guides(color=guide_legend(title=expression(paste(CO[2], " level")))) +
-  ylab("Aboveground Biomass (g)") +
-  xlab("Elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "top") +
-  ggtitle("WITH competition")
-
-## Plot of random effects ####
-traits_corn %>% 
-  filter(complete.cases(height_scam_tot)) %>% 
-  ggplot(aes(x = reorder(genotype, height_scam_tot, FUN = median), y = height_scam_tot)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.1, alpha = 0.5, size = 1.5) +
-  ylab("Mean stem height (cm)") +
-  xlab("Genotype") +
-  geom_hline(aes(yintercept = mean(height_scam_tot, na.rm = T)), linetype = "dashed") +
-  theme_bw() #+
-#theme(axis.text.x = element_blank())
-
-
-
-
-
-
-## Other exploratory stuff ####
-# Exploratory see how scam biomass influences SPPA height
-full_data_merged %>% 
-  filter(height_sppa > 0) %>% 
-  ggplot(aes(x = agb_scam, y = height_sppa, color = elevation)) +
-  geom_point(size = 3, alpha = 0.6) + 
-  scale_color_gradientn(colours = rainbow(4)) +
-  xlab(expression(paste(italic("S. americanus"), " aboveground biomass (g)"))) +
-  ylab(expression(paste(italic("S. patens"), " maximum height (cm)")))
-
-# Exploratory see how scam biomass influences SPPA biomass
-full_data_merged %>% 
-  filter(height_sppa > 0) %>% 
-  ggplot(aes(x = agb_scam, y = agb_sppa, color = elevation)) +
-  geom_smooth(method = "lm", formula = y ~ I(log(x+0.00001))) +
-  geom_point(size = 3, alpha = 0.6) + 
-  scale_color_gradientn(colours = rainbow(4)) +
-  xlab(expression(paste(italic("S. americanus"), " aboveground biomass (g)"))) +
-  ylab(expression(paste(italic("S. patens"), " aboveground biomass (g)")))
-
-
+# Compare to base model
+anova(width_corn_step_mod, width_mod_corn4)
+anova(width_corn_step_mod, width_mod_corn9)
 
 ###########################
 ## Stem density analysis ##
@@ -2113,127 +1619,135 @@ full_data_merged %>%
 
 # Stem density uses the same data as AGB
 density_mod <- lmer(dens_scam_live ~ weight_init + date_planted_grp + origin_lab +
-                      (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                      (1|genotype), data = traits_nocomp)
+                      (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
+                      (1|genotype) + (1|site_frame), data = traits_nocomp)
 
-lmerTest::step(density_mod, keep = c("co2", "salinity", "age", "location", "elevation_sc"))
+plot_model(density_mod, type = "diag") # looks pretty good without transformation
 
-density_step_mod <- lmer(dens_scam_live ~ age + location + co2 + salinity + elevation_sc + 
-                           I(elevation_sc^2) + (1 | genotype), data = traits_nocomp)
+get_model(lmerTest::step(density_mod, keep = keep_model_terms_nocomp))
 
-car::Anova(density_step_mod)
+density_step_mod <- lmer(dens_scam_live ~ age + location + co2 + salinity + elevation +  
+                           I(elevation^2) + (1 | genotype), data = traits_nocomp)
 
-plot_model(density_step_mod, terms = c("elevation_sc[all]", "co2"), type = "emm")
+# Check for random slopes
+
+density_mod_corn1 <- update(density_step_mod, .~.-(1|genotype) + (1+co2*elevation|genotype))
+density_mod_corn2 <- update(density_step_mod, .~.-(1|genotype) + (1+co2*salinity|genotype))
+density_mod_corn3 <- update(density_step_mod, .~.-(1|genotype) + (1+elevation*salinity|genotype))
+density_mod_corn4 <- update(density_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))
+density_mod_corn5 <- update(density_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))
+density_mod_corn6 <- update(density_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+density_mod_corn7 <- update(density_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+density_mod_corn8<- update(density_step_mod, .~.-(1|genotype) + (1+elevation|genotype))
+density_mod_corn9 <- update(density_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
+# none of them converge
+
+# Compare with null model
+
+density_mod_null <- lmer(dens_scam_live ~ weight_init + date_planted_grp + origin_lab +
+                           (co2 + salinity + elevation)^3 + I(elevation^2) +
+                           (1|site_frame), data = traits_nocomp)
+
+get_model(step(density_mod_null, keep = keep_model_terms_nocomp_null))
+
+# Fit stepwise null model
+density_mod_null_step <- lm(dens_scam_live ~ co2 + salinity + elevation + I(elevation^2), 
+   data = traits_nocomp)
+
+# Compare models
+MuMIn::r.squaredGLMM(density_mod_null_step)
+# 0.20
+MuMIn::r.squaredGLMM(density_step_mod)
+# 0.46
+
+# Competition model for density
+
+## Fit model and model selection (fixed effects) ####
+
+# Most complex model
+density_mod_corn <- lmer(dens_scam_live ~ weight_init + date_planted_grp + origin_lab +
+                         (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
+                         (1|site_frame) + (1|genotype), data = traits_corn)
+
+# Try step mod
+get_model(lmerTest::step(density_mod_corn, keep = keep_model_terms_corn))
+
+# Step mod
+density_corn_step_mod <- lmer(dens_scam_live ~ weight_init + age + comp + co2 + salinity +  
+                              elevation + I(elevation^2) + (1 | genotype) + age:comp +  
+                              age:co2 + age:elevation + comp:co2 + comp:elevation + co2:elevation +  
+                              age:comp:co2 + age:comp:elevation + age:co2:elevation + comp:co2:elevation +  
+                              age:comp:co2:elevation, data = traits_corn)
+
+# This is the final FIXED effects model. Check assumptions.
+plot_model(density_corn_step_mod, type = "diag") # All looks good!
+
+## Model selection (random slopes) ####
+
+# Now we are going to try and add up to 2-way interactions as random slopes.
+
+density_mod_corn1 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+co2*elevation|genotype))
+density_mod_corn2 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+co2*salinity|genotype))
+density_mod_corn3 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevation*salinity|genotype))
+density_mod_corn4 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+comp*salinity|genotype))#*
+density_mod_corn5 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevation*comp|genotype))
+density_mod_corn6 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+comp*co2|genotype))
+density_mod_corn7 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))
+density_mod_corn8 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))
+density_mod_corn9 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
+density_mod_corn10 <- update(density_corn_step_mod, .~.-(1|genotype) + (1+comp+salinity|genotype))
+density_mod_corn11<- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevation+comp|genotype))
+density_mod_corn12<- update(density_corn_step_mod, .~.-(1|genotype) + (1+comp+co2|genotype))
+density_mod_corn13<- update(density_corn_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+density_mod_corn14<- update(density_corn_step_mod, .~.-(1|genotype) + (1+comp|genotype))
+density_mod_corn15<- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevation|genotype))
+density_mod_corn16<- update(density_corn_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
+# nothing fits
+
+plot_model(density_corn_step_mod, terms = c("elevation[all]", "age", "co2", "comp"), type = "emm") # All looks good!
+
+## Get final models for each trait ####
+
+list(
+# AGB no comp
+agb_mod_step = agb_mod_step,
+# AGB no comp null
+agb_null_step = agb_null_step,
+# AGB corn
+agb_corn_step_mod = agb_corn_step_mod,
+# RS no comp
+rs_step_mod = rs_step_mod,
+# RS no comp null
+rs_mod_null_step = rs_mod_null_step,
+# BGB no comp
+bg_step_mod = bg_step_mod,
+# BGB no comp null
+bg_modelnull_step = bg_modelnull_step,
+# Beta no comp 
+beta_step_mod = beta_step_mod,
+# Beta no comp null
+beta_modelnull_step = beta_modelnull_step,
+# Height no comp
+height_step_mod = height_step_mod,
+# Height no comp null
+height_model_noOut_null_step = height_model_noOut_null_step,
+# Height corn
+height_corn_noOut_mod_step = height_corn_noOut_mod_step,
+# Width no comp
+width_step_mod = width_step_mod,
+# Width no comp null
+width_model_null_step = width_model_null_step,
+# Width corn
+width_corn_step_mod = width_corn_step_mod,
+# Density no comp
+density_step_mod = density_step_mod,
+# Density no comp null
+density_mod_null_step = density_mod_null_step,
+# Density corn
+density_corn_step_mod = density_corn_step_mod) -> all_models
+
+lapply(all_models, MuMIn::r.squaredGLMM)
 
 
 
-#############################
-## Competition in top 10cm ##
-#############################
 
-# Filter out top 10cm that is SCAM or SPPA only (no mixed roots)
-bg_clean %>% 
-  filter(segment_top == 0 & species %in% c("scam", "sppa")) %>% 
-  group_by(pot_no, species) %>% 
-  summarize(bg_biomass10 = sum(weight)) %>% 
-  spread(key = species, value = bg_biomass10) -> bg_10cm
-
-# Merge in with full_data
-merge(bg_10cm, full_data_merged, by.x = "pot_no") %>% 
-  rename(bg_scam10 = scam, bg_sppa10 = sppa)-> full_data_top10
-
-# Filter for just corn genotypes and where scam bg is greater than 0 and levels
-# 1-4
-full_data_top10 %>% 
-  filter(location == "corn" & bg_scam10 > 0 & level < 5) -> data_top10_corn
-
-# Calculate an aboveground to belowground ratio for the top 10cm and filter out
-# those that don't make sense biologically
-data_top10_corn %>% 
-  mutate(rs10 = bg_scam10 / agb_scam) %>% 
-  filter(rs10 < 3)-> data_top10_corn
-
-# Look to see if there are any rs10 outliers
-data_top10_corn %>% 
-  ggplot(aes(x = rs10)) +
-  geom_histogram()
-
-# Make age predictor variable
-data_top10_corn %>% 
-  mutate(age = case_when(substr(genotype, 2, 2) == "a" ~ "ancestral",
-                         T ~ "modern")) -> data_top10_corn
-
-# Scale elevation
-data_top10_corn %>% 
-  mutate(elevation_sc = scale(elevation)[,1]) -> data_top10_corn
-
-# Fit a linear mixed model with comp for the top 10cm of belowground biomass
-bg10_mod_corn <- lmer(sqrt(bg_scam10) ~ weight_init + date_planted_grp + origin_lab +
-                        (age + comp + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                        (1|genotype), data = data_top10_corn)
-
-plot(bg10_mod_corn)
-qqnorm(resid(bg10_mod_corn))
-qqline(resid(bg10_mod_corn))
-
-# Do stepwise selection
-lmerTest::step(bg10_mod_corn)
-
-# Stepwise model
-bg10_mod_corn_step <- lmer(sqrt(bg_scam10) ~ weight_init + comp + elevation_sc +
-                             I(elevation_sc^2) + age*co2*salinity +
-                             (1 | genotype), data = data_top10_corn)
-
-# Look at fixed effects
-plot_model(bg10_mod_corn_step, type = "emm", terms = c("co2", "age", "salinity"))
-plot_model(bg10_mod_corn_step, type = "emm", terms = "elevation_sc[all]")
-plot_model(bg10_mod_corn_step, type = "emm", terms = "comp")
-
-# Random effects
-MuMIn::r.squaredGLMM(bg10_mod_corn_step)
-plot_model(bg10_mod_corn_step, type = "re")
-
-# See if we can add any random slopes
-
-bg10_mod_corn_step1 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+elevation_sc|genotype))
-bg10_mod_corn_step2 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+co2|genotype))
-bg10_mod_corn_step3 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+salinity|genotype)) # *
-bg10_mod_corn_step4 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+comp|genotype))
-bg10_mod_corn_step5 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+co2*salinity|genotype)) # *
-bg10_mod_corn_step6 <- update(bg10_mod_corn_step, .~.-(1|genotype) + (1+co2+salinity|genotype))
-
-anova(bg10_mod_corn_step, bg10_mod_corn_step3, refit = F)
-anova(bg10_mod_corn_step, bg10_mod_corn_step5, refit = F)
-
-# Plot of fixed effects
-data_top10_corn %>% 
-  ggplot(aes(x = age, y = bg_scam10, color = age)) +
-  geom_boxplot() +
-  geom_jitter(height = 0, width = 0.1) +
-  facet_grid(salinity ~ co2)
-
-emmip(bg10_mod_corn_step, co2 ~ salinity | age, CIs = T, type = "response",
-      style = "factor") +
-  geom_jitter(aes(x = salinity, y = bg_scam10, colour = co2), 
-              data = data_top10_corn, pch = 16, width = 0.1, alpha = 0.2) +
-  facet_wrap(~ age) +
-  theme_bw()
-
-# Do the same with root:shoot
-rs10_mod_corn <- lmer(log(rs10) ~ weight_init + date_planted_grp + origin_lab +
-                        (age + comp + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
-                        (1|genotype), data = data_top10_corn)
-
-
-# Do stepwise selection
-lmerTest::step(rs10_mod_corn)
-
-# Stepwise model
-rs10_mod_corn_step <- lmer(log(rs10) ~ weight_init + date_planted_grp + salinity +
-                             elevation_sc + I(elevation_sc^2) + (1 | genotype), data = data_top10_corn)
-
-emmip(rs10_mod_corn_step, ~ salinity, CIs = T, type = "response",
-      style = "factor") +
-  geom_jitter(aes(x = salinity, y = rs10), 
-              data = data_top10_corn, pch = 16, width = 0.1, alpha = 0.2) +
-  theme_bw()
