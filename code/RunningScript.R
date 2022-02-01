@@ -1152,7 +1152,7 @@ summary(rs_ECA_plot) %>%
   geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = co2), alpha = 0.2, color = NA) +
   facet_wrap(~age) +
   ylab('ln(root-to-shoot ratio)') +
-  xlab('elevation (m NAVD88') +
+  xlab('elevation (m NAVD88)') +
   scale_color_manual(values = c("#b2df8a","#33a02c")) +
   scale_fill_manual(values = c("#b2df8a","#33a02c")) +
   theme_bw() +
@@ -1171,7 +1171,7 @@ summary(rs_ELS_plot) %>%
   geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = salinity), alpha = 0.2, color = NA) +
   facet_wrap(~location) +
   ylab('') +
-  xlab('elevation (m NAVD88') +
+  xlab('elevation (m NAVD88)') +
   scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
   scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
   theme_bw() +
