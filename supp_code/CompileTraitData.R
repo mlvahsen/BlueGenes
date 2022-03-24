@@ -30,6 +30,7 @@ reap_pot <- read_csv(here("supp_data","Harvest_FullData_PotLevel.csv"))
 reap_stem <- read_csv(here("supp_data","Harvest_FullData_StemLevel.csv"))
 pot_ids <- read_csv(here("supp_data","HarvestPot_ID.csv")) # for matching up pot_no with data sheets that don't have pot_no
 rna_harvest <- read.csv(here("supp_data","RNA_harvest.csv"))
+porewater <- read_csv(here("supp_data", "porewaterNH4_processed_2019.csv"))
 
 ## Data cleaning and formatting ##### 
 
@@ -63,7 +64,8 @@ merge(inits_elev, pot_ids_only, by = "id") -> inits_ids
 abg %>% 
   dplyr::select(-Date) %>% # Helps deal with the double entry problem
   dplyr::select(-Recorder) %>% 
-  filter(notes != "dh rhizome" & notes != "dh stem" | is.na(notes)) %>%  
+  #filter(notes != "dh rhizome" & notes != "dh stem" | is.na(notes)) %>% 
+  filter(notes != "dh rhizome" & notes != "dh stem" | is.na(notes)) %>% 
   filter(!grepl("dh rhizome",notes)) %>% 
   dplyr::select(-notes) %>% 
   mutate(allom = ifelse(allom == "N/A", NA, allom)) %>% 
@@ -431,8 +433,15 @@ bg_full %>%
                          T ~ "modern"))-> bg_full
 
 # Now filter out the "failure to establish" zeros from the full data
-bg_full %>% 
-  filter(id %in% zeros_to_keep | dens_scam_live > 0) -> bg_est
+# bg_full %>% 
+#   filter(id %in% zeros_to_keep | dens_scam_live > 0) -> bg_est
+
+# Add in porewater ammonium data
+porewater %>% 
+  select(pot_no = Plot,
+         nh4 = NH4.uM) -> porewater
+
+merge(porewater, bg_full, by = "pot_no", all = TRUE) -> bg_full
 
 ## Remove all ancillary datasets and keep blue_genes data set and full_data.
 ## This is just housekeeping so I don't get confused by all of the data frames
