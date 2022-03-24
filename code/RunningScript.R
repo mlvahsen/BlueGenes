@@ -762,6 +762,8 @@ agb_mod <- lmer(sqrt(agb_scam) ~ weight_init + date_planted_grp + origin_lab +
                   (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
                   (1|genotype), data = traits_nocomp)
 
+car::Anova(agb_mod)
+
 # Try lmerTest::step for backwards model selection
 step_agb <- get_model(lmerTest::step(agb_mod, keep = keep_model_terms_nocomp))
 
@@ -1262,7 +1264,28 @@ tibble(predicted = c(predict(beta_modelnull_step), predict(beta_mod1)),
   ylim(0.75,0.97) + xlim(0.75,0.97) +
   geom_abline(aes(slope = 1, intercept = 0))
 
+## Plot of the fixed effects for supplement ####
+plot_model(beta_mod1, terms = c("elevation[all]", "age"), type = "emm")
 
+# Get emmeans values for plots
+beta_EA_plot <- emmeans::emmeans(beta_mod1, ~elevation:age, at = list(elevation = seq(0.156, 0.544, length.out = 50)))
+
+summary(beta_EA_plot) %>% 
+  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
+                         T ~ "descendant cohort (2000-2020)")) %>% 
+  mutate(beta = emmean) %>% 
+  ggplot(aes(x = elevation, y = beta, color = age)) +
+  geom_point(data = traits_nocomp_plot, aes(x = elevation, y = beta), shape = 1, stroke = 0.8, alpha = 0.4, size = 0.8) +
+  geom_textline(aes(label = age), fontface = 2, linewidth = 1.2, size = 3, textcolor = "black") +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = age), alpha = 0.2, color = NA) +
+  ylab(expression(paste('root distribution parameter (', beta, ")"))) +
+  xlab('elevation (m NAVD88)') +
+  scale_color_manual(values = c("#fb9a99","#e31a1c")) +
+  scale_fill_manual(values = c("#fb9a99","#e31a1c")) +
+  theme_bw() +
+  theme(legend.position = "none") -> beta_fig
+
+ggsave(here("figs", "SuppFig_beta.png"), beta_fig, height = 3, width = 4, units = "in")
 ##################################
 ## Belowground biomass analysis ##
 ##################################
