@@ -156,7 +156,7 @@ full_data[which(full_data$scam == 0 & full_data$scam_live_density != 0),] %>%
 full_data %>% 
   mutate(date_cloned_grp = factor(ifelse(date_cloned %in% c("5/22/19", "5/28/19", "5/27/19"), 1,
                                          ifelse(date_cloned %in% c("6/9/19", "6/10/19"), 2, 3))),
-         date_planted_grp = factor(ifelse(date_planted %in% c("6/13/19", "6/14/19", "6/17/19"), 1, 2))) %>% 
+         date_planted_grp = factor(ifelse(date_planted %in% c("6/13/19", "6/14/19", "6/17/19", "6/12/19"), 1, 2))) %>% 
   dplyr::select(pot_no,site_frame,level,position,
          co2,
          salinity,
