@@ -443,6 +443,12 @@ porewater %>%
 
 merge(porewater, bg_full, by = "pot_no", all = TRUE) -> bg_full
 
+# Fix spartina competition pots -- if there is no SPPA, then SPPA max height is
+# zero (not NA)
+
+bg_full %>% 
+  mutate(height_sppa = ifelse(height_sppa == 0 & comp == 1, NA, height_sppa)) -> bg_full
+
 ## Remove all ancillary datasets and keep blue_genes data set and full_data.
 ## This is just housekeeping so I don't get confused by all of the data frames
 rm(list=setdiff(ls(), c("bg_full")))

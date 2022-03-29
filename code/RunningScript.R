@@ -760,17 +760,16 @@ keep_model_terms_corn <- c("co2", "salinity", "elevation", "comp", "age")
 keep_model_terms_corn_null <- c("co2", "salinity", "elevation", "comp")
 
 # Most complex model
-agb_mod <- lmer(sqrt(agb_scam) ~ weight_init + date_planted_grp + origin_lab +
+agb_mod <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + origin_lab +
                   (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
                   (1|genotype), data = traits_nocomp)
 
-car::Anova(agb_mod)
 
 # Try lmerTest::step for backwards model selection
 step_agb <- get_model(lmerTest::step(agb_mod, keep = keep_model_terms_nocomp))
 
 # This is the best model
-agb_mod_step <- lmer(sqrt(agb_scam) ~ weight_init + date_planted_grp + age + location +  
+agb_mod_step <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + age + location +  
                        co2 + salinity + elevation + I(elevation^2) + (1 | genotype) +  
                        age:co2 + age:salinity + age:elevation + co2:salinity + co2:elevation +  
                        salinity:elevation + age:co2:salinity + age:co2:elevation +  
@@ -807,7 +806,7 @@ agb_mod9 <- update(agb_mod_step, .~.-(1|genotype) + (1+salinity|genotype))#*
 
 # Compare random effects models to include sinificant additions
 anova(agb_mod_step, agb_mod4)
-anova(agb_mod_step, agb_mod8)
+anova(agb_mod_step, agb_mod9)
 
 plot_model(agb_mod4, type = "pred", pred.type = "re",
            terms = c("elevation[all]", "co2", "genotype"))
@@ -1137,58 +1136,47 @@ tibble(predicted = c(exp(predict(rs_mod_null_step)), exp(predict(rs_step_mod))),
 anova(rs_step_mod)
 
 ## Plot of fixed effects ####
-plot_model(rs_step_mod, terms = c("elevation[all]", "co2", "age"), type = "emm")
-plot_model(rs_step_mod, terms = c("elevation[all]", "salinity", "location"), type = "emm")
-
 # Get emmeans values for plots
-rs_ECA_plot <- emmeans::emmeans(rs_step_mod, ~elevation:co2:age, at = list(elevation = seq(0.156, 0.544, length.out = 50)))
-rs_ELS_plot <- emmeans::emmeans(rs_step_mod, ~elevation:location:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50)))
+rs_EL_plot <- summary(emmeans::emmeans(rs_step_mod, ~elevation:location, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+rs_ES_plot <- summary(emmeans::emmeans(rs_step_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
 
-traits_nocomp_plot %>% 
-  filter(pot_no %in% traits_nocomp_rs$pot_no) %>% 
-  mutate(rs = total_bg / agb_scam)-> traits_nocomp_rs_plot
-
-# Age:co2:elevation interaction
-summary(rs_ECA_plot) %>% 
-  # mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-  #                             T ~ "brackish site (6ppt)")) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
-                         T ~ "descendant cohort (2000-2020)")) %>% 
-  mutate(rs = emmean) %>% 
-  ggplot(aes(x = elevation, y = rs, color = co2)) +
-  geom_point(data = traits_nocomp_rs_plot, aes(x = elevation, y = log(rs)), shape = 1, stroke = 0.8, alpha = 0.4, size = 0.8) +
-  geom_textline(aes(label = co2), fontface = 2, linewidth = 1.2, size = 3) +
-  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = co2), alpha = 0.2, color = NA) +
-  facet_wrap(~age) +
-  ylab('ln(root-to-shoot ratio)') +
-  xlab('elevation (m NAVD88)') +
-  scale_color_manual(values = c("#b2df8a","#33a02c")) +
-  scale_fill_manual(values = c("#b2df8a","#33a02c")) +
+tibble(rs = exp(rs_EL_plot$emmean),
+       elevation = rs_EL_plot$elevation,
+       lower = exp(rs_EL_plot$lower.CL),
+       upper = exp(rs_EL_plot$upper.CL),
+       location = rep(c("corn", "kirkpatrick"), each = 50)) %>% 
+  ggplot(aes(x = elevation, y = rs, color = location)) +
+  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = rs, color = location), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_textline(size = 3, fontface = "bold", label= rep(c("Corn Island", "Kirkpatrick Marsh"), each = 50), linewidth = 1.2, hjust = 0.9, textcolor = "black") +
   theme_bw() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = location), alpha = 0.2, color = NA) +
+  ylab("root-to-shoot ratio") +
+  xlab("elevation (m NAVD88)") + 
+  scale_color_manual(values = c("#cab2d6", "#6a3d9a")) +
+  scale_fill_manual(values = c("#cab2d6", "#6a3d9a")) +
   theme(legend.position = "none") -> rs_interaction_1
 
-# salinity:elevation and location:elevation interactions
-summary(rs_ELS_plot) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site",
-                              T ~ "brackish site")) %>%
-  mutate(rs = emmean) %>% 
+tibble(rs = exp(rs_ES_plot$emmean),
+       elevation = rs_ES_plot$elevation,
+       lower = exp(rs_ES_plot$lower.CL),
+       upper = exp(rs_ES_plot$upper.CL),
+       salinity = rep(c("fresh", "salt"), each = 50)) %>% 
   ggplot(aes(x = elevation, y = rs, color = salinity)) +
-  geom_point(data = traits_nocomp_rs_plot %>% 
-               mutate(salinity = case_when(salinity == "freshwater site (4ppt)" ~ "freshwater site",
-                                           T ~ "brackish site")), aes(x = elevation, y = log(rs)), shape = 1, stroke = 0.8, size = 0.8, alpha = 0.3) +
-  geom_textline(aes(label = salinity), fontface = 2, size = 3, linewidth = 1.2, hjust = 0.1) +
-  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = salinity), alpha = 0.2, color = NA) +
-  facet_wrap(~location) +
-  ylab('') +
-  xlab('elevation (m NAVD88)') +
+  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = rs, color = salinity), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_textline(size = 3, fontface = "bold", label= rep(c("freshwater site", "brackish site"), each = 50), linewidth = 1.2, hjust = 0.1, textcolor = "black") +
+  theme_bw() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
+  ylab("") +
+  xlab("elevation (m NAVD88)") + 
   scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
   scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
-  theme_bw() +
   theme(legend.position = "none") -> rs_interaction_2
 
 rs_interaction_1 + rs_interaction_2 + plot_annotation(tag_levels = "a") -> rs_fig
 
-ggsave(here("figs", "Fig3_rs.png"), rs_fig, height = 3, width = 9, units = "in")
+ggsave(here("figs", "Fig3_rs.png"), rs_fig, height = 4, width = 8, units = "in")
 
 ##########################################
 ## Root distribution parameter analysis ##
@@ -1318,8 +1306,7 @@ tibble(age = rep(c("ancestral", "modern"), each = length(depths)*3),
   ylab("cumulative proportion") +
   theme_bw() -> beta_figB
 
-beta_figA + beta_figB + plot_annotation(tag_levels = "a") & 
-  theme(plot.tag = element_text(face = "bold")) -> beta_fig
+beta_figA + beta_figB + plot_annotation(tag_levels = "a")-> beta_fig
 
 ggsave(here("figs", "SuppFig_beta.png"), beta_fig, height = 4, width = 9, units = "in")
 ##################################
@@ -1445,7 +1432,7 @@ car::Anova(height_mod_noOut) # That seemed to be driving somethings. So let's dr
 # Try step
 get_model(lmerTest::step(height_mod_noOut, keep = keep_model_terms_nocomp))
 
-height_step_mod <- lmer(height_scam_tot ~ date_planted_grp + age + location:salinity + co2 + salinity +  
+height_step_mod <- lmer(height_scam_tot ~ date_cloned_grp + age + location:salinity + co2 + salinity +  
                           elevation + (1 | genotype), data = traits_nocomp_noOut)
 
 ## Model selection (random slopes) ####
@@ -1509,19 +1496,23 @@ tibble(predicted = c(predict(height_model_noOut_null_step), predict(height_step_
 plot_model(height_step_mod, terms = c("elevation[all]"), type = "emm")
 
 # Get emmeans values for plots
-height_E_plot <- summary(emmeans::emmeans(height_step_mod, ~elevation, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+height_ES_plot <- summary(emmeans::emmeans(height_step_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
 
-tibble(height_scam_tot = height_E_plot$emmean,
-       elevation = height_E_plot$elevation,
-       lower = height_E_plot$lower.CL,
-       upper = height_E_plot$upper.CL) %>% 
-  ggplot(aes(x = elevation, y = height_scam_tot)) +
-  geom_line() +
+tibble(height_scam_tot = height_ES_plot$emmean,
+       elevation = height_ES_plot$elevation,
+       lower = height_ES_plot$lower.CL,
+       upper = height_ES_plot$upper.CL,
+       salinity = height_ES_plot$salinity) %>% 
+  ggplot(aes(x = elevation, y = height_scam_tot, color = salinity)) +
+  geom_textline(label = rep(c("freshwater site", "brackish site"), each = 50), linewidth = 1.2, fontface = 2, size = 3) +
   theme_bw() +
-  geom_point(data = traits_nocomp_noOut, aes(x = elevation, y = height_scam_tot), shape = 1, stroke = 0.8, alpha = 0.7, size = 0.8) +
-  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
+  geom_point(data = traits_nocomp_noOut, aes(x = elevation, y = height_scam_tot, color = salinity), shape = 1, stroke = 0.8, alpha = 0.7, size = 0.8) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
   ylab("mean stem height (cm)") +
-  xlab("elevation (m NAVD88)") -> height_plot
+  xlab("elevation (m NAVD88)") +
+  scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
+  scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
+  theme(legend.position = "none") -> height_plot
 
 ggsave(here("figs", "SuppFig_height.png"), height_plot, height = 3, width = 4, units = "in")
 
@@ -1724,7 +1715,8 @@ tibble(width_scam_mid = width_SL_plot$emmean,
   scale_color_manual(values = c("#cab2d6", "#6a3d9a")) +
   labs(color = "provenance") -> width_plot_b
 
-width_plot_a + width_plot_b + plot_layout(widths = c(3,2), guides = "collect") -> width_plot
+width_plot_a + width_plot_b + plot_layout(widths = c(3,2), guides = "collect") +
+  plot_annotation(tag_levels = "a") -> width_plot
 
 ggsave(here("figs", "SuppFig_width.png"), width_plot, height = 3, width = 7, units = "in")
 
@@ -1847,7 +1839,7 @@ tibble(dens_scam_live = density_EC_plot$emmean,
   ggplot(aes(x = elevation, y = dens_scam_live, color = co2)) +
   geom_point(data = traits_nocomp, aes(x = elevation, y = dens_scam_live, color = co2), shape = 1,
              stroke = 0.8, alpha = 0.6, size = 0.8) +
-  geom_textline(linewidth = 1.2, label = rep(c("ambient","elevated"), each = 50), hjust = "ymax") +
+  geom_textline(linewidth = 1.2, label = rep(c("ambient","elevated"), each = 50), hjust = "ymax", fontface = 2, size = 3) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = co2), color = NA, alpha = 0.2) +
   ylab("stem density") +
   xlab("elevation (m NAVD88)") +
@@ -1903,6 +1895,8 @@ density_mod_corn16<- update(density_corn_step_mod, .~.-(1|genotype) + (1+salinit
 
 plot_model(density_corn_step_mod, type = "diag") # All looks good!
 
+#############################
+
 ## Get final models for each trait ####
 
 list(
@@ -1948,3 +1942,31 @@ lapply(all_models, MuMIn::r.squaredGLMM)
 
 
 
+
+
+## Create a plot of SCAM biomass by SPPA biomass ####
+bg_corn %>% 
+  filter(comp == 1) %>% 
+  ggplot(aes(x = agb_sppa, y = agb_scam, color = elevation)) +
+  geom_point(aes(fill = elevation), size = 3, alpha = 0.7) + 
+  ylab(expression(paste(italic("S. americanus "), "aboveground biomass (g ", m^-2, ")"))) +
+  xlab(expression(paste(italic("S. patens "), "aboveground biomass (g ", m^-2, ")"))) +
+  scale_x_continuous(breaks = seq(0,12,2), limits = c(0,12)) +
+  scale_y_continuous(breaks = seq(0,12,2)) +
+  theme_bw() -> comp_biomass
+
+# Same plot for SCAM height by SPPA height
+bg_corn %>% 
+  filter(comp == 1) %>% 
+  ggplot(aes(x = height_sppa, y = height_scam_tot, color = elevation)) +
+  geom_point(aes(fill = elevation), size = 3, alpha = 0.7) + 
+  ylab(expression(paste(italic("S. americanus "), "mean stem height (cm)"))) +
+  xlab(expression(paste(italic("S. patens "), "maximum height (cm)"))) +
+  scale_x_continuous(breaks = seq(0,80,10), limits = c(0,80)) +
+  scale_y_continuous(breaks = seq(0,80,10), limits = c(0,80)) +
+  theme_bw() -> comp_height
+
+comp_biomass + comp_height + plot_annotation(tag_levels = "a") +
+  plot_layout(guides = "collect")
+
+ggsave(here("figs", "SuppFig_competition.png"), height = 4, width = 8, units = "in")
