@@ -1499,7 +1499,7 @@ tibble(predicted = c(predict(height_model_noOut_null_step), predict(height_step_
   facet_wrap(~model)  +
   geom_abline(aes(slope = 1, intercept = 0))
 
-# Fixed effects plot for supplement
+## Fixed effects plot for supplement ####
 # Create fixed effects model for supplement
 plot_model(height_step_mod, terms = c("elevation[all]"), type = "emm")
 
@@ -1632,14 +1632,16 @@ plot_model(width_step_mod, type = "diag") # All looks good!
 
 width_mod1 <- update(width_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))#*
 width_mod2 <- update(width_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))#*
-width_mod3 <- update(width_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
-width_mod4 <- update(width_step_mod, .~.-(1|genotype) + (1+co2|genotype))
+width_mod3 <- update(width_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))#*
+width_mod4 <- update(width_step_mod, .~.-(1|genotype) + (1+co2|genotype))#*
 width_mod5<- update(width_step_mod, .~.-(1|genotype) + (1+elevation|genotype))#*
 width_mod6 <- update(width_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
 
 # Compare to base model (ns)
 anova(width_step_mod, width_mod1, refit = F)
 anova(width_step_mod, width_mod2, refit = F)
+anova(width_step_mod, width_mod3, refit = F) 
+anova(width_step_mod, width_mod4, refit = F)
 anova(width_step_mod, width_mod5, refit = F) 
 anova(width_step_mod, width_mod6, refit = F)
 
@@ -1674,6 +1676,53 @@ tibble(predicted = c(predict(width_model_null_step), predict(width_step_mod)),
   facet_wrap(~model)  +
   geom_abline(aes(slope = 1, intercept = 0))
 
+## Fixed effects plot for the supplement #### 
+
+# Need to show interactions of provenance by salinity and provenance by
+# elevation
+
+# Get emmeans values for plots
+width_EL_plot <- summary(emmeans::emmeans(width_step_mod, ~elevation:location, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+width_SL_plot <- summary(emmeans::emmeans(width_step_mod, ~salinity:location))
+
+tibble(width_scam_mid = width_EL_plot$emmean,
+       elevation = width_EL_plot$elevation,
+       lower = width_EL_plot$lower.CL,
+       upper = width_EL_plot$upper.CL,
+       location = rep(c("corn", "kirkpatrick"), each = 50)) %>% 
+  ggplot(aes(x = elevation, y = width_scam_mid, color = location)) +
+  geom_line(size = 1.2) +
+  theme_bw() +
+  geom_point(data = traits_nocomp, aes(x = elevation, y = width_scam_mid, color = location), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = location), alpha = 0.2, color = NA) +
+  ylab("mean stem width (mm)") +
+  xlab("elevation (m NAVD88)") + 
+  scale_color_manual(values = c("#cab2d6", "#6a3d9a")) +
+  scale_fill_manual(values = c("#cab2d6", "#6a3d9a")) +
+  theme(legend.position = "none") -> width_plot_a
+
+tibble(width_scam_mid = width_SL_plot$emmean,
+       lower = width_SL_plot$lower.CL,
+       upper = width_SL_plot$upper.CL,
+       location = rep(c("corn", "kirkpatrick"), each = 2),
+       salinity = c("fresh", "salt", "fresh", "salt")) %>% 
+  ggplot(aes(x = salinity, y = width_scam_mid, color = location, group = location)) +
+  theme_bw() +
+  geom_jitter(data = traits_nocomp, aes(x = salinity, y = width_scam_mid, color = location), shape = 1,
+              stroke = 0.8, alpha = 0.6, size = 0.8, height = 0, width = 0.1) +
+  geom_line(position=position_dodge(width=0.3), linetype = "dashed", color = "black") +
+  geom_errorbar(aes(ymin = lower, ymax = upper), position=position_dodge(width=0.3), width = 0.2, color = "black") +
+  geom_point(size = 3, position=position_dodge(width=0.3)) +
+  geom_point(size = 3, position=position_dodge(width=0.3), shape = 1, stroke = 0.8, color = "black") +
+  ylab("") +
+  scale_color_manual(values = c("#cab2d6", "#6a3d9a")) +
+  labs(color = "provenance") -> width_plot_b
+
+width_plot_a + width_plot_b + plot_layout(widths = c(3,2), guides = "collect") -> width_plot
+
+ggsave(here("figs", "SuppFig_width.png"), width_plot, height = 3, width = 7, units = "in")
+
 # Repeat this process for the competition pots
 
 ##
@@ -1693,7 +1742,7 @@ get_model(lmerTest::step(width_mod_corn, keep = keep_model_terms_corn))
 # Step mod
 width_corn_step_mod <- lmer(width_scam_mid ~ weight_init + age + comp + co2 + salinity +  
                               elevation + (1 | genotype) + age:co2 + age:salinity + age:elevation +  
-                              co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity +      age:salinity:elevation, data = traits_corn)
+                              co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity + age:salinity:elevation, data = traits_corn)
 
 # This is the final FIXED effects model. Check assumptions.
 plot_model(width_corn_step_mod, type = "diag") # All looks good!
@@ -1722,7 +1771,7 @@ width_mod_corn6 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp*co2|ge
 width_mod_corn7 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2+elevation|genotype))
 width_mod_corn8 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation + salinity|genotype))
 width_mod_corn9 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+salinity + co2|genotype))
-width_mod_corn10 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp+salinity|genotype))#*
+width_mod_corn10 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp+salinity|genotype))
 width_mod_corn11 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation+comp|genotype))
 width_mod_corn12<- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp+co2|genotype))
 width_mod_corn13<- update(width_corn_step_mod, .~.-(1|genotype) + (1+co2|genotype))
@@ -1730,9 +1779,10 @@ width_mod_corn14<- update(width_corn_step_mod, .~.-(1|genotype) + (1+comp|genoty
 width_mod_corn15<- update(width_corn_step_mod, .~.-(1|genotype) + (1+elevation|genotype))
 width_mod_corn16 <- update(width_corn_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
 
-# Compare to base model
+# Compare to base model (all ns)
 anova(width_corn_step_mod, width_mod_corn4)
-anova(width_corn_step_mod, width_mod_corn9)
+anova(width_corn_step_mod, width_mod_corn16)
+
 
 ###########################
 ## Stem density analysis ##
@@ -1781,6 +1831,29 @@ MuMIn::r.squaredGLMM(density_mod_null_step)
 MuMIn::r.squaredGLMM(density_step_mod)
 # 0.46
 
+## Fixed effects plot for supplement ####
+density_EC_plot <- summary(emmeans(density_step_mod, ~co2:elevation, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+
+tibble(dens_scam_live = density_EC_plot$emmean,
+  elevation = density_EC_plot$elevation,
+  co2 = density_EC_plot$co2,
+  lower = density_EC_plot$lower.CL,
+  upper = density_EC_plot$upper.CL) %>% 
+  ggplot(aes(x = elevation, y = dens_scam_live, color = co2)) +
+  geom_point(data = traits_nocomp, aes(x = elevation, y = dens_scam_live, color = co2), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_textline(linewidth = 1.2, label = rep(c("ambient","elevated"), each = 50), hjust = "ymax") +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = co2), color = NA, alpha = 0.2) +
+  ylab("stem density") +
+  xlab("elevation (m NAVD88)") +
+  scale_color_manual(values = c("#b2df8a","#33a02c")) +
+  scale_fill_manual(values = c("#b2df8a","#33a02c")) +
+  theme_bw() +
+  theme(legend.position = "none") -> density_plot
+
+ggsave(here("figs", "SuppFig_density.png"), density_plot, height = 3, width = 4, units = "in")
+
+
 # Competition model for density
 
 ## Fit model and model selection (fixed effects) ####
@@ -1794,11 +1867,9 @@ density_mod_corn <- lmer(dens_scam_live ~ weight_init + date_cloned_grp + origin
 get_model(lmerTest::step(density_mod_corn, keep = keep_model_terms_corn))
 
 # Step mod
-density_corn_step_mod <- lmer(dens_scam_live ~ weight_init + age + comp + co2 + salinity +  
-                              elevation + I(elevation^2) + (1 | genotype) + age:comp +  
-                              age:co2 + age:elevation + comp:co2 + comp:elevation + co2:elevation +  
-                              age:comp:co2 + age:comp:elevation + age:co2:elevation + comp:co2:elevation +  
-                              age:comp:co2:elevation, data = traits_corn)
+density_corn_step_mod <- lmer(dens_scam_live ~ weight_init + date_cloned_grp +
+                                age + comp + co2 + salinity + elevation + I(elevation^2) + (1 | genotype) +  
+                                comp:elevation, data = traits_corn)
 
 # This is the final FIXED effects model. Check assumptions.
 plot_model(density_corn_step_mod, type = "diag") # All looks good!
@@ -1825,7 +1896,7 @@ density_mod_corn15<- update(density_corn_step_mod, .~.-(1|genotype) + (1+elevati
 density_mod_corn16<- update(density_corn_step_mod, .~.-(1|genotype) + (1+salinity|genotype))#*
 # nothing fits
 
-plot_model(density_corn_step_mod, terms = c("elevation[all]", "age", "co2", "comp"), type = "emm") # All looks good!
+plot_model(density_corn_step_mod, type = "diag") # All looks good!
 
 ## Get final models for each trait ####
 
