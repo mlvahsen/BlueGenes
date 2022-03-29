@@ -66,7 +66,7 @@ full_data_nocomp %>%
 ## Fit model ####
 
 # Fit a logistic GLMM
-extinct_mod_nocomp <- glm(survive ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^3 +
+extinct_mod_nocomp <- glm(survive ~ weight_init + date_cloned_grp + origin_lab + (co2 + salinity + elevation + age + location)^3 +
                             I(elevation^2) + genotype, data = full_data_nocomp, family = "binomial")
 
 # Random effect estimated at zero
@@ -74,13 +74,13 @@ summary(extinct_mod_nocomp)
 # Looks like both are estimated to be zero
 
 # Now fit a glm without random effects
-extinct_mod_nocomp_fixed <- glm(survive ~ weight_init + date_planted_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
+extinct_mod_nocomp_fixed <- glm(survive ~ weight_init + date_cloned_grp + origin_lab + (co2 + salinity + elevation + age + location)^5 +
                               I(elevation^2), data = full_data_nocomp, family = "binomial")
 
 car::Anova(extinct_mod_nocomp_fixed)
 
 # No 4-way or 5-way interactions are significant so drop to 3-way model
-extinct_mod_nocomp_fixed3 <- glm(survive ~ weight_init + origin_lab + (co2 + salinity + elevation + age + location)^3 +
+extinct_mod_nocomp_fixed3 <- glm(survive ~ weight_init + origin_lab + date_cloned_grp + (co2 + salinity + elevation + age + location)^3 +
                                   I(elevation^2), data = full_data_nocomp, family = "binomial")
 
 # Check significance of terms
@@ -91,7 +91,7 @@ car::Anova(extinct_mod_nocomp_fixed3)
 # went extinct. So we should fit this with a bias reduction method using the
 # package 'brglm'
 
-extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                                         (co2 + salinity + elevation + age + location)^3 +
                                       I(elevation^2), data = full_data_nocomp,
                                     family = binomial(logit))
@@ -103,7 +103,7 @@ extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab +
 # 3-way interactions
 ##
 
-extinct_tab <- matrix(NA, 28, 4)
+extinct_tab <- matrix(NA, 29, 4)
 
 get_lr_results <- function(large_model, small_model, rep, term){
   out <- lrtest(large_model, small_model)
@@ -158,7 +158,7 @@ extinct_tab[10,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noA
 ##
 
 # co2:salinity (ns)
-extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                               (co2 + salinity + elevation + age + location)^2 +
                               (co2 + elevation + age + location)^3 +
                              (salinity + elevation + age + location)^3 +
@@ -168,7 +168,7 @@ extinct_mod_noCS <- update(extinct_mod_forCS, .~.-co2:salinity)
 extinct_tab[11,] <- get_lr_results(extinct_mod_forCS, extinct_mod_noCS, 11, "co2:salinity")
 
 # co2:age (ns)
-extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + elevation + salinity + location)^3 +
                              (salinity + elevation + age + location)^3 +
@@ -178,7 +178,7 @@ extinct_mod_noCA <- update(extinct_mod_forCA, .~.-co2:age)
 extinct_tab[12,] <- get_lr_results(extinct_mod_forCA, extinct_mod_noCA, 12, "co2:age")
 
 # co2:location (ns)
-extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + elevation + salinity + age)^3 +
                              (salinity + elevation + age + location)^3 +
@@ -188,7 +188,7 @@ extinct_mod_noCL <- update(extinct_mod_forCL, .~.-co2:location)
 extinct_tab[13,] <- get_lr_results(extinct_mod_forCL, extinct_mod_noCL, 13, "co2:location")
 
 # co2:elevation (ns)
-extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + salinity + age)^3 +
                              (salinity + elevation + age + location)^3 +
@@ -198,7 +198,7 @@ extinct_mod_noCE <- update(extinct_mod_forCE, .~.-co2:elevation)
 extinct_tab[14,] <- get_lr_results(extinct_mod_forCE, extinct_mod_noCE, 14, "co2:elevation")
 
 # salinity:age (*)
-extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + salinity + elevation)^3 +
                              (co2 + elevation + age + location)^3 +
@@ -208,7 +208,7 @@ extinct_mod_noSA <- update(extinct_mod_forSA, .~.-salinity:age)
 extinct_tab[15,] <- get_lr_results(extinct_mod_forSA, extinct_mod_noSA, 15, "salinity:age")
 
 # salinity:location (*)
-extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + age + elevation)^3 +
                              (co2 + elevation + age + salinity)^3 +
@@ -218,7 +218,7 @@ extinct_mod_noSL <- update(extinct_mod_forSL, .~.-salinity:location)
 extinct_tab[16,] <- get_lr_results(extinct_mod_forSL, extinct_mod_noSL, 16, "salinity:location")
 
 # salinity:elevation (***)
-extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + salinity + age)^3 +
                              (co2 + elevation + age + location)^3 +
@@ -228,7 +228,7 @@ extinct_mod_noSE <- update(extinct_mod_forSE, .~.-salinity:elevation)
 extinct_tab[17,] <- get_lr_results(extinct_mod_forSE, extinct_mod_noSE, 17, "salinity:elevation")
 
 # age:location (ns)
-extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + elevation + salinity + age)^3 +
                              (co2 + elevation + salinity + location)^3 +
@@ -238,7 +238,7 @@ extinct_mod_noAL <- update(extinct_mod_forAL, .~.-age:location)
 extinct_tab[18,] <- get_lr_results(extinct_mod_forAL, extinct_mod_noAL, 18, "age:location")
 
 # age:elevation (*)
-extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + salinity + elevation)^3 +
                              (co2 + age + salinity + location)^3 +
@@ -248,7 +248,7 @@ extinct_mod_noAE <- update(extinct_mod_forAE, .~.-age:elevation)
 extinct_tab[19,] <- get_lr_results(extinct_mod_forAE, extinct_mod_noAE, 19, "age:elevation")
 
 # location:elevation (*)
-extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + age + salinity + elevation)^3 +
                              (co2 + age + salinity + location)^3 +
@@ -262,7 +262,7 @@ extinct_tab[20,] <- get_lr_results(extinct_mod_forLE, extinct_mod_noLE, 20, "loc
 ##
 
 # co2 (*)
-extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (salinity + elevation + age + location)^3 + co2 +
                              I(elevation^2), data = full_data_nocomp,
                            family = binomial(logit))
@@ -270,7 +270,7 @@ extinct_mod_noC <- update(extinct_mod_forC, .~.-co2)
 extinct_tab[21,] <- get_lr_results(extinct_mod_forC, extinct_mod_noC, 21, "co2")
 
 # salinity (ns)
-extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                             (co2 + elevation + age + location)^3 + salinity +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
@@ -278,7 +278,7 @@ extinct_mod_noS <- update(extinct_mod_forS, .~.-salinity)
 extinct_tab[22,] <- get_lr_results(extinct_mod_forS, extinct_mod_noS, 22, "salinity")
 
 # age (ns)
-extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                             (co2 + elevation + salinity + location)^3 + age +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
@@ -286,7 +286,7 @@ extinct_mod_noA <- update(extinct_mod_forA, .~.-age)
 extinct_tab[23,] <- get_lr_results(extinct_mod_forA, extinct_mod_noA, 23, "age")
 
 # location (ns)
-extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                             (co2 + elevation + salinity + age)^3 + location +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
@@ -294,7 +294,7 @@ extinct_mod_noL <- update(extinct_mod_forL, .~.-location)
 extinct_tab[24,] <- get_lr_results(extinct_mod_forL, extinct_mod_noL, 24, "location")
 
 # elevation (***)
-extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                             (co2 + location + salinity + age)^3 + elevation +
                             I(elevation^2), data = full_data_nocomp,
                           family = binomial(logit))
@@ -317,10 +317,14 @@ extinct_tab[27,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noO
 extinct_mod_noE2 <- update(extinct_mod_nocomp_fixed3_BR, .~.-I(elevation^2))
 extinct_tab[28,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noE2, 28, "elevation^2")
 
+# date_cloned_grp (***)
+extinct_mod_noD <- update(extinct_mod_nocomp_fixed3_BR, .~.-date_cloned_grp)
+extinct_tab[29,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noD, 29, "date_cloned_grp")
+
 # Make tabular results into a tibble
 colnames(extinct_tab) <- c("term", "df", "chisq", "p")
 as_tibble(extinct_tab) %>% 
-  mutate(rank = 1:28) %>% 
+  mutate(rank = 1:29) %>% 
   arrange(-rank) %>% 
   select(-rank) %>% 
   mutate(chisq = round(as.numeric(chisq), 2),
@@ -406,10 +410,7 @@ plot_data_c <- tibble(survive = c$data$predicted,
                       age = c$data$group)
 
 pd <- position_dodge(width = 0.4)
-# 
-# my_labels <- c(ambient = "ambient~CO[2]", elevated = "elevated~CO[2]")
-# my_labeller <- as_labeller(my_labels,
-#                            default = label_parsed)
+
 
 plot_data_c %>% 
   mutate(provenance = location) %>% 
@@ -435,7 +436,7 @@ dev.off()
 # (averaged across all other treatments)
 
 emmeans(extinct_mod_nocomp_fixed3_BR, ~elevation,
-        at = list(elevation = c(0,0.1,0.2)), type = "response")
+        at = list(elevation = c(0.1,0.2)), type = "response")
 
 ## Does competition mediate this response? ####
 
@@ -448,14 +449,14 @@ bg_full %>%
                          T ~ "modern")) -> corn_only
 
 # Fit a logistic GLMM
-extinct_mod_corn <- glmer(survive ~ weight_init + date_planted_grp + origin_lab + 
+extinct_mod_corn <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab + 
                           (co2 + salinity + elevation + age + comp)^5 + I(elevation^2) +
                             (1|site_frame) + (1|genotype), data = corn_only, family = "binomial")
 
 summary(extinct_mod_corn)
 # random effects estimated to be zero
 
-extinct_mod_corn_fixed <- glm(survive ~ weight_init + date_planted_grp + origin_lab + 
+extinct_mod_corn_fixed <- glm(survive ~ weight_init + date_cloned_grp + origin_lab + 
                                   (co2 + salinity + elevation + age + comp)^4 + I(elevation^2),
                               data = corn_only, family = "binomial")
 
@@ -463,7 +464,7 @@ car::Anova(extinct_mod_corn_fixed)
 
 # Need to fit brglm to deal with complete separation
 
-extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_planted_grp + origin_lab + 
+extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_cloned_grp + origin_lab + 
                              (co2 + salinity + elevation + age + comp)^3 + I(elevation^2),
                            data = corn_only, family = "binomial")
 
@@ -479,7 +480,7 @@ extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_planted_grp + origin_l
 # 3-way interactions
 ##
 
-extinct_tab_comp <- matrix(NA, 28, 4)
+extinct_tab_comp <- matrix(NA, 29, 4)
 
 # co2:salinity:age (ns)
 extinct_mod_corn_noCSA <- update(extinct_mod_corn_BR, .~.-co2:salinity:age)
@@ -526,7 +527,7 @@ extinct_tab_comp[10,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_no
 ##
 
 # co2:salinity (ns)
-extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + elevation + age + comp)^3 +
                              (salinity + elevation + age + comp)^3 +
@@ -536,7 +537,7 @@ extinct_mod_corn_noCS <- update(extinct_mod_forCS, .~.-co2:salinity)
 extinct_tab_comp[11,] <- get_lr_results(extinct_mod_forCS, extinct_mod_corn_noCS, 11, "co2:salinity")
 
 # co2:age (ns)
-extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCA <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + elevation + salinity + comp)^3 +
                              (salinity + elevation + age + comp)^3 +
@@ -546,7 +547,7 @@ extinct_mod_corn_noCA <- update(extinct_mod_forCA, .~.-co2:age)
 extinct_tab_comp[12,] <- get_lr_results(extinct_mod_forCA, extinct_mod_corn_noCA, 12, "co2:age")
 
 # co2:comp (ns)
-extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + elevation + salinity + age)^3 +
                              (salinity + elevation + age + comp)^3 +
@@ -556,7 +557,7 @@ extinct_mod_corn_noCL <- update(extinct_mod_forCL, .~.-co2:comp)
 extinct_tab_comp[13,] <- get_lr_results(extinct_mod_forCL, extinct_mod_corn_noCL, 13, "co2:comp")
 
 # co2:elevation (ns)
-extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forCE <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + comp + salinity + age)^3 +
                              (salinity + elevation + age + comp)^3 +
@@ -566,7 +567,7 @@ extinct_mod_corn_noCE <- update(extinct_mod_forCE, .~.-co2:elevation)
 extinct_tab_comp[14,] <- get_lr_results(extinct_mod_forCE, extinct_mod_corn_noCE, 14, "co2:elevation")
 
 # salinity:age (*)
-extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSA <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + comp + salinity + elevation)^3 +
                              (co2 + elevation + age + comp)^3 +
@@ -576,7 +577,7 @@ extinct_mod_corn_noSA <- update(extinct_mod_forSA, .~.-salinity:age)
 extinct_tab_comp[15,] <- get_lr_results(extinct_mod_forSA, extinct_mod_corn_noSA, 15, "salinity:age")
 
 # salinity:comp (*)
-extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSL <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp +
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + comp + age + elevation)^3 +
                              (co2 + elevation + age + salinity)^3 +
@@ -586,7 +587,7 @@ extinct_mod_corn_noSL <- update(extinct_mod_forSL, .~.-salinity:comp)
 extinct_tab_comp[16,] <- get_lr_results(extinct_mod_forSL, extinct_mod_corn_noSL, 16, "salinity:comp")
 
 # salinity:elevation (***)
-extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forSE <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + comp + salinity + age)^3 +
                              (co2 + elevation + age + comp)^3 +
@@ -596,7 +597,7 @@ extinct_mod_corn_noSE <- update(extinct_mod_forSE, .~.-salinity:elevation)
 extinct_tab_comp[17,] <- get_lr_results(extinct_mod_forSE, extinct_mod_corn_noSE, 17, "salinity:elevation")
 
 # age:comp (ns)
-extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + elevation + salinity + age)^3 +
                              (co2 + elevation + salinity + comp)^3 +
@@ -606,7 +607,7 @@ extinct_mod_corn_noAL <- update(extinct_mod_forAL, .~.-age:comp)
 extinct_tab_comp[18,] <- get_lr_results(extinct_mod_forAL, extinct_mod_corn_noAL, 18, "age:comp")
 
 # age:elevation (*)
-extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + comp + salinity + elevation)^3 +
                              (co2 + age + salinity + comp)^3 +
@@ -616,7 +617,7 @@ extinct_mod_corn_noAE <- update(extinct_mod_forAE, .~.-age:elevation)
 extinct_tab_comp[19,] <- get_lr_results(extinct_mod_forAE, extinct_mod_corn_noAE, 19, "age:elevation")
 
 # comp:elevation (*)
-extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forLE <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                              (co2 + salinity + elevation + age + comp)^2 +
                              (co2 + age + salinity + elevation)^3 +
                              (co2 + age + salinity + comp)^3 +
@@ -630,7 +631,7 @@ extinct_tab_comp[20,] <- get_lr_results(extinct_mod_forLE, extinct_mod_corn_noLE
 ##
 
 # co2 (*)
-extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                             (salinity + elevation + age + comp)^3 + co2 +
                             I(elevation^2), data = corn_only,
                           family = binomial(logit))
@@ -638,7 +639,7 @@ extinct_mod_corn_noC <- update(extinct_mod_forC, .~.-co2)
 extinct_tab_comp[21,] <- get_lr_results(extinct_mod_forC, extinct_mod_corn_noC, 21, "co2")
 
 # salinity (ns)
-extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forS <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                             (co2 + elevation + age + comp)^3 + salinity +
                             I(elevation^2), data = corn_only,
                           family = binomial(logit))
@@ -646,7 +647,7 @@ extinct_mod_corn_noS <- update(extinct_mod_forS, .~.-salinity)
 extinct_tab_comp[22,] <- get_lr_results(extinct_mod_forS, extinct_mod_corn_noS, 22, "salinity")
 
 # age (ns)
-extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forA <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                             (co2 + elevation + salinity + comp)^3 + age +
                             I(elevation^2), data = corn_only,
                           family = binomial(logit))
@@ -654,7 +655,7 @@ extinct_mod_corn_noA <- update(extinct_mod_forA, .~.-age)
 extinct_tab_comp[23,] <- get_lr_results(extinct_mod_forA, extinct_mod_corn_noA, 23, "age")
 
 # comp (ns)
-extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forL <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                             (co2 + elevation + salinity + age)^3 + comp +
                             I(elevation^2), data = corn_only,
                           family = binomial(logit))
@@ -662,7 +663,7 @@ extinct_mod_corn_noL <- update(extinct_mod_forL, .~.-comp)
 extinct_tab_comp[24,] <- get_lr_results(extinct_mod_forL, extinct_mod_corn_noL, 24, "comp")
 
 # elevation (***)
-extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +
+extinct_mod_forE <- brglm(survive ~ weight_init + origin_lab +date_cloned_grp+
                             (co2 + comp + salinity + age)^3 + elevation +
                             I(elevation^2), data = corn_only,
                           family = binomial(logit))
@@ -685,10 +686,14 @@ extinct_tab_comp[27,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_no
 extinct_mod_corn_noE2 <- update(extinct_mod_corn_BR, .~.-I(elevation^2))
 extinct_tab_comp[28,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noE2, 28, "elevation^2")
 
+# date_cloned_grp (***)
+extinct_mod_corn_noD <- update(extinct_mod_corn_BR, .~.-date_cloned_grp)
+extinct_tab_comp[29,] <- get_lr_results(extinct_mod_corn_BR, extinct_mod_corn_noD, 29, "date_cloned_grp")
+
 # Make tabular results into a tibble
 colnames(extinct_tab_comp) <- c("term", "df", "chisq", "p")
 as_tibble(extinct_tab_comp) %>% 
-  mutate(rank = 1:28) %>% 
+  mutate(rank = 1:29) %>% 
   arrange(-rank) %>% 
   select(-rank) %>% 
   mutate(chisq = round(as.numeric(chisq), 2),
