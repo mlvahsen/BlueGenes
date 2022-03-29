@@ -41,8 +41,8 @@ for(i in 1:1000){
 
 colnames(predicted_age) <- unique_depths$depth_top
 
-predage_means <- colMeans(predicted_age)
-unique_depths$pred_age <- predage_means
+predage_medians <- apply(predicted_age, 2, median)
+unique_depths$pred_age <- predage_medians
 
 # Calculate predicted decade 
 unique_depths %>% 
@@ -75,7 +75,7 @@ genotype_with_ages %>%
 genotype_with_ages %>% 
   filter(substr(genotype_with_ages$bluegenes_code, 1, 1) != "b") %>% 
   dplyr::select(bluegenes_code, lab, lat, long, pred_year) %>% 
-  mutate(pred_year = trunc(pred_year)) %>% 
+  mutate(pred_year = round(pred_year)) %>% 
   arrange(bluegenes_code)
 
 
