@@ -840,7 +840,7 @@ tibble(predicted = c(predict(agb_null_step)^2, predict(agb_mod4)^2),
   ylim(0,16) + xlim(0,16) +
   geom_abline(aes(slope = 1, intercept = 0))
 
-# Make plot
+## Make plot of fixed effects ####
 
 agb_plot <- plot_model(agb_mod4, terms = c("elevation[all]", "co2", "age", "salinity"), type = "emm")
 
@@ -883,6 +883,24 @@ anova(agb_mod4)
 ##
 # Corn only (competition analysis)
 ##
+
+## Calculate effect sizes for text ####
+emmeans_agb <- summary(emmeans(agb_mod4, ~co2|salinity:age, at = list(elevation = 0.2), type = "response"))
+
+# Calculate percent increase in aboveground biomass for elevated co2 vs ambient
+# co2 for modern genotypes in freshwater
+emmeans_agb %>% 
+  filter(salinity == "fresh" & age == "modern") %>% 
+  pull(response) -> means_fresh_modern
+means_fresh_modern[2]/means_fresh_modern[1]
+
+# Calculate percent increase in aboveground biomass for elevated co2 vs ambient
+# co2 for ancestral genotypes in brackish
+emmeans_agb %>% 
+  filter(salinity == "salt" & age == "ancestral") %>% 
+  pull(response) -> means_salt_ancestral
+means_salt_ancestral[2]/means_salt_ancestral[1]
+
 
 ## Data manipulation ####
 
