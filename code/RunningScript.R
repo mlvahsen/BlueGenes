@@ -1026,48 +1026,6 @@ MuMIn::r.squaredGLMM(rs_step_mod)
 # Get overall significance of model terms
 anova(rs_step_mod)
 
-## Plot of fixed effects ####
-# Get emmeans values for plots
-rs_EL_plot <- summary(emmeans::emmeans(rs_step_mod, ~elevation:location, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
-rs_ES_plot <- summary(emmeans::emmeans(rs_step_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
-
-tibble(rs = exp(rs_EL_plot$emmean),
-       elevation = rs_EL_plot$elevation,
-       lower = exp(rs_EL_plot$lower.CL),
-       upper = exp(rs_EL_plot$upper.CL),
-       location = rep(c("corn", "kirkpatrick"), each = 50)) %>% 
-  ggplot(aes(x = elevation, y = rs, color = location)) +
-  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = rs, color = location), shape = 1,
-             stroke = 0.8, alpha = 0.6, size = 0.8) +
-  geom_textline(size = 3, fontface = "bold", label= rep(c("Corn Island", "Kirkpatrick Marsh"), each = 50), linewidth = 1.2, hjust = 0.9, textcolor = "black") +
-  theme_bw() +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = location), alpha = 0.2, color = NA) +
-  ylab("root-to-shoot ratio") +
-  xlab("elevation (m NAVD88)") + 
-  scale_color_manual(values = c("#cab2d6", "#6a3d9a")) +
-  scale_fill_manual(values = c("#cab2d6", "#6a3d9a")) +
-  theme(legend.position = "none") -> rs_interaction_1
-
-tibble(rs = exp(rs_ES_plot$emmean),
-       elevation = rs_ES_plot$elevation,
-       lower = exp(rs_ES_plot$lower.CL),
-       upper = exp(rs_ES_plot$upper.CL),
-       salinity = rep(c("fresh", "salt"), each = 50)) %>% 
-  ggplot(aes(x = elevation, y = rs, color = salinity)) +
-  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = rs, color = salinity), shape = 1,
-             stroke = 0.8, alpha = 0.6, size = 0.8) +
-  geom_textline(size = 3, fontface = "bold", label= rep(c("freshwater site", "brackish site"), each = 50), linewidth = 1.2, hjust = 0.1, textcolor = "black") +
-  theme_bw() +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
-  ylab("") +
-  xlab("elevation (m NAVD88)") + 
-  scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
-  scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
-  theme(legend.position = "none") -> rs_interaction_2
-
-rs_interaction_1 + rs_interaction_2 + plot_annotation(tag_levels = "a") -> rs_fig
-
-ggsave(here("figs", "Fig3_rs.png"), rs_fig, height = 4, width = 8, units = "in")
 
 ##########################################
 ## Root distribution parameter analysis ##
@@ -1567,116 +1525,166 @@ models_nocomp <- list(agb_mod = all_models$agb_mod_step,
                       density_mod = all_models$density_step_mod,
                       beta_mod = all_models$beta_step_mod)
 
-# Set number of bootstrap simulations
-sims = 100
 
-tibble(agb = as.numeric(bootMer(models_nocomp$agb_mod, FUN = calc_icc, nsim = sims)$t),
-       bg = as.numeric(bootMer(models_nocomp$bg_mod, FUN = calc_icc, nsim = sims)$t),
-       rs = as.numeric(bootMer(models_nocomp$rs_mod, FUN = calc_icc, nsim = sims)$t),
-       width = as.numeric(bootMer(models_nocomp$width_mod, FUN = calc_icc, nsim = sims)$t),
-       height = as.numeric(bootMer(models_nocomp$height_mod, FUN = calc_icc, nsim = sims)$t),
-       density = as.numeric(bootMer(models_nocomp$density_mod, FUN = calc_icc, nsim = sims)$t),
-       beta = as.numeric(bootMer(models_nocomp$beta_mod, FUN = calc_icc, nsim = sims)$t)) -> boot_samples
+###########################
+## Extra stuff ############
+###########################
 
-tibble(agb = as.numeric(bootMer(models_nocomp$agb_mod, FUN = calc_icc_conditional, nsim = sims)$t),
-       bg = as.numeric(bootMer(models_nocomp$bg_mod, FUN = calc_icc_conditional, nsim = sims)$t),
-       rs = as.numeric(bootMer(models_nocomp$rs_mod, FUN = calc_icc_conditional, nsim = sims)$t),
-       width = as.numeric(bootMer(models_nocomp$width_mod, FUN = calc_icc_conditional, nsim = sims)$t),
-       height = as.numeric(bootMer(models_nocomp$height_mod, FUN = calc_icc_conditional, nsim = sims)$t),
-       density = as.numeric(bootMer(models_nocomp$density_mod, FUN = calc_icc, nsim = sims)$t),
-       beta = as.numeric(bootMer(models_nocomp$beta_mod, FUN = calc_icc_conditional, nsim = sims)$t)) -> boot_samples_conditional
+## Calculate effect sizes for in-text ####
 
-# Bind together two data sets and convert to long format
-rbind(boot_samples, boot_samples_conditional) %>% 
-  mutate(icc_type = rep(c("marginal", "conditional"), each = nrow(boot_samples))) %>% 
-  gather(key = trait, value = icc, agb:beta) %>% 
-  filter(complete.cases(icc)) -> boot_samples_all
+# Calculate mean elevation at level 4
+bg_nocomp %>% 
+  filter(level == 4) %>% 
+  pull(elevation) %>% mean() -> level4_elevation
 
-# Calculate mean iccs across all traits
-mean_iccC <- boot_samples_all %>% filter(icc_type == "conditional") %>% pull(icc) %>% mean()
-mean_iccM <- boot_samples_all %>% filter(icc_type == "marginal") %>% pull(icc) %>% mean()
+# Get predicted means at high level of sea-level rise for agb
+summary(emmeans(models_nocomp$agb_mod, ~co2:salinity:age:elevation,
+                at = list(elevation = level4_elevation), type = "response"))-> agb_pred_means
 
-boot_samples_all %>% 
-  ggplot(aes(x = reorder(trait, -icc, mean), y = icc)) +
-  geom_violin(aes(fill = icc_type), position = position_dodge(width = 0.7), alpha = 0.4, color = NA) +
-  stat_summary(fun = mean, fun.min = function(z) { quantile(z,0.025) },
-               fun.max = function(z) { quantile(z,0.975) }, aes(colour = icc_type),
-               position = position_dodge(width = 0.7)) +
-  coord_flip() +
-  theme(legend.position = "top") +
-  geom_hline(aes(yintercept = mean_iccC), linetype = "dashed", color = "#a6cee3") +
-  geom_hline(aes(yintercept = mean_iccM), linetype = "dashed", color = "#1f78b4") +
-  ylab("intraclass correlation coefficient (ICC)") +
-  xlab("trait") +
-  labs(fill = "ICC type",
-       color = "ICC type") +
-  scale_color_manual(values = c("#a6cee3", "#1f78b4")) +
-  scale_fill_manual(values = c("#a6cee3", "#1f78b4"))
+# Collect predicted means for co2 treatments from fresh & modern
+agb_pred_means %>% 
+  filter(salinity == "fresh" & age == "modern") %>% 
+  pull(response) -> fresh_modern
 
-beta_plot_data <- as.data.frame(plot_model(models_nocomp$beta_mod, type = "pred",
-                                           pred.type = "re", terms = c("elevation[all]", "genotype", "salinity"))$data)
+# Calculate percent increase
+fresh_modern[2]/fresh_modern[1]
+# 1.892717
 
-beta_plot_data %>% 
-  ggplot(aes(x = x, y = predicted, group = group_col)) +
-  geom_line(alpha = 0.5) +
-  facet_wrap(~facet)
+# Collect predicted means for co2 treatments from fresh & modern
+agb_pred_means %>% 
+  filter(salinity == "salt" & age == "ancestral") %>% 
+  pull(response) -> salt_ancestral
 
-agb_plot_data <- as.data.frame(plot_model(models_nocomp$agb_mod, type = "pred",
-                                           pred.type = "re", terms = c("elevation[all]", "genotype"))$data)
+# Calculate percent increase
+salt_ancestral[2]/salt_ancestral[1]
+# 1.87033
 
+# Calculate mean elevation at level 1
+bg_nocomp %>% 
+  filter(level == 1) %>% 
+  pull(elevation) %>% mean() -> level1_elevation
 
-# test out contrasts issue?
+# Get predicted means at low level of sea-level rise for rs
+summary(emmeans(models_nocomp$rs_mod, ~location:elevation,
+                at = list(elevation = level1_elevation), type = "response")) -> rs_pred_means
 
-agb_test <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + age + location + co2 + salinity + elevation + I(elevation^2) +
-                   (1+co2|genotype)+
-                   age:co2 + age:salinity + age:elevation + co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity + age:co2:elevation + age:salinity:elevation +
-                   co2:salinity:elevation + age:co2:salinity:elevation, data = traits_nocomp)
+rs_pred_means$response[1]/rs_pred_means$response[2]
 
-beta_test <- lmer(beta ~ age + location + co2 + salinity + elevation + (1 + elevation|genotype:salinity) + salinity:elevation,
-                  data = traits_nocomp_rs)
+# Do the same thing for salinity at high levels of SLR
+summary(emmeans(models_nocomp$rs_mod, ~salinity:elevation,
+                at = list(elevation = level4_elevation), type = "response")) -> rs_pred_means2
 
-beta_test2 <- lmer(beta ~ age + location + co2 + salinity + elevation + (1 + elevation*salinity|genotype) + salinity:elevation,
-                  data = traits_nocomp_rs)
+rs_pred_means2$response[2]/rs_pred_means2$response[1]
 
-plot_model(beta_test, type = "pred", pred_type = "re", terms = c("elevation[all]", "genotype", "salinity"))
+# Width and height for provenance x salinity
+summary(emmeans(models_nocomp$height_mod, ~salinity|location))$emmean -> height_pred_means
 
-performance::icc(beta_test2)
+# Corn: fresh vs salt
+height_pred_means[1]/height_pred_means[2]
 
-fixef(beta_test)
-fixef(beta_test2)
+summary(emmeans(models_nocomp$width_mod, ~salinity|location))$emmean -> width_pred_means
 
-ranef(agb_test)
-
-plot_model(agb_test, type = "pred", pred.type = "re", terms = c("co2", "genotype"), ci.lvl = NA)
-
-agb_plot_data %>% 
-  ggplot(aes(x = x, y = predicted, group = group_col)) +
-  geom_line(alpha = 0.5)
+# Corn: fresh vs salt
+width_pred_means[1]/width_pred_means[2]
 
 
-## Create a plot of SCAM biomass by SPPA biomass ####
+## Fig S7 effect of SPPA biomass on SCAM density ####
 bg_corn %>% 
   filter(comp == 1) %>% 
-  ggplot(aes(x = agb_sppa, y = agb_scam, color = elevation)) +
+  ggplot(aes(x = agb_sppa, y = dens_scam_live, color = elevation)) +
   geom_point(aes(fill = elevation), size = 3, alpha = 0.7) + 
-  ylab(expression(paste(italic("S. americanus "), "aboveground biomass (g ", m^-2, ")"))) +
-  xlab(expression(paste(italic("S. patens "), "aboveground biomass (g ", m^-2, ")"))) +
-  scale_x_continuous(breaks = seq(0,12,2), limits = c(0,12)) +
-  scale_y_continuous(breaks = seq(0,12,2)) +
-  theme_bw() -> comp_biomass
+  ylab(expression(paste(italic("S. americanus "), "stem density"))) +
+  xlab(expression(paste(italic("S. patens "), "aboveground biomass (g)"))) +
+  theme_bw() -> FigS7
 
-# Same plot for SCAM height by SPPA height
-bg_corn %>% 
-  filter(comp == 1) %>% 
-  ggplot(aes(x = height_sppa, y = height_scam_tot, color = elevation)) +
-  geom_point(aes(fill = elevation), size = 3, alpha = 0.7) + 
-  ylab(expression(paste(italic("S. americanus "), "mean stem height (cm)"))) +
-  xlab(expression(paste(italic("S. patens "), "maximum height (cm)"))) +
-  scale_x_continuous(breaks = seq(0,80,10), limits = c(0,80)) +
-  scale_y_continuous(breaks = seq(0,80,10), limits = c(0,80)) +
-  theme_bw() -> comp_height
+ggsave(here("figs", "FigS7.png"), FigS7, height = 3.5, width = 4.6, units = "in")
 
-comp_biomass + comp_height + plot_annotation(tag_levels = "a") +
-  plot_layout(guides = "collect")
+## Fig S4: eco-eco for root:shoot and beta ####
 
-ggsave(here("figs", "SuppFig_competition.png"), height = 4, width = 8, units = "in")
+# Get emmeans values for plots
+rs_ES_plot <- summary(emmeans::emmeans(models_nocomp$rs_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+
+tibble(rs = exp(rs_ES_plot$emmean),
+       elevation = rs_ES_plot$elevation,
+       lower = exp(rs_ES_plot$lower.CL),
+       upper = exp(rs_ES_plot$upper.CL),
+       salinity = rep(c("fresh", "salt"), each = 50)) %>% 
+  ggplot(aes(x = elevation, y = rs, color = salinity)) +
+  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = rs, color = salinity), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_textline(size = 3, fontface = "bold", label= rep(c("freshwater site", "brackish site"), each = 50),
+                linewidth = 1.2, hjust = 0.2, textcolor = "black") +
+  theme_bw() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
+  ylab("root-to-shoot ratio") +
+  xlab("") + 
+  scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
+  scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
+  theme(legend.position = "none") -> rs_interaction
+
+beta_ES_plot <- summary(emmeans::emmeans(models_nocomp$beta_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+
+tibble(beta = beta_ES_plot$emmean,
+       elevation = beta_ES_plot$elevation,
+       lower = beta_ES_plot$lower.CL,
+       upper = beta_ES_plot$upper.CL,
+       salinity = rep(c("fresh", "salt"), each = 50)) %>% 
+  ggplot(aes(x = elevation, y = beta, color = salinity)) +
+  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = beta, color = salinity), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_textline(size = 3, fontface = "bold", label= rep(c("freshwater site", "brackish site"), each = 50),
+                linewidth = 1.2, hjust = 0.05, textcolor = "black") +
+  theme_bw() +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
+  ylab(expression(paste("root distribution parameter (", beta, ")"))) +
+  xlab("elevation (m NAVD88)") + 
+  scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
+  scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
+  theme(legend.position = "none") -> beta_interaction
+
+FigS4 <- rs_interaction / beta_interaction + plot_annotation(tag_levels = "a") & theme(plot.margin = margin(t = 0,r = 5,b = 0,l = 5))
+
+ggsave(here("figs", "FigS4_ecoeco.png"), FigS4, height = 6, width = 4.5, units = "in")
+
+
+
+## Fig S5: effect of CO2 on root-to-shoot ratio ####
+# Get emmeans values for plots
+rs_C_plot <- summary(emmeans::emmeans(models_nocomp$rs_mod, ~co2, type = "response"))
+
+tibble(rs = rs_C_plot$response,
+       lower = rs_C_plot$lower.CL,
+       upper = rs_C_plot$upper.CL,
+       co2 = c("ambient", "elevated")) %>% 
+  ggplot(aes(x = co2, y = rs, color = co2)) +
+  geom_jitter(data = traits_nocomp_rs, aes(x = co2, y = rs, color = co2), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8)+
+  theme_bw() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), position=position_dodge(width=0.3), width = 0.2, color = "black") +
+  geom_point(size = 3, position=position_dodge(width=0.3)) +
+  geom_point(size = 3, position=position_dodge(width=0.3), shape = 1, stroke = 0.8, color = "black") +
+  ylab("root-to-shoot ratio") +
+  xlab("") + 
+  scale_color_manual(values = c("#b2df8a", "#33a02c")) +
+  scale_fill_manual(values = c("#b2df8a", "#33a02c")) +
+  theme(legend.position = "none") -> rs_co2
+
+ggsave(here("figs", "FigS5_rs_co2.png"), rs_co2, height = 3.5, width = 3, units = "in")
+
+## Fig S6: effect of elevation on stem height ####
+height_E_plot <- summary(emmeans::emmeans(models_nocomp$height_mod, ~elevation, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+
+tibble(height_scam_tot = height_E_plot$emmean,
+       elevation = height_E_plot$elevation,
+       lower = height_E_plot$lower.CL,
+       upper = height_E_plot$upper.CL) %>% 
+  ggplot(aes(x = elevation, y = height_scam_tot)) +
+  geom_point(data = traits_nocomp_noOut, aes(x = elevation, y = height_scam_tot), shape = 1,
+             stroke = 0.8, alpha = 0.6, size = 0.8) +
+  geom_line() +
+  theme_bw() +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.2, color = NA) +
+  ylab("mean stem height (cm)") +
+  xlab("elevation (m NAVD88)") -> height_elevation
+
+ggsave(here("figs", "FigS6_height_elevation.png"), height_elevation, height = 4, width = 4, units = "in")

@@ -26,7 +26,7 @@ agb_mod_corn <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + origin_lab
                        (1|genotype) + (1|site_frame), data = traits_corn)
 
 # Try lmerTest::step
-get_model(lmerTest::step(agb_mod_corn), keep = keep_model_terms_corn) 
+get_model(lmerTest::step(agb_mod_corn)) 
 
 agb_corn_step_mod <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + age + comp +  
                             co2 + salinity + elevation + I(elevation^2) + (1 | genotype) +  
@@ -150,11 +150,13 @@ height_corn_noOut_mod <- lmer(height_scam_tot ~ weight_init + date_cloned_grp + 
                                 (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
                                 (1|genotype) + (1|site_frame), data = traits_corn_sub)
 
-get_model(step(height_corn_noOut_mod, keep = keep_model_terms_corn))
+get_model(step(height_corn_noOut_mod))
 
-height_corn_noOut_mod_step <- lmer(height_scam_tot ~ weight_init + age + comp + co2 + salinity +  
-                                     elevation + (1 | genotype) + co2:elevation, data = traits_corn_sub)
+height_corn_noOut_mod_step <- lmer(height_scam_tot ~ weight_init + comp + co2 + salinity + elevation +
+                                     (1 | genotype) + co2:elevation, data = traits_corn_sub)
 
+
+anova(height_corn_noOut_mod_step)
 
 # Check assumptions
 plot_model(height_corn_noOut_mod_step, type = "diag")
@@ -220,7 +222,7 @@ get_model(lmerTest::step(width_mod_corn, keep = keep_model_terms_corn))
 # Step mod
 width_corn_step_mod <- lmer(width_scam_mid ~ weight_init + age + comp + co2 + salinity +  
                               elevation + (1 | genotype) + age:co2 + age:salinity + age:elevation +  
-                              co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity + age:salinity:elevation, data = traits_corn)
+                              co2:salinity + co2:elevation + salinity:elevation + age:co2:salinity +age:salinity:elevation, data = traits_corn)
 
 # This is the final FIXED effects model. Check assumptions.
 plot_model(width_corn_step_mod, type = "diag") # All looks good!
@@ -274,9 +276,8 @@ density_mod_corn <- lmer(dens_scam_live ~ weight_init + date_cloned_grp + origin
 get_model(lmerTest::step(density_mod_corn, keep = keep_model_terms_corn))
 
 # Step mod
-density_corn_step_mod <- lmer(dens_scam_live ~ weight_init + date_cloned_grp +
-                                age + comp + co2 + salinity + elevation + I(elevation^2) + (1 | genotype) +  
-                                comp:elevation, data = traits_corn)
+density_corn_step_mod <- lmer(dens_scam_live ~ weight_init + date_cloned_grp + age + comp +  
+                                co2 + salinity + elevation + I(elevation^2) + (1 | genotype) + comp:elevation, data = traits_corn)
 
 # This is the final FIXED effects model. Check assumptions.
 plot_model(density_corn_step_mod, type = "diag") # All looks good!
@@ -304,3 +305,52 @@ density_mod_corn16<- update(density_corn_step_mod, .~.-(1|genotype) + (1+salinit
 # nothing fits
 
 plot_model(density_corn_step_mod, type = "diag") # All looks good!
+
+
+## Fig S8: effect of SPPA competition on stem height and width ####
+# Get emmeans values for plots
+width_comp_plot <- summary(emmeans::emmeans(width_corn_step_mod, ~comp))
+
+tibble(width_scam_mid = width_comp_plot$emmean,
+       lower = width_comp_plot$lower.CL,
+       upper = width_comp_plot$upper.CL,
+       comp = c(0, 1)) %>% 
+  ggplot(aes(x = as.factor(comp), y = width_scam_mid, color = as.factor(comp))) +
+  geom_jitter(data = traits_corn, aes(x = as.factor(comp), y = width_scam_mid, color = as.factor(comp)), shape = 1,
+              stroke = 0.8, alpha = 0.5, size = 0.8)+
+  theme_bw() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), position=position_dodge(width=0.3), width = 0.2, color = "black") +
+  geom_point(size = 3, position=position_dodge(width=0.3)) +
+  geom_point(size = 3, position=position_dodge(width=0.3), shape = 1, stroke = 0.8, color = "black") +
+  ylab("mean stem width (mm)") +
+  scale_color_manual(values = c("gray47", "black")) +
+  scale_fill_manual(values = c("gray47", "black")) +
+  theme(legend.position = "none") + 
+  scale_x_discrete(labels=expression(paste("without ", italic("S. patens")), paste("with ", italic("S. patens")))) +
+  xlab("") -> width_comp
+
+# Repeat for stem height
+height_comp_plot <- summary(emmeans::emmeans(height_corn_noOut_mod_step, ~comp))
+
+tibble(height_scam_tot = height_comp_plot$emmean,
+       lower = height_comp_plot$lower.CL,
+       upper = height_comp_plot$upper.CL,
+       comp = c(0, 1)) %>% 
+  ggplot(aes(x = as.factor(comp), y = height_scam_tot, color = as.factor(comp))) +
+  geom_jitter(data = traits_corn, aes(x = as.factor(comp), y = height_scam_tot, color = as.factor(comp)), shape = 1,
+              stroke = 0.8, alpha = 0.5, size = 0.8)+
+  theme_bw() +
+  geom_errorbar(aes(ymin = lower, ymax = upper), position=position_dodge(width=0.3), width = 0.2, color = "black") +
+  geom_point(size = 3, position=position_dodge(width=0.3)) +
+  geom_point(size = 3, position=position_dodge(width=0.3), shape = 1, stroke = 0.8, color = "black") +
+  ylab("mean stem height (cm)") +
+  scale_color_manual(values = c("gray47", "black")) +
+  scale_fill_manual(values = c("gray47", "black")) +
+  theme(legend.position = "none") + 
+  scale_x_discrete(labels=expression(paste("without ", italic("S. patens")), paste("with ", italic("S. patens")))) +
+  xlab("") -> height_comp
+
+FigS8 <- height_comp + width_comp + plot_annotation(tag_levels = "a")
+
+ggsave(here("figs", "FigS8_hw_comp.png"), FigS8, height = 3.5, width = 5.5, units = "in")
+

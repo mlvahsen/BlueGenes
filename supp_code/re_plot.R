@@ -32,7 +32,7 @@ list(
 # Calculate R2 values for each model
 lapply(all_models, MuMIn::r.squaredGLMM)
 
-# Create functional to calculate and extract marginal and conditional ICC values
+# Create functional to calculate and extract adjusted and conditional ICC values
 calc_icc <- function(x){
   as.numeric(performance::icc(x)[1])
 }
@@ -70,13 +70,13 @@ tibble(agb = as.numeric(bootMer(models_nocomp$agb_mod, FUN = calc_icc_conditiona
 
 # Bind together two data sets and convert to long format
 rbind(boot_samples, boot_samples_conditional) %>% 
-  mutate(icc_type = rep(c("marginal", "conditional"), each = nrow(boot_samples))) %>% 
+  mutate(icc_type = rep(c("adjusted", "conditional"), each = nrow(boot_samples))) %>% 
   gather(key = trait, value = icc, agb:beta) %>% 
   filter(complete.cases(icc)) -> boot_samples_all
 
 # Calculate mean iccs across all traits
 mean_iccC <- boot_samples_all %>% filter(icc_type == "conditional") %>% pull(icc) %>% mean()
-mean_iccM <- boot_samples_all %>% filter(icc_type == "marginal") %>% pull(icc) %>% mean()
+mean_iccM <- boot_samples_all %>% filter(icc_type == "adjusted") %>% pull(icc) %>% mean()
 
 boot_samples_all %>% 
   ggplot(aes(x = reorder(trait, -icc, mean), y = icc)) +
@@ -85,8 +85,8 @@ boot_samples_all %>%
                fun.max = function(z) { quantile(z,0.975) }, aes(colour = icc_type),
                position = position_dodge(width = 0.7)) +
   coord_flip() +
-  geom_hline(aes(yintercept = mean_iccC), linetype = "dashed", color = "#a6cee3") +
-  geom_hline(aes(yintercept = mean_iccM), linetype = "dashed", color = "#1f78b4") +
+  geom_hline(aes(yintercept = mean_iccC), linetype = "dashed", color = "#1f78b4") +
+  geom_hline(aes(yintercept = mean_iccM), linetype = "dashed", color = "#a6cee3") +
   ylab("intraclass correlation coefficient (ICC)") +
   xlab("trait") +
   labs(fill = "ICC type",
@@ -117,18 +117,34 @@ my_labels <- c(ambient="ambient~CO[2]", elevated="elevated~CO[2]")
 my_labeller <- as_labeller(my_labels,
                            default = label_parsed)
 
+# Create color palette such that the genotype lines are colored by the order of
+# the intercept in ambient CO2
+
 newData_ca6 %>% 
   mutate(predict_agb = predictions^2) %>% 
-  group_by(elevation, co2, genotype, age) %>% 
+  filter(elevation == min(newData_ca6$elevation) & co2 == "ambient") %>% 
+  group_by(co2, genotype, age) %>% 
   summarize(mean_agb = mean(predict_agb)) %>% 
-  ggplot(aes(x = elevation, y = mean_agb, group = genotype)) +
-  geom_line(alpha = 0.4) +
+  arrange(mean_agb) %>% 
+  ungroup() %>% 
+  mutate(color_order = 1:31) %>% 
+  select(genotype, color_order) -> color_labels_agb
+
+left_join(newData_ca6, color_labels_agb) -> plot_data_agb
+
+plot_data_agb %>% 
+  mutate(predict_agb = predictions^2) %>% 
+  group_by(elevation, co2, genotype, age, color_order) %>% 
+  summarize(mean_agb = mean(predict_agb)) %>% 
+  ggplot(aes(x = elevation, y = mean_agb, group = genotype, color = color_order)) +
+  geom_line() +
   facet_wrap(~co2, labeller = my_labeller) +
   ylab("aboveground biomass (g)") +
   xlab("") +
   theme_bw() +
-  theme(axis.text.x = element_blank())-> co2_GxE
-
+  theme(axis.text.x = element_blank()) +
+  scale_color_gradientn(colours = rainbow(31)) +
+  theme(legend.position = "none")-> co2_GxE
 
 ## Root distribution parameter G x E ####
 # Refit with summed contrasts for plotting (this doesn't change the model)
@@ -143,18 +159,37 @@ expand.grid(salinity = unique(traits_nocomp$salinity),
 
 newData %>% filter(genotype != "ca8" | salinity != "salt") -> newData_ca8
 
-predict(beta_mod1, newData_ca8) -> predictions
+predict(beta_mod1, newData_ca8) -> predictions_beta
 
 newData_ca8 %>% 
+  mutate(predict_beta = predictions_beta) %>% 
   mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
-                              T ~ "brackish site (6 ppt)")) %>% 
-  mutate(predict_beta = predictions) %>% 
-  ggplot(aes(x = elevation, y = predict_beta, group = genotype)) +
-  geom_line(alpha = 0.4) +
+                              T ~ "brackish site (6 ppt)")) %>%
+  filter(elevation == min(newData_ca8$elevation) & salinity == "brackish site (6 ppt)") %>% 
+  arrange(predict_beta) %>% 
+  ungroup() %>% 
+  mutate(color_order = 1:30) %>% 
+  select(genotype, color_order) -> color_labels_beta
+
+newData_ca8 %>% 
+  mutate(predict_beta = predictions_beta) %>% 
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)")) -> newData_ca8
+
+left_join(newData_ca8, color_labels_beta) -> plot_data_beta
+# Add last color for ca8 because it is currently NA
+plot_data_beta %>% 
+  mutate(color_order = ifelse(is.na(color_order), 31, color_order)) -> plot_data_beta
+
+plot_data_beta %>% 
+  ggplot(aes(x = elevation, y = predict_beta, group = genotype, color = color_order)) +
+  geom_line() +
   facet_wrap(~salinity) +
   ylab("root distribution parameter") +
   xlab("elevation (m NAVD88)") +
-  theme_bw() -> salinity_GxE
+  theme_bw() +
+  scale_color_gradientn(colours = rainbow(31)) +
+  theme(legend.position = "none") -> salinity_GxE
 
 ## Bring plots together ####
 png("figs/FigX_GxE.png", height = 5.5, width = 9, res = 300, units = "in")
