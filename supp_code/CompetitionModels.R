@@ -23,10 +23,10 @@ traits_corn %>%
 # Most complex model
 agb_mod_corn <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + origin_lab +
                        (age + comp + co2 + salinity + elevation)^5 + I(elevation^2) +
-                       (1|genotype) + (1|site_frame), data = traits_corn)
+                       (1+co2*elevation + co2*comp + co2*salinity + elevation*comp + elevation*salinity + comp*salinity|genotype) + (1|site_frame), data = traits_corn)
 
 # Try lmerTest::step
-get_model(lmerTest::step(agb_mod_corn)) 
+get_model(lmerTest::step(agb_mod_corn, alpha.random = 0.05)) 
 
 agb_corn_step_mod <- lmer(sqrt(agb_scam) ~ weight_init + date_cloned_grp + age + comp +  
                             co2 + salinity + elevation + I(elevation^2) + (1 | genotype) +  

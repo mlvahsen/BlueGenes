@@ -62,8 +62,8 @@ step_agb_alt <- update(step_agb, .~.-(co2|genotype) + (1|co2:genotype) + (1|geno
 # Now see if this model is better than an intercept only model at alpha = 0.05
 step_agb_alt_drop <- update(step_agb_alt, .~.-(1|co2:genotype))
 anova(step_agb_alt, step_agb_alt_drop, refit = F)
-# This is not significantly different at the alpha = 0.05 level which is our
-# criterion for dropping random and fixed effects above. Because (1) the first
+# This is not significantly different at the alpha = 0.10 level which is our
+# criterion for dropping random effects above. Because (1) the first
 # model didn't converge and (2) the alternative model was not significant, we
 # will drop this random slope to be on the more conservative side of things.
 
@@ -90,45 +90,6 @@ MuMIn::r.squaredGLMM(agb_evo_model)
 # Conditional R2 = 0.45
 
 ## Make plot of fixed effects ####
-
-# The highest order interaction that we want to show is age*co2*salinity*elevation
-agb_plot <- plot_model(agb_evo_model, terms = c("elevation[all]", "co2", "age", "salinity"), type = "emm")
-
-# Collect data from plot_model object
-plot_agb_data <- tibble(elevation = c(agb_plot[[1]]$data$x, agb_plot[[2]]$data$x),
-                        co2 = c(agb_plot[[1]]$data$group, agb_plot[[2]]$data$group),
-                        age = c(agb_plot[[1]]$data$facet, agb_plot[[2]]$data$facet),
-                        salinity = c(agb_plot[[1]]$data$panel, agb_plot[[2]]$data$panel),
-                        agb_scam = c(agb_plot[[1]]$data$predicted, agb_plot[[2]]$data$predicted),
-                        lower_ci = c(agb_plot[[1]]$data$conf.low, agb_plot[[2]]$data$conf.low),
-                        upper_ci = c(agb_plot[[1]]$data$conf.high, agb_plot[[2]]$data$conf.high))
-
-# Change the labels in raw data for plots
-traits_nocomp %>% 
-  mutate(age = case_when(age == "modern" ~ "descendant cohort (2000-2020)",
-                         T ~ "ancestral cohort (1900-1950)")) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-                              T ~ "brackish site (6ppt)")) -> traits_nocomp_plot
-
-# Create plot
-plot_agb_data %>% 
-  mutate(age = case_when(age == "modern" ~ "descendant cohort (2000-2020)",
-                         T ~ "ancestral cohort (1900-1950)")) %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-                              T ~ "brackish site (6ppt)")) %>% 
-  ggplot(aes(x = elevation, y = agb_scam, color = co2)) +
-  geom_point(data = traits_nocomp_plot, shape = 1, alpha = 0.6, stroke = 0.7) +
-  geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, fill = co2), alpha = 0.2, color = NA) +
-  geom_textline(aes(label = co2), linewidth = 1.2, fontface = 2, hjust = 0.2) +
-  facet_grid(salinity ~ age) +
-  scale_color_manual(values = c("#b2df8a","#33a02c")) +
-  scale_fill_manual(values = c("#b2df8a","#33a02c")) +
-  ylab("aboveground biomass (g)") +
-  xlab("elevation (m NAVD88)") +
-  theme_bw() +
-  theme(legend.position = "none")-> agb_plot_4way
-  
-ggsave(here("figs", "Fig4.png"), agb_plot_4way, height = 4.7, width = 5.6, units = "in")
 
 # Extract type III Anova table
 anova(agb_evo_model)
@@ -363,7 +324,7 @@ ggsave(here("figs", "SuppFig_beta.png"), beta_fig, height = 4, width = 9, units 
 ## Fit model and model selection (fixed effects) ####
 
 # Most complex model
-bg_mod <- lmer(total_bg ~ weight_init + date_cloned_grp + origin_lab +
+bg_mod <- lmer(sqrt(total_bg) ~ weight_init + date_cloned_grp + origin_lab +
                  (age + location + co2 + salinity + elevation)^5 + I(elevation^2) +
                  (1+co2*elevation + salinity*elevation + co2*salinity|genotype) + (1|site_frame), data = traits_nocomp_rs)
 
@@ -392,7 +353,7 @@ bg_null_model <- get_model(step(bg_modelnull))
 MuMIn::r.squaredGLMM(bg_null_model)
 # Conditional R2 = 0.23
 MuMIn::r.squaredGLMM(bg_evo_model)
-# Conditional R2 = 0.33
+# Conditional R2 = 0.39
 
 ##########################
 ## Stem height analysis ##
@@ -501,7 +462,6 @@ MuMIn::r.squaredGLMM(width_evo_model)
 ## Stem density analysis ##
 ###########################
 
-
 ## Fit model ####
 # Stem density uses the same data as AGB
 density_mod <- lmer(dens_scam_live ~ weight_init + date_cloned_grp + origin_lab +
@@ -532,6 +492,11 @@ MuMIn::r.squaredGLMM(density_evo_model)
 # 0.44
 
 #############################
+
+
+###########################
+## Calcs for all models ###
+###########################
 
 ## Get final models for each trait ####
 
@@ -570,9 +535,38 @@ lapply(all_models, calc_icc)
 # Calculate ICC for all evolution models
 lapply(all_models, calc_icc)
 
+# Get ANOVA table for each model
+lapply(all_models, anova)
+
+## Calculate how important genotype is in the model ####
+step(agb_evo_model)
+step(width_evo_model)
+step(density_evo_model)
+
+rs_for_genotype <- update(rs_evo_model, .~.-(salinity|genotype) + (1|genotype))
+step(rs_for_genotype)
+
+beta_for_genotype <- update(beta_evo_model, .~.-(salinity + elevation + co2 + salinity:elevation + elevation:co2|genotype) + (1|genotype))
+step(beta_for_genotype)
+
+bg_for_genotype <- update(bg_evo_model, .~.-(co2|genotype) + (1|genotype))
+step(bg_for_genotype)
+
+height_for_genotype <- update(height_evo_model, .~.-(elevation + salinity + elevation:salinity |genotype) + (1|genotype))
+step(height_for_genotype)
+
+## Same for random intercepts ####
+step(rs_evo_model)
+step(beta_evo_model)
+step(bg_evo_model)
+step(height_evo_model)
+
+traits_nocomp_rs %>% 
+  ggplot(aes(x = salinity, y = total_bg, color = co2)) +
+  geom_jitter() + facet_wrap(~age)
 
 ###########################
-## Extra stuff ############
+## Effect sizes ###########
 ###########################
 
 ## Calculate effect sizes for in-text ####
