@@ -171,7 +171,7 @@ ggsave(here("figs", "FigS7.png"), FigS7, height = 3.5, width = 4.6, units = "in"
 ## Fig S4: eco-eco for root:shoot and beta ####
 
 # Get emmeans values for plots
-rs_ES_plot <- summary(emmeans::emmeans(models_nocomp$rs_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+rs_ES_plot <- summary(emmeans::emmeans(rs_evo_model, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
 
 tibble(rs = exp(rs_ES_plot$emmean),
        elevation = rs_ES_plot$elevation,
@@ -191,27 +191,27 @@ tibble(rs = exp(rs_ES_plot$emmean),
   scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
   theme(legend.position = "none") -> rs_interaction
 
-beta_ES_plot <- summary(emmeans::emmeans(models_nocomp$beta_mod, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
+bg_ES_plot <- summary(emmeans::emmeans(bg_evo_model, ~elevation:salinity, at = list(elevation = seq(0.156, 0.544, length.out = 50))))
 
-tibble(beta = beta_ES_plot$emmean,
-       elevation = beta_ES_plot$elevation,
-       lower = beta_ES_plot$lower.CL,
-       upper = beta_ES_plot$upper.CL,
+tibble(total_bg = bg_ES_plot$emmean^2,
+       elevation = bg_ES_plot$elevation,
+       lower = bg_ES_plot$lower.CL^2,
+       upper = bg_ES_plot$upper.CL^2,
        salinity = rep(c("fresh", "salt"), each = 50)) %>% 
-  ggplot(aes(x = elevation, y = beta, color = salinity)) +
-  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = beta, color = salinity), shape = 1,
+  ggplot(aes(x = elevation, y = total_bg, color = salinity)) +
+  geom_point(data = traits_nocomp_rs, aes(x = elevation, y = total_bg, color = salinity), shape = 1,
              stroke = 0.8, alpha = 0.6, size = 0.8) +
   geom_textline(size = 3, fontface = "bold", label= rep(c("freshwater site", "brackish site"), each = 50),
-                linewidth = 1.2, hjust = 0.05, textcolor = "black") +
+                linewidth = 1.2, hjust = 0.90, textcolor = "black") +
   theme_bw() +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = salinity), alpha = 0.2, color = NA) +
-  ylab(expression(paste("root distribution parameter (", beta, ")"))) +
+  ylab("belowground biomass") +
   xlab("elevation (m NAVD88)") + 
   scale_color_manual(values = c("#fdbf6f", "#ff7f00")) +
   scale_fill_manual(values = c("#fdbf6f", "#ff7f00")) +
-  theme(legend.position = "none") -> beta_interaction
+  theme(legend.position = "none") -> bg_interaction
 
-FigS4 <- rs_interaction / beta_interaction + plot_annotation(tag_levels = "a") & theme(plot.margin = margin(t = 0,r = 5,b = 0,l = 5))
+FigS4 <- rs_interaction / bg_interaction + plot_annotation(tag_levels = "a") & theme(plot.margin = margin(t = 0,r = 5,b = 0,l = 5))
 
 ggsave(here("figs", "FigS4_ecoeco.png"), FigS4, height = 6, width = 4.5, units = "in")
 
@@ -257,3 +257,193 @@ tibble(height_scam_tot = height_E_plot$emmean,
   xlab("elevation (m NAVD88)") -> height_elevation
 
 ggsave(here("figs", "FigS6_height_elevation.png"), height_elevation, height = 4, width = 4, units = "in")
+
+## Old Stuff ####
+## Root-to-shoot ratio G x E 
+
+expand.grid(salinity = unique(traits_nocomp_rs$salinity),
+            genotype = unique(row.names(ranef(rs_evo_model)$genotype)),
+            elevation = seq(0.156, 0.544, length.out = 20),
+            co2 = unique(traits_nocomp_rs$co2)) %>% 
+  mutate(age = case_when(substr(genotype, 2, 2) == "a" ~ "ancestral",
+                         T ~ "modern")) -> newData_rs
+
+predict(rs_evo_model, newData_rs) -> predictions_rs_RE
+
+newData_rs %>% 
+  mutate(predict_rs = exp(predictions_rs_RE)) %>% 
+  group_by(salinity, genotype) %>% 
+  summarize(mean_rs = mean(predict_rs)) -> color_labels_rs
+
+left_join(newData_rs, color_labels_rs) -> plot_data_rs
+
+plot_data_rs %>% 
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site",
+                              T ~ "brackish site")) %>% 
+  ggplot(aes(x = salinity, y = mean_rs, group = genotype, color = genotype)) +
+  geom_line() +
+  geom_point(size = 1.5) +
+  ylab("root-to-shoot ratio") +
+  xlab("salinity") +
+  theme_bw() +
+  scale_color_manual(values = rainbow(31)) +
+  theme(legend.position = "none")
+
+## Belowground biomass G x E 
+
+expand.grid(salinity = unique(traits_nocomp_rs$salinity),
+            genotype = unique(row.names(ranef(bg_evo_model)$genotype)),
+            elevation = seq(0.156, 0.544, length.out = 20),
+            co2 = unique(traits_nocomp_rs$co2),
+            weight_init = mean(traits_nocomp$weight_init),
+            date_cloned_grp = unique(traits_nocomp_rs$date_cloned_grp)) -> newData_bg
+
+predict(bg_evo_model, newData_bg) -> predictions_bg_RE
+
+newData_bg %>% 
+  mutate(predict_bg = predictions_bg_RE^2) %>% 
+  group_by(co2, genotype) %>% 
+  summarize(mean_bg = mean(predict_bg)) -> color_labels_bg
+
+left_join(newData_bg, color_labels_bg) -> plot_data_bg
+
+plot_data_bg %>% 
+  ggplot(aes(x = co2, y = mean_bg, group = genotype, color = genotype)) +
+  geom_line() +
+  geom_point(size = 1.5) +
+  ylab("belowground biomass") +
+  xlab(expression(paste(CO[2], " treatment"))) +
+  theme_bw() +
+  scale_color_manual(values = rainbow(31)) +
+  theme(legend.position = "none")
+
+traits_nocomp_rs %>% 
+  group_by(co2, genotype) %>% 
+  summarize(mean_bg = mean(total_bg)) %>% 
+  ggplot(aes(x = co2, y = mean_bg)) +
+  geom_point()
+
+
+
+
+
+plot_data_bg %>% 
+  spread(co2, mean_bg) %>% 
+  mutate(diff = elevated - ambient) %>% 
+  select(genotype, diff) %>% 
+  unique() %>% 
+  arrange(diff) %>% 
+  ggplot(aes(diff)) +
+  geom_density() + 
+  geom_rug()
+
+
+## Aboveground Biomass G x E 
+
+expand.grid(salinity = unique(traits_nocomp$salinity),
+            date_cloned_grp = unique(traits_nocomp$date_cloned_grp),
+            genotype = unique(row.names(ranef(agb_mod1)$genotype)),
+            elevation = seq(0.156, 0.544, length.out = 20),
+            co2 = unique(traits_nocomp$co2)) %>% 
+  mutate(age = case_when(substr(genotype, 2, 2) == "a" ~ "ancestral",
+                         T ~ "modern"),
+         weight_init = mean(traits_nocomp$weight_init)) -> newData
+
+newData %>% filter(genotype != "ca6" | co2 != "elevated") -> newData_ca6
+
+predict(agb_mod1, newData_ca6) -> predictions
+
+my_labels <- c(ambient="ambient~CO[2]", elevated="elevated~CO[2]")
+my_labeller <- as_labeller(my_labels,
+                           default = label_parsed)
+
+# Create color palette such that the genotype lines are colored by the order of
+# the intercept in ambient CO2
+
+newData_ca6 %>% 
+  mutate(predict_agb = predictions^2) %>% 
+  filter(elevation == min(newData_ca6$elevation) & co2 == "ambient") %>% 
+  group_by(co2, genotype, age) %>% 
+  summarize(mean_agb = mean(predict_agb)) %>% 
+  arrange(mean_agb) %>% 
+  ungroup() %>% 
+  mutate(color_order = 1:31) %>% 
+  select(genotype, color_order) -> color_labels_agb
+
+left_join(newData_ca6, color_labels_agb) -> plot_data_agb
+
+plot_data_agb %>% 
+  mutate(predict_agb = predictions^2) %>% 
+  group_by(elevation, co2, genotype, age, color_order) %>% 
+  summarize(mean_agb = mean(predict_agb)) %>% 
+  ggplot(aes(x = elevation, y = mean_agb, group = genotype, color = color_order)) +
+  geom_line() +
+  facet_wrap(~co2, labeller = my_labeller) +
+  ylab("aboveground biomass (g)") +
+  xlab("") +
+  theme_bw() +
+  theme(axis.text.x = element_blank()) +
+  scale_color_gradientn(colours = rainbow(31)) +
+  theme(legend.position = "none")-> co2_GxE
+
+## Root distribution parameter G x E 
+# Refit with summed contrasts for plotting (this doesn't change the model)
+
+beta_mod1 <- lmer(beta ~ location * elevation + elevation * salinity + (1+elevation|genotype:salinity) + (1|genotype),
+                  data = traits_nocomp_rs)
+expand.grid(salinity = unique(traits_nocomp$salinity),
+            genotype = unique(row.names(ranef(beta_mod1)$genotype)),
+            elevation = seq(0.156, 0.544, length.out = 20)) %>% 
+  mutate(location = case_when(substr(genotype, 1, 1) == "c" ~ "corn",
+                              T ~ "kirkpatrick")) -> newData
+
+newData %>% filter(genotype != "ca8" | salinity != "salt") -> newData_ca8
+
+predict(beta_mod1, newData_ca8) -> predictions_beta
+
+newData_ca8 %>% 
+  mutate(predict_beta = predictions_beta) %>% 
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)")) %>%
+  filter(elevation == min(newData_ca8$elevation) & salinity == "brackish site (6 ppt)") %>% 
+  arrange(predict_beta) %>% 
+  ungroup() %>% 
+  mutate(color_order = 1:30) %>% 
+  select(genotype, color_order) -> color_labels_beta
+
+newData_ca8 %>% 
+  mutate(predict_beta = predictions_beta) %>% 
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)")) -> newData_ca8
+
+left_join(newData_ca8, color_labels_beta) -> plot_data_beta
+# Add last color for ca8 because it is currently NA
+plot_data_beta %>% 
+  mutate(color_order = ifelse(is.na(color_order), 31, color_order)) -> plot_data_beta
+
+plot_data_beta %>% 
+  ggplot(aes(x = elevation, y = predict_beta, group = genotype, color = color_order)) +
+  geom_line() +
+  facet_wrap(~salinity) +
+  ylab("root distribution parameter") +
+  xlab("elevation (m NAVD88)") +
+  theme_bw() +
+  scale_color_gradientn(colours = rainbow(31)) +
+  theme(legend.position = "none") -> salinity_GxE
+
+
+plot_data_height %>% 
+  mutate(salinity = case_when(salinity == "salt" ~ "brackish site",
+                              T ~ "freshwater site")) %>% 
+  mutate(predict_height = predictions_height_RE) %>% 
+  group_by(elevation, salinity, genotype, color_order) %>% 
+  summarize(mean_height = mean(predict_height)) %>% 
+  ggplot(aes(x = elevation, y = mean_height, group = genotype, color = color_order)) +
+  geom_line() +
+  facet_wrap(~salinity) +
+  ylab("mean stem height (cm)") +
+  xlab("elevation (cm NAVD88)") +
+  theme_bw() +
+  scale_color_gradientn(colours = rainbow(31)) +
+  theme(legend.position = "none")
+
