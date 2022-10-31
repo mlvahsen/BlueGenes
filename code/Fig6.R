@@ -11,7 +11,7 @@ plot_agb_data_corn %>%
   ggplot(aes(x = elevation, y = agb_scam, group = comp, linetype = as.factor(comp))) +
   geom_line(size = 0.7) +
   geom_point(data = traits_corn, aes(x = elevation, y = agb_scam, shape = as.factor(comp)), alpha = 0.5, size = 2) +
-  ylab("aboveground biomass (g)") +
+  ylab(expression(paste(italic("S. americanus")," aboveground biomass (g)"))) +
   xlab("elevation (m NAVD88)") +
   labs(linetype = "competition:", shape = "competition:") +
   theme_bw(base_size = 14) +
@@ -21,6 +21,6 @@ plot_agb_data_corn %>%
   scale_shape_manual(labels=expression(paste("without ", italic("S. patens")), paste("with ", italic("S. patens"))), values = c(1,16)) +
   guides(shape = guide_legend(override.aes = list(alpha = 1))) -> agb_comp_plot
 
-png("figs/Fig6.png", height = 4.2, width = 5.5, res = 300, units = "in")
+png("figs/Fig6.png", height = 5.5, width = 5.5, res = 300, units = "in")
 agb_comp_plot
 dev.off()

@@ -7,7 +7,6 @@ library(effectsize)
 
 # Read in compiled trait data
 source(here("supp_code", "CompileTraitData.R"))
-
 ##################
 ## AGB analysis ##
 ##################
@@ -394,7 +393,7 @@ height_mod_noOut_SE <- lmer(height_scam_tot ~ weight_init + date_cloned_grp + or
 
 # Do stepwise model selection while making sure fixed effect terms are not
 # dropped out if they are in random slopes
-step_height_noOut_SE <- get_model(lmerTest::step(height_mod_noOut_test,
+step_height_noOut_SE <- get_model(lmerTest::step(height_mod_noOut_SE,
                                                  keep = c("salinity:elevation_sc", "salinity", "elevation_sc")))
 
 # Check for convergence errors

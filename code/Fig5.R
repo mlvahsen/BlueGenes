@@ -9,6 +9,15 @@ models_nocomp <- list(agb_mod = agb_evo_model,
                       density_mod = density_evo_model,
                       beta_mod = beta_evo_model)
 
+# Create functional to calculate and extract marginal and conditional ICC values
+calc_icc <- function(x){
+  as.numeric(performance::icc(x)[1])
+}
+
+calc_icc_conditional <- function(x){
+  as.numeric(performance::icc(x)[2])
+}
+
 # Set number of bootstrap simulations
 sims = 100
 
@@ -254,17 +263,17 @@ design2 <- c(
   area(1, 1, 2, 2),
   area(1, 3, 1, 3),
   area(2, 3, 2, 3),
-  area(3, 3, 3, 3),
+  area(3, 1, 3, 1),
   area(3, 2, 3, 2),
-  area(3, 1, 3, 1)
+  area(3, 3, 3, 3)
 )
 
-plot(design)
+plot(design2)
 
 png("figs/Fig5.png", height = 7, width = 9.5, units = "in", res = 300)
 
-random_intercept+agb_GxE+bg_GxE+rs_GxE+
-  beta_GxE+height_GxE+
+random_intercept+beta_GxE+height_GxE+
+  agb_GxE+bg_GxE+rs_GxE+
   plot_layout(design = design2) +
   plot_annotation(tag_levels = "a")
 

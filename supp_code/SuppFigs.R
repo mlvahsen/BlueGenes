@@ -106,6 +106,10 @@ beta_EA_plot <- emmeans::emmeans(beta_evo_model, ~age|elevation_sc,
                                  at = list(elevation_sc = seq(min(traits_nocomp_rs$elevation_sc),
                                                               max(traits_nocomp_rs$elevation_sc), length.out = 50)))
 
+traits_nocomp_rs %>% 
+  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
+                         T ~ "descendant cohort (2000-2020)")) -> traits_nocomp_plot
+
 summary(beta_EA_plot) %>% 
   mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
                          T ~ "descendant cohort (2000-2020)")) %>% 
@@ -133,7 +137,7 @@ pred_beta_age <- summary(emmeans(beta_evo_model, ~elevation_sc:age,
                                                             min(traits_nocomp$elevation_sc),
                                                             max(traits_nocomp$elevation_sc)))))$emmean
 # Combine these in a tibble
-tibble(age = rep(c("ancestral", "modern"), each = length(depths)*3),
+tibble(age = rep(c("ancestral", "descendant"), each = length(depths)*3),
        cum_frac = c(1-pred_beta_age[1]^depths, 1-pred_beta_age[2]^depths, 1-pred_beta_age[3]^depths,
                     1-pred_beta_age[4]^depths, 1-pred_beta_age[5]^depths, 1-pred_beta_age[6]^depths),
        depth = rep(depths,6),
