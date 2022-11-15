@@ -1,11 +1,6 @@
 ## Fig S1: eco-evo of extinction/survival ####
-##
-# Make plots
-##
-
 age_colors <- c("#fb9a99", "#e31a1c")
 loc_colors <- c("#cab2d6", "#6a3d9a")
-#plot_shapes <- c(15, 17)
 
 # A = elevation:age:salinity interaction
 a <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("elevation", "age", "salinity"), type = "emm")
@@ -61,7 +56,6 @@ plot_data_b %>%
   theme_bw(base_size = 14) + theme(legend.background = element_rect(color = "gray47"))+
   labs(x = "elevation (m NAVD88)", y = "survival rate") -> plot_b
 
-
 # C = location:age:co2 interaction
 c <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "age", "co2"), type = "emm")
 
@@ -89,7 +83,7 @@ plot_data_c %>%
   labs(x = expression(CO[2]), y = "survival rate") +
   scale_color_manual(values = age_colors) -> plot_c 
 
-png("figs/FigS1.png", res = 300, units = "in", height = 5, width = 8.2)
+png("figs/FigS1.png", res = 300, units = "in", height = 5, width = 9)
 plot_a + plot_c + plot_b + guide_area() + plot_annotation(tag_levels = 'a')+
   plot_layout(guides = "collect", widths = c(4,3)) & theme(legend.justification = "left")
 dev.off()
@@ -103,6 +97,7 @@ emmeans(extinct_mod_nocomp_fixed3_BR, ~elevation,
 ## Fig S2: effect of age and elevation on root depth distribution ####
 # Get emmeans values for plots
 beta_EA_plot <- emmeans::emmeans(beta_evo_model, ~age|elevation_sc,
+                                 weights = "proportional",
                                  at = list(elevation_sc = seq(min(traits_nocomp_rs$elevation_sc),
                                                               max(traits_nocomp_rs$elevation_sc), length.out = 50)))
 
@@ -160,7 +155,7 @@ ggsave(here("figs", "FigS2.png"), beta_fig, height = 4, width = 9, units = "in")
 
 ## Fig S3: effect of salinity and elevation on r:s and bgb ####
 # root-shoot-ratio ~ salinity x elevation 
-rs_SE <- summary(emmeans(rs_evo_model, ~elevation_sc:salinity,
+rs_SE <- summary(emmeans(rs_evo_model, ~elevation_sc:salinity, weights = "proportional",
                            at = list(elevation_sc = seq(min(traits_nocomp$elevation_sc),
                                                         max(traits_nocomp$elevation_sc), length.out = 50)), type = "response"))
 
@@ -184,7 +179,7 @@ plot_rs_data %>%
   ggplot(aes(x = elevation, y = rs, color = salinity)) +
   geom_point(data = traits_nocomp_rs_plot, shape = 1, alpha = 0.6, stroke = 1) +
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, fill = salinity), alpha = 0.2, color = NA) +
-  geom_line(aes(label = salinity), size = 1.2) +
+  geom_line(size = 1.2) +
   ylab("root-to-shoot ratio") +
   xlab("") +
   theme_bw(base_size = 14) +
@@ -193,7 +188,7 @@ plot_rs_data %>%
   scale_fill_manual(values = c("#ff7f00", "#fdbf6f")) -> rs_SE_plot
 
 # bgb ~ salinity x elevation 
-bg_SE <- summary(emmeans(bg_evo_model, ~elevation_sc:salinity,
+bg_SE <- summary(emmeans(bg_evo_model, ~elevation_sc:salinity, weights = "proportional",
                          at = list(elevation_sc = seq(min(traits_nocomp$elevation_sc),
                                                       max(traits_nocomp$elevation_sc), length.out = 50)), type = "response"))
 
@@ -212,7 +207,7 @@ plot_bg_data %>%
   ggplot(aes(x = elevation, y = total_bg, color = salinity)) +
   geom_point(data = traits_nocomp_rs_plot, shape = 1, alpha = 0.6, stroke = 1) +
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, fill = salinity), alpha = 0.2, color = NA) +
-  geom_line(aes(label = salinity), size = 1.2) +
+  geom_line(size = 1.2) +
   ylab("belowground biomass (g)") +
   xlab("elevation (m NAVD88)") +
   theme_bw(base_size = 14) +
@@ -245,7 +240,8 @@ dev.off()
 
 ## Fig S5: effect of SPPA competition on stem height and width ####
 # Get emmeans values for plots
-width_comp_plot <- summary(emmeans::emmeans(width_corn_evo_model, ~comp))
+width_comp_plot <- summary(emmeans::emmeans(width_corn_evo_model, ~comp,
+                                            weights = "proportional"))
 
 tibble(width_scam_mid = width_comp_plot$emmean,
        lower = width_comp_plot$lower.CL,
@@ -266,7 +262,8 @@ tibble(width_scam_mid = width_comp_plot$emmean,
   xlab("") -> width_comp
 
 # Repeat for stem height
-height_comp_plot <- summary(emmeans::emmeans(height_corn_evo_model, ~comp))
+height_comp_plot <- summary(emmeans::emmeans(height_corn_evo_model, ~comp),
+                            weights = "proportional")
 
 tibble(height_scam_tot = height_comp_plot$emmean,
        lower = height_comp_plot$lower.CL,

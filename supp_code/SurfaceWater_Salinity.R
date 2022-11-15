@@ -1,3 +1,5 @@
+# Salinity data for Fig 2
+
 library(tidyverse); library(wql);
 library(lubridate); library(oce);
 library(gt); library(here);library(geomtextpath)
@@ -109,5 +111,5 @@ predicted_values %>%
 # gcrew          4.49
 
 # Save plot
-ggsave(here("figs", "salinity.png"), salinity_plot, height = 2.8, width = 3.4, units = "in")
+ggsave(here("figs", "Fig2_salinity.png"), salinity_plot, height = 2.8, width = 3.4, units = "in")
   

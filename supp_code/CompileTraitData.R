@@ -2,9 +2,6 @@
 
 # Blue Genes Analysis -- Clean code!!! #
 
-# Created 14 September 2021
-# Updated 18 October 2021
-
 ####################
 ## Data Wrangling ##
 ####################
@@ -30,7 +27,6 @@ reap_pot <- read_csv(here("supp_data","Harvest_FullData_PotLevel.csv"))
 reap_stem <- read_csv(here("supp_data","Harvest_FullData_StemLevel.csv"))
 pot_ids <- read_csv(here("supp_data","HarvestPot_ID.csv")) # for matching up pot_no with data sheets that don't have pot_no
 rna_harvest <- read.csv(here("supp_data","RNA_harvest.csv"))
-porewater <- read_csv(here("supp_data", "porewaterNH4_processed_2019.csv"))
 
 ## Data cleaning and formatting ##### 
 
@@ -185,52 +181,6 @@ full_data %>%
          soil_to_pot
   ) -> full_data
 
-## Dealing with zeros #### 
-# We have zeros that arise for two different reasons:
-# (1) plants failed to establish and (2) plants established and then died. For
-# most analyses we want to include the zeros that are where plants established
-# and then died, that is, that the treatment they were exposed to was a reason
-# they died.
-
-# To figure this out, we can use the biweekly census data. First format the
-# sampling dates.
-census$yday <- yday(mdy(census$date))
-
-census$day <- NULL
-census[census$yday %in% 182:183, "day"] <- 1
-census[census$yday %in% 196:197, "day"] <- 2
-census[census$yday %in% 210:212, "day"] <- 3
-census[census$yday %in% 224:226, "day"] <- 4
-census[census$yday %in% 245:248, "day"] <- 5
-census[census$yday %in% 259:261, "day"] <- 6
-
-# Set up ids
-full_data$id <- paste(full_data$site_frame, full_data$level, full_data$position, sep = "_")
-census$id <- paste(census$site_frame, census$level, census$pos, sep = "_")
-
-# Figure out which pots had zero stems at the end of the experiment
-zero_stems <- full_data %>% filter(dens_scam_live == 0)
-
-# Filter those out in census data
-census %>% 
-  filter(id %in% zero_stems$id) %>% 
-  dplyr::select(id, live, day) -> zero_decision_data
-
-# Now figure out which pots were continuing to increase after certain dates
-zero_decision_data %>% 
-  spread(key = day, value = live) %>% 
-  dplyr::select(id,
-         day1 = `1`,
-         day2 = `2`,
-         day3 = `3`,
-         day4 = `4`,
-         day5 = `5`,
-         day6 = `6`) %>% 
-  filter(day6 > 0 | day5 > 0 | day4 > 0 | day3 > 0 | day2 > day1) %>% 
-  pull(id) -> zeros_to_keep
-# I think this makes good sense: had stems alive after ~ 1 month (July 29) or
-# was increasing density from July 1 - July 15
-
 ## Dealing with RNA stems #### 
 # One stem was harvested for all pots in the rna_harvest data frame. We add one
 # stem to the density count and then use the allometric data to calculate the
@@ -319,18 +269,6 @@ bg_clean %>%
   summarize(total_bg = sum(weight)) -> bg_total
 
 full_data_merged <- merge(bg_total, full_data, by = "pot_no", all.y = T)
-
-# Filter out top 10cm that is SCAM or SPPA only (no mixed roots)
-bg_clean %>% 
-  filter(segment_top == 0 & species %in% c("scam", "sppa")) %>% 
-  group_by(pot_no, species) %>% 
-  summarize(bg_biomass10 = sum(weight)) %>% 
-  spread(key = species, value = bg_biomass10) %>% 
-  ungroup()-> bg_10cm
-
-# Merge in with full_data
-merge(bg_10cm, full_data_merged, by = "pot_no", all.y = T) %>% 
-  rename(bg_scam10 = scam, bg_sppa10 = sppa)-> full_data_merged
 
 # Also calculate root distribution parameters values for non-competition pots
 # Get pot numbers for no competition pots
@@ -431,17 +369,6 @@ bg_full %>%
   # Also make a variable for age cohort
   mutate(age = case_when(grepl("ancestral", cohort) ~ "ancestral",
                          T ~ "modern"))-> bg_full
-
-# Now filter out the "failure to establish" zeros from the full data
-# bg_full %>% 
-#   filter(id %in% zeros_to_keep | dens_scam_live > 0) -> bg_est
-
-# Add in porewater ammonium data
-porewater %>% 
-  select(pot_no = Plot,
-         nh4 = NH4.uM) -> porewater
-
-merge(porewater, bg_full, by = "pot_no", all = TRUE) -> bg_full
 
 # Fix spartina competition pots -- if there is no SPPA, then SPPA max height is
 # zero (not NA)

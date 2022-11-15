@@ -3,8 +3,6 @@
 # than levels. This should overall reduce frame effects as well.
 
 # All measurements taken by Helena Kleiner in Spring 2020
-# Script created 25 June 2020 by MLV
-# Script updated 25 June 2020 by MLV
 
 # Load libraries
 library(tidyverse); library(here)
@@ -55,8 +53,6 @@ top_level_summary %>%
 range(top_level_mean$mean_elev)
 # We have up to ~5cm difference across frames so it's probably good we are
 # accounting for this!
-
-
 
 # Now format the level differences
 level_diffs %>% 

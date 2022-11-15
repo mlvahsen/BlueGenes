@@ -1,4 +1,7 @@
-# Read in libraries 
+# Fit linear models to subset of data to assess the role of eco-evo factors in
+# explaining S. americanus trait variation
+
+# Load libraries 
 library(here); library(tidyverse); library(emmeans);
 library(lme4); library(lmerTest); library(blme);
 library(brglm); library(lmtest); library(sjPlot);
@@ -81,7 +84,7 @@ agb_null_model <- get_model(lmerTest::step(agb_mod_null))
 # Check for convergence warnings
 summary(agb_null_model) # All good
 
-# Compare R2 from models
+# Compare conditional R2 from models
 MuMIn::r.squaredGLMM(agb_null_model)
 # Conditional R2 = 0.35
 MuMIn::r.squaredGLMM(agb_evo_model)
@@ -98,7 +101,7 @@ anova(agb_evo_model)
 # Nordholm, 1975)." -- from package documentation
 epsilon_squared(agb_evo_model)
 
-# Pull significant terms from anova table 
+# Pull significant terms from anova table and do not include covariates
 tibble(anova(agb_evo_model)) %>% 
   mutate(term = rownames(anova(agb_evo_model))) %>% 
   filter(`Pr(>F)` < 0.05 & term != "weight_init" & term!= "date_cloned_grp") %>% 
@@ -143,18 +146,18 @@ traits_nocomp %>%
 # propagule weight is driving total belowground weight at the end), so we drop
 # those two.
 
-# We also need to drop two pots #165 and #176 where we needed to harvest rhizome
-# to "save" the genotype for archiving.
-
-traits_nocomp %>% 
-  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
-
 # There also appear to be some that are NAs
 traits_nocomp %>% 
   filter(!complete.cases(rs))
 # There were issues with data collection for pots 205 and 1700 (i.e. mislabeled
 # or missing bags for sections of bgb) so these two are dropped from the
 # analysis because we could not reconcile the issues.
+
+# We also need to drop two pots #165 and #176 where we needed to harvest rhizome
+# to "save" the genotype for archiving.
+
+traits_nocomp %>% 
+  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
 
 # Calculate the total N at this point
 nrow(traits_nocomp_rs)
@@ -293,6 +296,8 @@ tibble(epsilon_squared((beta_evo_model))) %>%
 
 ## Fit model and model selection (fixed effects) ####
 
+# Again, use the same data set as for root-to-shoot ratio and beta
+
 # Fit most complex model 
 bg_mod <- lmer(sqrt(total_bg) ~ weight_init + date_cloned_grp + origin_lab +
                  (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
@@ -356,6 +361,8 @@ tibble(epsilon_squared((bg_evo_model))) %>%
 
 ## Fit model and model selection (fixed effects) ####
 
+# Start with same data set as for aboveground biomass
+
 # Most complex model
 height_mod <- lmer(height_scam_tot ~ weight_init + date_cloned_grp + origin_lab +
                      (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
@@ -375,17 +382,20 @@ traits_nocomp[186,]
 traits_nocomp %>% 
   filter(pot_no != 1830) -> traits_nocomp_height
 
+# Refit the full model with the updated dataset
 height_mod_noOut <- lmer(height_scam_tot ~ weight_init + date_cloned_grp + origin_lab +
                            (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
                            (1+co2*elevation_sc + salinity*elevation_sc + salinity*co2|genotype) + (1|site_frame), data = traits_nocomp_height)
 
+# Stepwise model selection
 step_height_noOut <- get_model(lmerTest::step(height_mod_noOut))
 
 # Check for convergence issues
 summary(step_height_noOut) # Convergence error
 
 # Need to fit most complex model that still has the fixed effect part of the
-# random slope
+# random slope. We went through multiple models and this was the most complex
+# that fit without convergence errors and also fit the above criteria
 
 height_mod_noOut_SE <- lmer(height_scam_tot ~ weight_init + date_cloned_grp + origin_lab +
                                 (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
@@ -516,7 +526,8 @@ step_density <- get_model(lmerTest::step(density_mod))
 summary(step_density) # not good
 
 # After trying models with less random effects, no models with random slopes
-# converge
+# converge when making sure the environmental variable that is included in the
+# random slope is also included in the fixed effects.
 density_mod_int <- lmer(dens_scam_live ~ weight_init + date_cloned_grp + origin_lab +
                       (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
                       (1|genotype) + (1|site_frame), data = traits_nocomp)
@@ -598,9 +609,6 @@ lapply(all_models, MuMIn::r.squaredGLMM)
 # Calculate ICC for all evolution models
 lapply(all_models, calc_icc)
 
-# Calculate ICC for all evolution models
-lapply(all_models, calc_icc)
-
 # Get ANOVA table for each model
 lapply(all_models, anova)
 
@@ -645,7 +653,7 @@ density_effectsize
 
 # Create a color scale for the table to fill in cells based on effect size by
 # categories
-png("~/Documents/Research/Blue Genes/Writing/Figures/BG_table_colors.png", height = 8, width = 8, res = 300, units = "in")
+png(here("supp_data/effect_size_colors.png"), height = 8, width = 8, res = 300, units = "in")
 tibble(category = c(agb_effectsize$category,
                     rs_effectsize$category,
                     beta_effectsize$category,
@@ -665,11 +673,11 @@ tibble(category = c(agb_effectsize$category,
   geom_point(size = 3, aes(x = log(ef)+0.2, y = log(ef))) +
   scale_color_gradient(low = "gray95", high = "gray15")
 dev.off()
-###########################
-## Predicted means ########
-###########################
-## Calculate effect sizes for in-text ####
+####################################
+## Predicted means for text ########
+####################################
 
+## Aboveground biomass ####
 # Calculate mean elevation at level 4
 traits_nocomp %>% 
   filter(level == 4) %>% 
@@ -677,16 +685,17 @@ traits_nocomp %>%
 
 # Get predicted means at high level of sea-level rise for agb
 summary(emmeans(agb_evo_model, ~co2:salinity:age:elevation_sc,
-                at = list(elevation_sc = level4_elevation), type = "response"))-> agb_pred_means
+                at = list(elevation_sc = level4_elevation), type = "response",
+                weights = "proportional"))-> agb_pred_means
 
 # Collect predicted means for co2 treatments from fresh & modern
 agb_pred_means %>% 
   filter(salinity == "fresh" & age == "modern") %>% 
   pull(response) -> fresh_modern
 
-# Calculate percent increase
+# Calculate percent increase due to elevated CO2
 fresh_modern[2]/fresh_modern[1]
-# 1.955273
+# 1.901671
 
 # Collect predicted means for co2 treatments from fresh & modern
 agb_pred_means %>% 
@@ -695,30 +704,45 @@ agb_pred_means %>%
 
 # Calculate percent increase
 salt_ancestral[2]/salt_ancestral[1]
-# 1.940944
+# 1.884215
+
+## Root-to-shoot ratio ####
+
+# Calculate the effect of CO2 for descendant root-to-shoot ratio at low
+# elevation
+summary(emmeans(rs_evo_model, ~age:co2,
+                at = list(elevation_sc = level4_elevation), type = "response",
+                weights = "proportional")) -> rs_pred_means1
+
+rs_pred_means1$response[4]/rs_pred_means1$response[2]
+# 1.239753
 
 # Calculate mean elevation at level 1
 traits_nocomp_rs %>% 
   filter(level == 1) %>% 
   pull(elevation_sc) %>% mean() -> level1_elevation
 
-# Do the same thing for salinity at high levels of SLR
-summary(emmeans(rs_evo_model, ~salinity:elevation_sc,
-                at = list(elevation_sc = level1_elevation), type = "response")) -> rs_pred_means2
+# Calculate the effect of age at high elevation
+summary(emmeans(rs_evo_model, ~age:co2,
+                at = list(elevation_sc = level1_elevation), type = "response",
+                weights = "proportional")) -> rs_pred_means2
 
-rs_pred_means2$response[1]/rs_pred_means2$response[2]
-# 1.05798
+rs_pred_means2$response[3]/rs_pred_means2$response[1]
+# 1.187871
 
-# Width and height for provenance x salinity
-summary(emmeans(height_evo_model, ~salinity|location))$emmean -> height_pred_means
+## Stem height ####
+
+summary(emmeans(height_evo_model, ~salinity|location,
+                weights = "proportional"))$emmean -> height_pred_means
 
 # Corn: fresh vs salt
 height_pred_means[1]/height_pred_means[2]
-# 1.087679
+# 1.087699
 
-summary(emmeans(width_evo_model, ~salinity|location))$emmean -> width_pred_means
+## Stem width ####
+summary(emmeans(width_evo_model, ~salinity|location,
+                weights = "proportional"))$emmean -> width_pred_means
 
 # Corn: fresh vs salt
 width_pred_means[1]/width_pred_means[2]
-# 1.149909
-
+# 1.144501

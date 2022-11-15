@@ -318,17 +318,3 @@ bg_all %>%
 
 bg_clean <- bg_all %>% 
   filter(pot_no %notin% c(205, 1700, 1885))
-
-bg_clean %>% 
-  group_by(pot_no, species, segment_top) %>%
-  summarize(total_weight = sum(weight)) %>% 
-  ggplot(aes(x = segment_top, y = total_weight, group = pot_no)) + 
-  geom_line() +
-  facet_wrap(~species)
-
-
-  
-
-
-
-

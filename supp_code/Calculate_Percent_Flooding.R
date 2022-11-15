@@ -61,7 +61,7 @@ tidal_all %>%
         axis.text.y = element_text(size = 12)) -> tidal_plot
 
 # Save plot
-ggsave(here("figs", "tidal_chart.png"), tidal_plot, height = 2.8, width = 9, units = "in")
+ggsave(here("figs", "Fig2_tidal_chart.png"), tidal_plot, height = 2.8, width = 9, units = "in")
 
 # Calculate percent flooded for a variety of elevations NADV88 in-text
 perc_elev_store_text <- NULL
