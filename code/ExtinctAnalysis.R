@@ -36,13 +36,16 @@ extinct_mod_nocomp <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab
                           data = full_data_nocomp, family = "binomial")
 
 # Random effect estimated at zero
-summary(extinct_mod_nocomp)
-# Looks like both are estimated to be zero
+VarCorr(extinct_mod_nocomp)
+# Looks like both random effects are estimated to be zero
 
 # Now fit a glm without random effects
 extinct_mod_nocomp_fixed <- glm(survive ~ weight_init + date_cloned_grp + origin_lab +
                                   (co2 + salinity + elevation + age + location)^5 +
                                   I(elevation^2), data = full_data_nocomp, family = "binomial")
+
+# We will deal with this warning later...
+#glm.fit: fitted probabilities numerically 0 or 1 occurred 
 
 # Check significance of model terms
 car::Anova(extinct_mod_nocomp_fixed)
@@ -112,7 +115,7 @@ extinct_tab[6,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noCL
 extinct_mod_noSAL <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:location)
 extinct_tab[7,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAL, 7, "salinity:age:location")
 
-# salinity:age:elevation (*)
+# salinity:age:elevation (**)
 extinct_mod_noSAE <- update(extinct_mod_nocomp_fixed3_BR, .~.-salinity:age:elevation)
 extinct_tab[8,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSAE, 8, "salinity:age:elevation")
 
@@ -124,9 +127,10 @@ extinct_tab[9,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noSL
 extinct_mod_noALE <- update(extinct_mod_nocomp_fixed3_BR, .~.-age:location:elevation)
 extinct_tab[10,] <- get_lr_results(extinct_mod_nocomp_fixed3_BR, extinct_mod_noALE, 10, "age:location:elevation")
 
-##
-# 2-way interactions (following the principle of marginality)
-##
+## 2-way interactions ####
+
+# We are following the principle of marginality: full model has all higher order
+# interactions that don't include the term of interest)
 
 # co2:salinity (ns)
 extinct_mod_forCS <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
@@ -208,7 +212,7 @@ extinct_mod_forAL <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp 
 extinct_mod_noAL <- update(extinct_mod_forAL, .~.-age:location)
 extinct_tab[18,] <- get_lr_results(extinct_mod_forAL, extinct_mod_noAL, 18, "age:location")
 
-# age:elevation (*)
+# age:elevation (ns)
 extinct_mod_forAE <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                              (co2 + salinity + elevation + age + location)^2 +
                              (co2 + location + salinity + elevation)^3 +
@@ -232,7 +236,7 @@ extinct_tab[20,] <- get_lr_results(extinct_mod_forLE, extinct_mod_noLE, 20, "loc
 # Main terms
 ##
 
-# co2 (*)
+# co2 (ns)
 extinct_mod_forC <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
                             (salinity + elevation + age + location)^3 + co2 +
                             I(elevation^2), data = full_data_nocomp,
@@ -322,22 +326,15 @@ extinct_mod_corn <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab +
                             (co2 + salinity + elevation + age + comp)^5 + I(elevation^2) +
                             (1|site_frame) + (1|genotype), data = corn_only, family = "binomial")
 
-summary(extinct_mod_corn)
+VarCorr(extinct_mod_corn)
 # random effects estimated to be zero
 
-# Fit up to 3 way interactions like the previous model
-
-# Need to fit brglm to deal with complete separation
+# Fit up to 3 way interactions like the previous model. Also need to fit brglm
+# to deal with complete separation
 
 extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_cloned_grp + origin_lab + 
                                (co2 + salinity + elevation + age + comp)^3 + I(elevation^2),
                              data = corn_only, family = "binomial")
-
-
-# Competition doesn't seem to drastically influence things (no significant
-# effect or significant interactions)
-
-# Just run the significance tests and we can put that table in the supplement
 
 # Do all significance tests as likelihood ratio tests following the principle of
 # marginality

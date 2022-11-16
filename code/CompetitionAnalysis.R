@@ -111,4 +111,3 @@ plot_model(density_corn_evo_model, type = "diag") # All looks good!
 
 # Get significance of model terms
 anova(density_corn_evo_model)
-

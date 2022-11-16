@@ -112,4 +112,3 @@ predicted_values %>%
 
 # Save plot
 ggsave(here("figs", "Fig2_salinity.png"), salinity_plot, height = 2.8, width = 3.4, units = "in")
-  

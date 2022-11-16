@@ -244,25 +244,6 @@ full_data %>%
 # Read in belowground data
 source(here("supp_code", "bgb_data_fix.R"))
 
-# Calculate percent of biomass that is mixed in the top layer out of total
-# biomass
-
-comp_pots <- full_data %>% filter(comp == 1) %>% pull(pot_no)
-
-bg_clean %>% 
-  filter(segment_top == 0 & pot_no %in% comp_pots) %>% 
-  mutate(mixed = ifelse(species == "mixed roots", 1, 0)) %>% 
-  group_by(pot_no, mixed) %>% 
-  summarize(weight_total = sum(weight)) %>% 
-  ungroup() %>% 
-  spread(key = mixed, value = weight_total) %>% 
-  mutate(`1` = ifelse(is.na(`1`), 0, `1`)) %>% 
-  mutate(total = `0` + `1`,
-         prop = `1`/total) %>% 
-  summarize(mean = mean(prop),
-            lower = quantile(prop, 0.25),
-            max = quantile(prop, 0.75))
-
 # Group data by pot to get total belowground
 bg_clean %>% 
   group_by(pot_no) %>% 

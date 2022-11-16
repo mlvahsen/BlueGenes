@@ -730,6 +730,14 @@ summary(emmeans(rs_evo_model, ~age:co2,
 rs_pred_means2$response[3]/rs_pred_means2$response[1]
 # 1.187871
 
+# Calculate the effect of salinity at low elevation
+summary(emmeans(rs_evo_model, ~salinity,
+                at = list(elevation_sc = level4_elevation), type = "response",
+                weights = "proportional")) -> rs_pred_means3
+
+rs_pred_means3$response[2]/rs_pred_means3$response[1]
+# 1.234271
+
 ## Stem height ####
 
 summary(emmeans(height_evo_model, ~salinity|location,
@@ -746,3 +754,13 @@ summary(emmeans(width_evo_model, ~salinity|location,
 # Corn: fresh vs salt
 width_pred_means[1]/width_pred_means[2]
 # 1.144501
+
+## Belowground biomass ####
+
+# Calculate effect of salinity at high elevation
+summary(emmeans(bg_evo_model, ~salinity,
+                at = list(elevation_sc = level1_elevation), type = "response",
+                weights = "proportional")) -> bg_pred_means
+
+bg_pred_means$response[1]/bg_pred_means$response[2]
+#1.315405
