@@ -175,7 +175,7 @@ plot_data_agb %>%
   theme(axis.text.x = element_blank(),
         legend.position = "none") +
   ylab(expression(paste(agb[elev.]-agb[amb.]))) +
-  xlab("") -> agb_GxE
+  xlab("genotype") -> agb_GxE
 
 # Root-to-shoot graph
 expand.grid(salinity = unique(traits_nocomp_rs$salinity),
@@ -243,7 +243,7 @@ plot_data_bg %>%
   theme(axis.text.x = element_blank(),
         legend.position = "none") +
   ylab(expression(paste(bgb[elev.]-bgb[amb.]))) +
-  xlab("") -> bg_GxE
+  xlab("genotype") -> bg_GxE
 
 ## Bring plots together ####
 
