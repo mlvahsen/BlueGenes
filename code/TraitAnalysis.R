@@ -29,11 +29,11 @@ source(here("supp_code", "CompileTraitData.R"))
 
 ## Data manipulation ####
 
-# We are analyzing non-competition pots, from levels 1-3, from Corn or
+# We are analyzing non-competition pots, from levels 1-4, from Corn or
 # Kirkpatrick, that were extant at harvest.
 bg_full %>% 
-  filter(comp == 0 & location != "blackwater" &
-           level < 5 & agb_scam > 0) -> traits_nocomp
+  filter(comp == 0 & location != "blackwater" & level < 5 &
+            agb_scam > 0) -> traits_nocomp
 
 # There are 230 observations in this data set
 nrow(traits_nocomp)
@@ -47,7 +47,8 @@ traits_nocomp %>%
 
 # Center and scale elevation values
 traits_nocomp %>% 
-  mutate(elevation_sc = scale(elevation)[,1]) -> traits_nocomp
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation_sc2 = scale(elevation^2)[,1]) -> traits_nocomp
 
 ## Fit model and model selection (random effects first, then fixed effects) ####
 
@@ -71,6 +72,7 @@ agb_evo_model <- step_agb
 # Check model assumptions
 plot_model(agb_evo_model, type = "diag") # All looks good!
 
+plot_model(step_agb, type = "emm", terms = c("elevation_sc[all]", "co2", "salinity", "age"))
 ## Comparison to null model ####
 
 # Now construct a null model that does not have age, location, or genotype in it
@@ -167,7 +169,7 @@ nrow(traits_nocomp_rs)
 
 # Most complex fixed and random effects model
 rs_mod <- lmer(log(rs) ~ weight_init + date_cloned_grp + origin_lab +
-                 (age + location + co2 + salinity + elevation_sc)^5 + I(elevation_sc^2) +
+                 (age + location + co2 + salinity + elevation_sc)^5 + elevation_sc2 +
                  (1+salinity*elevation_sc + co2*elevation_sc + salinity*co2|genotype) +
                  (1|site_frame), data = traits_nocomp_rs)
 
@@ -324,6 +326,9 @@ bg_modelnull <- lmer(sqrt(total_bg) ~ weight_init + date_cloned_grp + origin_lab
                      data = traits_nocomp_rs)
 
 bg_null_model <- get_model(step(bg_modelnull))
+bg_null_model <- lm(sqrt(total_bg) ~ weight_init + date_cloned_grp +
+                        elevation_sc + I(elevation_sc^2) + co2, data = traits_nocomp_rs)
+# Need to keep elevation term in the model with elevation2
 
 # Compare R2 from models
 MuMIn::r.squaredGLMM(bg_null_model)

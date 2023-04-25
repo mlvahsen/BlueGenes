@@ -1,7 +1,7 @@
 # Plot water grab nutrient samples through time from Blue Genes 2019 experiment
 # as shown in Fig 2
 
-library(tidyverse); library(geomtextpath)
+library(tidyverse); library(geomtextpath); library(here); library(patchwork)
 # Read in most nutrient data
 nut <- read_csv(here("supp_data", "BlueGeneNutrientResults.csv"))
 # Read in particulate N
@@ -25,89 +25,169 @@ nut %>%
          sample_day,
          p_dissolved = `Total Dissolved Phosphorus (mg-P/L)`,
          p = `Total Phosphorus (mg-P/L)`,
-         nh3 = `Ammonia (mg-N/L)`,
+         # This is actually ammonium
+         nh4 = `Ammonia (mg-N/L)`,
          no2_no3 = `Nitrate+Nitrite (mg-N/L)`) -> nut_tab
 
 # Merge two datasets together
 right_join(nut_tab, part_n_sub) -> all_nut
 
-salinity_colors <- c("#ff7f00", "#fdbf6f")
+salinity_colors <- c("#fdbf6f", "#ff7f00")
 
-all_nut %>% 
-  ggplot(aes(x = sample_day, y = p, color = site)) + 
-  geom_line() +
-  geom_point(size = 3) +
-  xlab("") +
-  ylab("total phosphorus (mg-P/L)") +
-  theme_classic() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 14),
-        axis.title.y = element_text(size = 16),
-        axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = salinity_colors)+
-  scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct")) -> phosphorus_plot
+# Change labeling of sites
+nut_tab %>% 
+  mutate(salinity = case_when(site == "FW" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)")) -> nut_tab
 
 nut_tab %>% 
-  ggplot(aes(x = sample_day, y = nh3, color = site)) + 
+  # Covert to micrograms
+  mutate(p_mu = p*1000) %>% 
+  ggplot(aes(x = sample_day, y = p_mu, color = salinity)) + 
   geom_line() +
   geom_point(size = 3) +
   xlab("") +
-  ylab("ammonia (mg-N/L)") +
+  ylab(expression(paste("total phosphorus (", mu, "g ", L^-1, ")"))) +
   theme_classic() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = salinity_colors) +
-  scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct")) -> ammonia_plot
+  scale_color_manual(values = rev(salinity_colors))+
+  scale_x_date(breaks = unique(nut_tab$sample_day), date_labels = "%b %d") -> phosphorus_plot
+
+nut_tab %>% 
+  # Convert to micrograms
+  mutate(p_dissolved_mu = p_dissolved*1000) %>% 
+  ggplot(aes(x = sample_day, y = p_dissolved_mu, color = salinity)) + 
+  geom_line() +
+  geom_point(size = 3) +
+  xlab("") +
+  ylab(expression(paste("dissolved phosphorus (", mu, "g ", L^-1, ")"))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
+        axis.title.y = element_text(size = 16),
+        axis.text.y = element_text(size = 14)) +
+  scale_color_manual(values = rev(salinity_colors))+
+  scale_y_continuous(breaks = seq(0,350,50), limits = c(0,300))+
+  scale_x_date(breaks = unique(nut_tab$sample_day), date_labels = "%b %d") -> dissolved_phosphorus_plot
+
+
+nut_tab %>% 
+  # Convert to micrograms
+  mutate(din = nh4*1000 + no2_no3*1000) %>% 
+  ggplot(aes(x = sample_day, y = din, color = salinity)) + 
+  geom_line() +
+  geom_point(size = 3) +
+  xlab("") +
+  ylab(expression(paste("dissolved nitrogen (", mu, "g ", L^-1, ")"))) +
+  theme_classic() +
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
+        axis.title.y = element_text(size = 16),
+        axis.text.y = element_text(size = 14)) +
+  scale_color_manual(values = rev(salinity_colors)) +
+  scale_y_continuous(breaks = seq(0,350,50), limits = c(0,300)) +
+  scale_x_date(breaks = unique(nut_tab$sample_day), date_labels = "%b %d") -> din_plot
+
+# nut_tab %>% 
+#   # Convert to micrograms
+#   mutate(no2_no3_mu = no2_no3*1000) %>% 
+#   ggplot(aes(x = sample_day, y = no2_no3_mu, color = site)) + 
+#   geom_line() +
+#   geom_point(size = 3) +
+#   xlab("") +
+#   ylab(expression(paste("nitrate + nitrite (", mu, "g N ", L^-1, ")"))) +
+#   theme_classic() +
+#   theme(legend.position = "none",
+#         axis.text.x = element_text(size = 14, angle=45, hjust = 1),
+#         axis.title.y = element_text(size = 16),
+#         axis.text.y = element_text(size = 14)) +
+#   scale_color_manual(values = rev(salinity_colors)) +
+#   scale_x_date(breaks = unique(nut_tab$sample_day), date_labels = "%b %d") -> nitrate_nitrite_plot
+
+all_nut %>% 
+  mutate(salinity = case_when(site == "FW" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)")) -> all_nut
 
 # Particulate N
 all_nut %>% 
-  ggplot(aes(x = sample_day, y = n_mgL, color = site)) + 
+  # Convert to micrograms
+  mutate(n_mu = n_mgL*1000) %>% 
+  ggplot(aes(x = sample_day, y = n_mu, color = salinity)) + 
   geom_line() +
   geom_point(size = 3) +
   xlab("") +
-  ylab("particulate N (mg-N/L)") +
+  ylab(expression(paste("particulate nitrogen (", mu, "g ", L^-1, ")"))) +
   theme_classic() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = salinity_colors) +
-  scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct"))
+  scale_color_manual(values = rev(salinity_colors)) +
+  scale_x_date(breaks = unique(all_nut$sample_day), date_labels = "%b %d")-> particulateN_plot
 
 # Particulate C
 all_nut %>% 
-  ggplot(aes(x = sample_day, y = c_mgL, color = site)) + 
+  # Convert to micrograms 
+  mutate(c_mu = c_mgL*1000) %>% 
+  ggplot(aes(x = sample_day, y = c_mu, color = salinity)) + 
   geom_line() +
   geom_point(size = 3) +
   xlab("") +
-  ylab("particulate C (mg-N/L)") +
+  ylab(expression(paste("particulate carbon (", mu, "g ", L^-1, ")"))) +
   theme_classic() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = salinity_colors) +
-  scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct"))
+  scale_color_manual(values = rev(salinity_colors)) +
+  scale_x_date(breaks = unique(all_nut$sample_day), date_labels = "%b %d") -> particulateC_plot
 
 # Particulate N/C
 all_nut %>% 
-  ggplot(aes(x = sample_day, y = n_mgL/c_mgL, color = site)) + 
+  ggplot(aes(x = sample_day, y = n_mgL/c_mgL, color = salinity)) + 
   geom_line() +
   geom_point(size = 3) +
   xlab("") +
-  ylab("particulate N/C response ratio") +
+  ylab("particulate nitrogen:carbon ratio") +
   theme_classic() +
-  theme(legend.position = "none",
-        axis.text.x = element_text(size = 14),
+  theme(axis.text.x = element_text(size = 14, angle=45, hjust = 1),
         axis.title.y = element_text(size = 16),
         axis.text.y = element_text(size = 14)) +
-  scale_color_manual(values = salinity_colors) +
-  scale_x_date(date_breaks = "1 month", date_labels = c("Aug", "Sep", "Oct"))
+  scale_color_manual(values = rev(salinity_colors)) +
+  scale_x_date(breaks = unique(all_nut$sample_day), date_labels = "%b %d") -> particulateNC_plot
+
 
 # Biggest differences between sites are are total phosphorus and ammonia so save
 # those plots for exp design figure
 
-ggsave(here("figs", "Fig2_phosphorus.png"), phosphorus_plot, height = 3.4, width = 4.2, units = "in")
-ggsave(here("figs", "Fig2_ammonia.png"), ammonia_plot, height = 3.4, width = 4.2, units = "in")
+(phosphorus_plot + dissolved_phosphorus_plot + din_plot +
+  particulateN_plot + particulateC_plot + particulateNC_plot)  +
+  plot_layout(nrow = 2, guides = "collect") & theme(legend.position = "top", legend.text = element_text(size = 14),
+                                                    legend.title = element_text(size = 14))-> nutrient_plot
+
+ggsave(here("figs", "FigS1_nutrients.png"), nutrient_plot, height = 8.8, width = 13.4, units = "in")
+ggsave(here("figs", "Fig2_phosphorus.png"), dissolved_phosphorus_plot, height = 4, width = 4.2, units = "in")
+ggsave(here("figs", "Fig2_nitrogen.png"), din_plot, height = 4, width = 4.2, units = "in")
+
+# Create linear models to test which factors are the most different
+
+# Total phosphorus
+mod_phosphorus <- lm(p ~ sample_day + site, data = nut_tab)
+car::Anova(mod_phosphorus)# highly significant effect of site (***)
+
+# Dissolved phosphorus
+mod_dissolved_phosphorus <- lm(p_dissolved ~ sample_day + site, data = nut_tab)
+car::Anova(mod_dissolved_phosphorus)# no significant effect of site
+
+# Ammonium
+mod_din <- lm(din ~ sample_day + site, data = nut_tab %>% mutate(din = no2_no3 + nh4))
+car::Anova(mod_din) # significant effect of site (*)
+
+# Particulate N
+mod_partN <- lm(n_mgL ~ sample_day + site, data = all_nut)
+car::Anova(mod_partN) # significant effect of site (*)
+
+# Particulate C
+mod_partC <- lm(c_mgL ~ sample_day + site, data = all_nut)
+car::Anova(mod_partC) # marginally significant effect of site (.)
+
+# N/C response ratio
+mod_RR <- lm(n_mgL/c_mgL ~ sample_day + site, data = all_nut)
+car::Anova(mod_RR) # no significant effect of site

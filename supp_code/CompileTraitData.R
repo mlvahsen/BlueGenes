@@ -319,6 +319,9 @@ bgb_beta_analysis_zeros <- rbind(for_adding_zeros, bgb_beta_analysis) %>%
   arrange(pot_no, depth_roots) %>% 
   dplyr::select(pot_no, depth_roots, biomass, cum_sum)
 
+# Save these data for root depth parameter plot
+write_csv(bgb_beta_analysis_zeros,"supp_data/belowground_cumulative.csv")
+
 ## Run non-linear regression on cumulative probability for each pot
 
 # Create output vector to hold information

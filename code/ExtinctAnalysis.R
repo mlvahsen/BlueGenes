@@ -63,10 +63,23 @@ car::Anova(extinct_mod_nocomp_fixed3)
 # everything went extinct. So we should fit this with a bias reduction method
 # using the package 'brglm'
 
-extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
-                                        (co2 + salinity + elevation + age + location)^3 +
-                                        I(elevation^2), data = full_data_nocomp,
+full_data_nocomp %>% 
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation2_sc = scale(elevation^2)[,1],
+         weight_init_sc = scale(weight_init)[,1]) -> full_data_nocomp
+
+options(contrasts = c("contr.sum", "contr.poly"))
+
+extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init_sc + origin_lab + date_cloned_grp +
+                                        (co2 + salinity + elevation_sc + age + location)^3 +
+                                        I(elevation_sc^2), data = full_data_nocomp,
                                       family = binomial(logit))
+
+# Fit the following model for plotting Fig S1 (same model with unscaled covariates)
+# extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
+#                                         (co2 + salinity + elevation + age + location)^3 +
+#                                         I(elevation^2), data = full_data_nocomp,
+#                                       family = binomial(logit))
 
 # Do all significance tests as likelihood ratio tests following the principle of
 # marginality
@@ -319,11 +332,13 @@ bg_full %>%
   mutate(survive = case_when(agb_scam > 0 ~ 1,
                              T ~ 0)) %>% 
   mutate(age = case_when(grepl("ancestral", cohort) ~ "ancestral",
-                         T ~ "modern")) -> corn_only
+                         T ~ "modern"),
+         elevation_sc = scale(elevation)[,1],
+         weight_init_sc = scale(weight_init)) -> corn_only
 
 # Fit a logistic GLMM
-extinct_mod_corn <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab + 
-                            (co2 + salinity + elevation + age + comp)^5 + I(elevation^2) +
+extinct_mod_corn <- glmer(survive ~ weight_init_sc + date_cloned_grp + origin_lab + 
+                            (co2 + salinity + elevation_sc + age + comp)^5 + I(elevation_sc^2) +
                             (1|site_frame) + (1|genotype), data = corn_only, family = "binomial")
 
 VarCorr(extinct_mod_corn)
@@ -332,8 +347,8 @@ VarCorr(extinct_mod_corn)
 # Fit up to 3 way interactions like the previous model. Also need to fit brglm
 # to deal with complete separation
 
-extinct_mod_corn_BR <- brglm(survive ~ weight_init + date_cloned_grp + origin_lab + 
-                               (co2 + salinity + elevation + age + comp)^3 + I(elevation^2),
+extinct_mod_corn_BR <- brglm(survive ~ weight_init_sc + date_cloned_grp + origin_lab + 
+                               (co2 + salinity + elevation_sc + age + comp)^3 + I(elevation_sc^2),
                              data = corn_only, family = "binomial")
 
 # Do all significance tests as likelihood ratio tests following the principle of

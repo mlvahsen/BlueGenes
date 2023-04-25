@@ -1,5 +1,20 @@
 # Figure 6: genotype and GxE plot
 
+## Get tidal data to plot flooding on the x-axis for stem width ####
+
+# Read in tidal data
+tidal_1 <- read_csv(here("supp_data", "tidal_1.csv"))
+tidal_2 <- read_csv(here("supp_data", "tidal_2.csv"))
+tidal_3 <- read_csv(here("supp_data", "tidal_3.csv"))
+tidal_4 <- read_csv(here("supp_data", "tidal_4.csv"))
+
+# Bind all together
+tidal_all <- rbind(tidal_1, tidal_2, tidal_3, tidal_4)
+
+# Change column names
+mean_tide <- mean(tidal_all$`Verified (m)`)
+
+## Make ICC plot ####
 # Collect all final no competition models
 models_nocomp <- list(agb_mod = agb_evo_model,
                       bg_mod = bg_evo_model,
@@ -19,7 +34,7 @@ calc_icc_conditional <- function(x){
 }
 
 # Set number of bootstrap simulations
-sims = 100
+sims = 1000
 
 # Calculate ICC over bootstrapped simulations
 tibble(agb = as.numeric(bootMer(models_nocomp$agb_mod, FUN = calc_icc, nsim = sims)$t),
@@ -61,13 +76,12 @@ boot_samples_all %>%
   stat_summary(fun = mean, fun.min = function(z) { quantile(z,0.025) },
                fun.max = function(z) { quantile(z,0.975) },
                position = position_dodge(width = 0.7), color = "black", size = 0.8) +
-  geom_hline(aes(yintercept = mean(icc)), linetype = "dashed", color = "gray47") +
   ylab("intraclass correlation coefficient (ICC)") +
   xlab("trait") +
   theme_bw(base_size = 14) +
   theme(legend.position = "top") +
   ylim(0, 0.5) +
-  scale_x_discrete(labels = c("r:s", "agb", "bgb", "width", "height", "\u03B2", "density"))-> random_intercept
+  scale_x_discrete(labels = c("r:s", "agb", "bgb", "width","\u03B2", "density", "height"))-> random_intercept
 
 ## GxE graphs ####
 
@@ -82,7 +96,8 @@ expand.grid(salinity = unique(traits_nocomp_height$salinity),
   mutate(location = case_when(substr(genotype, 1, 1) == "c" ~ "corn",
                               T ~ "kirkpatrick"),
          elevation = rep(seq(min(traits_nocomp_height$elevation),
-                         max(traits_nocomp_height$elevation), length.out = 20), each = 62))-> newData_height
+                         max(traits_nocomp_height$elevation), length.out = 20), each = 62)) %>% 
+  mutate(flooding = mean_tide - elevation)-> newData_height
 
 predict(height_evo_model, newData_height) -> predictions_height_RE
 
@@ -97,12 +112,13 @@ newData_height %>%
 # Create height plot
 height_dat %>% 
   spread(salinity, mean_height) %>% 
-  mutate(diff = `freshwater site` - `brackish site`) %>% 
-  ggplot(aes(elevation, diff, group = genotype, color = genotype)) +
+  mutate(diff = `freshwater site` - `brackish site`,
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(flooding, diff, group = genotype, color = genotype)) +
   geom_line() + 
   geom_hline(aes(yintercept = 0), color = "black", size = 1, linetype = "dashed") +
   ylab(expression(paste(height[fresh.]-height[brack.]))) +
-  xlab("elevation (m NAVD88)")+
+  xlab("average inundation (m)")+
   theme_bw(base_size = 14) +
   theme(legend.position = "none") -> height_GxE
 
@@ -118,7 +134,8 @@ expand.grid(salinity = unique(traits_nocomp_rs$salinity),
          age = case_when(substr(genotype, 2, 2) == "a" ~ "ancestral",
                                 T ~ "modern"),
          elevation = rep(seq(min(traits_nocomp_height$elevation),
-                             max(traits_nocomp_height$elevation), length.out = 20), each = 186))-> newData_beta
+                             max(traits_nocomp_height$elevation), length.out = 20), each = 186),
+         flooding = mean_tide - elevation)-> newData_beta
 
 predict(beta_evo_model, newData_beta) -> predictions_beta_RE
 
@@ -132,12 +149,13 @@ newData_beta %>%
 
 beta_dat %>% 
   spread(salinity, mean_beta) %>% 
-  mutate(diff = `freshwater site` - `brackish site`) %>% 
-  ggplot(aes(elevation, diff, group = genotype, color = genotype)) +
+  mutate(diff = `freshwater site` - `brackish site`,
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(flooding, diff, group = genotype, color = genotype)) +
   geom_line() + 
   geom_hline(aes(yintercept = 0), color = "black", size = 1, linetype = "dashed") +
   ylab(expression(paste(beta[fresh.]-beta[brack.]))) +
-  xlab("elevation (m NAVD88)")+
+  xlab("average inundation (m)")+
   theme_bw(base_size = 14) +
   theme(legend.position = "none") -> beta_GxE
 

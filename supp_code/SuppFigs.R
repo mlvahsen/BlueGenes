@@ -1,3 +1,17 @@
+## Get tidal data to plot flooding on the x-axis ####
+
+# Read in tidal data
+tidal_1 <- read_csv(here("supp_data", "tidal_1.csv"))
+tidal_2 <- read_csv(here("supp_data", "tidal_2.csv"))
+tidal_3 <- read_csv(here("supp_data", "tidal_3.csv"))
+tidal_4 <- read_csv(here("supp_data", "tidal_4.csv"))
+
+# Bind all together
+tidal_all <- rbind(tidal_1, tidal_2, tidal_3, tidal_4)
+
+# Change column names
+mean_tide <- mean(tidal_all$`Verified (m)`)
+
 ## Fig S1: eco-evo of extinction/survival ####
 age_colors <- c("#fb9a99", "#e31a1c")
 loc_colors <- c("#cab2d6", "#6a3d9a")
@@ -13,18 +27,20 @@ plot_data_a <- tibble(survive = a$data$predicted,
                       age = a$data$group)
 
 plot_raw_data <- full_data_nocomp %>% 
-  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4ppt)", "brackish site (6ppt)"))
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4 ppt)", "brackish site (6 ppt)"),
+         flooding = mean_tide - elevation)
 
 plot_data_a %>% 
-  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4ppt)", "brackish site (6ppt)")) %>% 
-  ggplot(aes(x = elevation, y = survive, color = age)) +
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4 ppt)", "brackish site (6 ppt)"),
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(x = flooding, y = survive, color = age)) +
   geom_line() +
   facet_wrap(~salinity) +
   geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = age), alpha = 0.2, color = NA) +
-  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive), height = 0.05, width = 0, alpha = 0.3) +
-  ylab("survival rate") + xlab("elevation (m NAVD88)") +
-  scale_fill_manual(values = age_colors, labels = c("ancestral (1900-1950)", "modern (2000-2020)")) +
-  scale_color_manual(values = age_colors, labels = c("ancestral (1900-1950)", "modern (2000-2020)")) +
+  geom_jitter(data = plot_raw_data, aes(x = flooding, y = survive), height = 0.05, width = 0, alpha = 0.3) +
+  ylab("survival rate") + xlab("average inundation (m)") +
+  scale_fill_manual(values = age_colors, labels = c("ancestral (1900-1950)", "descendant (2000-2020)")) +
+  scale_color_manual(values = age_colors, labels = c("ancestral (1900-1950)", "descendant (2000-2020)")) +
   theme_bw(base_size = 14) +
   theme(legend.position = "right", legend.background = element_rect(color = "gray47")) +
   guides(fill=guide_legend(title="age cohort"),
@@ -42,19 +58,20 @@ plot_data_b <- tibble(survive = b$data$predicted,
 
 plot_data_b %>% 
   mutate(location = factor(location, levels = c("corn", "kirkpatrick"))) %>% 
-  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4ppt)", "brackish site (6ppt)")) %>% 
-  ggplot(aes(x = elevation, y = survive, color = location)) +
+  mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4 ppt)", "brackish site (6 ppt)"),
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(x = flooding, y = survive, color = location)) +
   geom_line() +
   facet_wrap(~salinity) +
   geom_ribbon(aes(ymin = lower.ci, ymax = upper.ci, fill = location), alpha = 0.2, color = NA) +
-  geom_jitter(data = plot_raw_data, aes(x = elevation, y = survive),
+  geom_jitter(data = plot_raw_data, aes(x = flooding, y = survive),
               height = 0.05, width = 0, alpha = 0.7) +
   scale_color_manual(values = loc_colors) +
   scale_fill_manual(values = loc_colors) +
   guides(fill=guide_legend(title="provenance"),
          color = guide_legend(title="provenance"))  +
   theme_bw(base_size = 14) + theme(legend.background = element_rect(color = "gray47"))+
-  labs(x = "elevation (m NAVD88)", y = "survival rate") -> plot_b
+  labs(x = "average inundation (m)", y = "survival rate") -> plot_b
 
 # C = location:age:co2 interaction
 c <- plot_model(extinct_mod_nocomp_fixed3_BR, terms = c("location", "age", "co2"), type = "emm")
@@ -64,7 +81,7 @@ plot_data_c <- tibble(survive = c$data$predicted,
                       lower.ci = c$data$conf.low,
                       upper.ci = c$data$conf.high,
                       co2 = c$data$facet,
-                      age = c$data$group)
+                      age = c("ancestral", "descendant")[c$data$group])
 
 pd <- position_dodge(width = 0.4)
 
@@ -103,19 +120,21 @@ beta_EA_plot <- emmeans::emmeans(beta_evo_model, ~age|elevation_sc,
 
 traits_nocomp_rs %>% 
   mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
-                         T ~ "descendant cohort (2000-2020)")) -> traits_nocomp_plot
+                         T ~ "descendant cohort (2000-2020)"),
+         flooding = mean_tide - elevation) -> traits_nocomp_plot
 
 summary(beta_EA_plot) %>% 
   mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
                          T ~ "descendant cohort (2000-2020)")) %>% 
   mutate(beta = emmean,
-         elevation = elevation_sc*sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation)) %>% 
-  ggplot(aes(x = elevation, y = beta, color = age)) +
-  geom_point(data = traits_nocomp_plot, aes(x = elevation, y = beta), shape = 1, stroke = 0.8, alpha = 0.7, size = 1.2) +
+         elevation = elevation_sc*sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation),
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(x = flooding, y = beta, color = age)) +
+  geom_point(data = traits_nocomp_plot, aes(x = flooding, y = beta), shape = 1, stroke = 0.8, alpha = 0.7, size = 1.2) +
   geom_line(size = 1.2) +
   geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = age), alpha = 0.2, color = NA) +
   ylab(expression(paste('root distribution parameter (', beta, ")"))) +
-  xlab('elevation (m NAVD88)') +
+  xlab('average inundation (m)') +
   scale_color_manual(values = c("#fb9a99","#e31a1c")) +
   scale_fill_manual(values = c("#fb9a99","#e31a1c")) +
   theme_bw(base_size = 14) +
@@ -123,6 +142,16 @@ summary(beta_EA_plot) %>%
 
 # Also make figure where we translate root distribution parameter to rooting
 # profile
+
+# Get raw data
+bgb_beta_analysis_zeros <- read_csv("supp_data/belowground_cumulative.csv")
+
+bgb_beta_analysis_zeros %>% 
+  select(pot_no, depth = depth_roots, cum_frac = cum_sum) -> raw_cumulative_fractions
+
+merge(raw_cumulative_fractions, traits_nocomp_rs %>% select(pot_no, age)) %>% 
+  mutate(age = case_when(age == "modern" ~ "descendant",
+         T ~ age))-> belowground_rawdata
 
 # Create vector of depths
 depths <- seq(0, 70, 1)
@@ -138,9 +167,13 @@ tibble(age = rep(c("ancestral", "descendant"), each = length(depths)*3),
        depth = rep(depths,6),
        group = rep(c("mean_anc", "low_anc", "high_anc", "mean_mod", "low_mod", "high_mod"), each = length(depths)),
        elevation = rep(c("mean", "low", "high","mean", "low", "high"), each = length(depths))) %>%
-  mutate(elevation = factor(elevation, levels = c("low", "mean", "high"))) %>% 
+  mutate(flooding = case_when(elevation == "low" ~ "high",
+                              elevation == "high" ~ "low",
+                              elevation == "mean" ~ "mean"),
+         inundation = factor(flooding, levels = c("low", "mean", "high"))) %>% 
   ggplot(aes(x = depth, y = cum_frac, color = age, group = group)) +
-  geom_line(aes(linetype = elevation), size = 0.7) +
+  geom_line(aes(linetype = inundation), size = 1.2) +
+  geom_line(data = belowground_rawdata, aes(x = depth, y = cum_frac, group = pot_no), alpha = 0.05) +
   coord_flip() +
   scale_y_reverse() +
   scale_x_reverse() +
@@ -167,16 +200,18 @@ plot_rs_data <- tibble(elevation_sc = rs_SE$elevation_sc,
                        upper_ci = rs_SE$upper.CL) %>% 
   # unscale elevation data
   mutate(elevation = elevation_sc * sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation),
-         salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-                              T ~ "brackish site (6ppt)"))
+         flooding = mean_tide - elevation,
+         salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)"))
 
 # Change the labels in raw data for plots
 traits_nocomp_rs %>% 
-  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-                              T ~ "brackish site (6ppt)")) -> traits_nocomp_rs_plot
+  mutate(salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)"),
+         flooding = mean_tide - elevation) -> traits_nocomp_rs_plot
 
 plot_rs_data %>% 
-  ggplot(aes(x = elevation, y = rs, color = salinity)) +
+  ggplot(aes(x = flooding, y = rs, color = salinity)) +
   geom_point(data = traits_nocomp_rs_plot, shape = 1, alpha = 0.6, stroke = 1) +
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, fill = salinity), alpha = 0.2, color = NA) +
   geom_line(size = 1.2) +
@@ -200,16 +235,17 @@ plot_bg_data <- tibble(elevation_sc = bg_SE$elevation_sc,
                        upper_ci = bg_SE$upper.CL) %>% 
   # unscale elevation data
   mutate(elevation = elevation_sc * sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation),
-         salinity = case_when(salinity == "fresh" ~ "freshwater site (4ppt)",
-                              T ~ "brackish site (6ppt)"))
+         flooding = mean_tide - elevation,
+         salinity = case_when(salinity == "fresh" ~ "freshwater site (4 ppt)",
+                              T ~ "brackish site (6 ppt)"))
 
 plot_bg_data %>% 
-  ggplot(aes(x = elevation, y = total_bg, color = salinity)) +
+  ggplot(aes(x = flooding, y = total_bg, color = salinity)) +
   geom_point(data = traits_nocomp_rs_plot, shape = 1, alpha = 0.6, stroke = 1) +
   geom_ribbon(aes(ymin = lower_ci, ymax = upper_ci, fill = salinity), alpha = 0.2, color = NA) +
   geom_line(size = 1.2) +
   ylab("belowground biomass (g)") +
-  xlab("elevation (m NAVD88)") +
+  xlab("average inundation (m)") +
   theme_bw(base_size = 14) +
   theme(legend.position = "none") +
   scale_color_manual(values = c("#ff7f00", "#fdbf6f")) +
