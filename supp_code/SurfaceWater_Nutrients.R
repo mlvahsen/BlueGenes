@@ -154,8 +154,12 @@ all_nut %>%
                                                     legend.title = element_text(size = 14))-> nutrient_plot
 
 ggsave(here("figs", "FigS1_nutrients.png"), nutrient_plot, height = 12.5, width = 8.5, units = "in")
-ggsave(here("figs", "Fig2_phosphorus.png"), dissolved_phosphorus_plot, height = 4, width = 4.2, units = "in")
-ggsave(here("figs", "Fig2_nitrogen.png"), din_plot, height = 4, width = 4.2, units = "in")
+
+dissolved_phosphorus_plot & theme(legend.position = "none") -> P_plot
+din_plot & theme(legend.position = "none") -> N_plot
+
+ggsave(here("figs", "Fig2_phosphorus.png"), P_plot, height = 4, width = 4.2, units = "in")
+ggsave(here("figs", "Fig2_nitrogen.png"), N_plot, height = 4, width = 4.2, units = "in") 
 
 ## Create linear models to test which factors are the most different ####
 
@@ -167,13 +171,16 @@ car::Anova(mod_phosphorus)# highly significant effect of site (***)
 mod_dissolved_phosphorus <- lm(p_dissolved ~ sample_day + site, data = nut_tab)
 car::Anova(mod_dissolved_phosphorus)# no significant effect of site
 
-# Ammonium
+# Dissolved N
 mod_din <- lm(din ~ sample_day + site, data = nut_tab %>% mutate(din = no2_no3 + nh4))
 car::Anova(mod_din) # significant effect of site (*)
 
-# Particulate N
-mod_partN <- lm(n_mgL ~ sample_day + site, data = all_nut)
-car::Anova(mod_partN) # significant effect of site (*)
+# Total N
+merge(all_nut, dN_5) %>% 
+  mutate(totalN = nh4 + no2_no3 + n_mgL) -> totalN_data
+
+mod_totalN <- lm(totalN ~ sample_day + site, data = totalN_data)
+car::Anova(mod_totalN) # marginally significant effect of site (.)
 
 # Particulate C
 mod_partC <- lm(c_mgL ~ sample_day + site, data = all_nut)
