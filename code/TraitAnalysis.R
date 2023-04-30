@@ -631,6 +631,10 @@ agb_for_genotype <- update(agb_evo_model, .~.-(co2|genotype) + (1|genotype))
 calc_icc_conditional(agb_for_genotype)
 # 0.1015913
 
+bg_for_genotype <- update(bg_evo_model, .~.-(co2|genotype) + (1|genotype))
+calc_icc_conditional(bg_for_genotype)
+# 0.1010572
+
 rs_for_genotype <- update(rs_evo_model, .~.-(salinity|genotype) + (1|genotype))
 calc_icc_conditional(rs_for_genotype)
 # 0.09068409
@@ -638,10 +642,6 @@ calc_icc_conditional(rs_for_genotype)
 beta_for_genotype <- update(beta_evo_model, .~.-(1+salinity*elevation_sc|genotype) -salinity:elevation_sc + (1|genotype))
 calc_icc_conditional(beta_for_genotype)
 # 0.09884053
-
-bg_for_genotype <- update(bg_evo_model, .~.-(co2|genotype) + (1|genotype))
-calc_icc_conditional(bg_for_genotype)
-# 0.1010572
 
 height_for_genotype <- update(height_evo_model, .~.-(1+salinity*elevation_sc|genotype) -salinity:elevation_sc + (1|genotype))
 calc_icc_conditional(height_for_genotype)
