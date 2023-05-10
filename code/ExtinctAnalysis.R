@@ -31,7 +31,7 @@ full_data_nocomp %>%
 
 # Fit a logistic GLMM
 extinct_mod_nocomp <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab +
-                            (co2 + salinity + elevation + age + location)^5 +
+                            (co2 + age + location + elevation + salinity)^5 +
                             I(elevation^2) + (1|genotype) + (1|site_frame),
                           data = full_data_nocomp, family = "binomial")
 
@@ -63,13 +63,17 @@ car::Anova(extinct_mod_nocomp_fixed3)
 # everything went extinct. So we should fit this with a bias reduction method
 # using the package 'brglm'
 
+# Scale covariates for easier interpretation of model coefficients
 full_data_nocomp %>% 
   mutate(elevation_sc = scale(elevation)[,1],
          elevation2_sc = scale(elevation^2)[,1],
          weight_init_sc = scale(weight_init)[,1]) -> full_data_nocomp
 
+# Set contrasts to help with interpretation of main effect coefficients in the
+# presence of interactions
 options(contrasts = c("contr.sum", "contr.poly"))
 
+# Fit model
 extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init_sc + origin_lab + date_cloned_grp +
                                         (co2 + salinity + elevation_sc + age + location)^3 +
                                         I(elevation_sc^2), data = full_data_nocomp,
@@ -81,6 +85,23 @@ extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init_sc + origin_lab + da
 #                                         I(elevation^2), data = full_data_nocomp,
 #                                       family = binomial(logit))
 
+# Check to see if we are missing something major with excluding genotype
+extinct_mod_BR_genotype <- brglm(survive ~ weight_init_sc + origin_lab + date_cloned_grp +
+                                   (co2 + salinity + elevation_sc)^3 + genotype +
+                                   I(elevation_sc^2), data = full_data_nocomp,
+                                 family = binomial(logit))
+
+emmeans::emmeans(extinct_mod_BR_genotype, ~ genotype, type = "response")
+# Huge confidence intervals around genotype -- not strong patterns here
+
+# Compare to a model without genotype
+extinct_mod_BR_nogenotype <- brglm(survive ~ weight_init_sc + origin_lab + date_cloned_grp +
+                                     (co2 + salinity + elevation_sc)^3 +
+                                     I(elevation_sc^2), data = full_data_nocomp,
+                                   family = binomial(logit))
+
+lrtest(extinct_mod_BR_genotype, extinct_mod_BR_nogenotype)
+# Genotype model is not better than the other model
 
 ## Does competition mediate this response? ####
 
