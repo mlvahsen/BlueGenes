@@ -1,7 +1,7 @@
 # This code is for generating Supplemental Figures S2-S7. Note: Fig S1 can be
 # generated using the code "supp_code/SurfaceWater_Nutrients.R"
 
-library(tidyverse); library(patchwork)
+library(tidyverse); library(patchwork); library(sjPlot); library(emmeans)
 
 ## Read in trait data ####
 source("supp_code/CompileTraitData.R")
