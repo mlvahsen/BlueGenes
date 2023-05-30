@@ -20,6 +20,7 @@ traits_nocomp %>%
   mutate(rs = total_bg / agb_scam) -> traits_nocomp
 
 traits_nocomp %>% 
+  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
 
 ## Get tidal data to plot flooding on the x-axis ####
 
