@@ -1,5 +1,26 @@
 # Figure 4. Eco-evo effects across age cohorts for AGB and R:S
 
+## Bring in trait data and model ####
+source("supp_code/CompileTraitData.R")
+
+bg_full %>% 
+  filter(comp == 0 & location != "blackwater" & level < 5 &
+           agb_scam > 0) -> traits_nocomp
+
+# Center and scale elevation values
+traits_nocomp %>% 
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation_sc2 = scale(elevation^2)[,1]) -> traits_nocomp
+
+traits_nocomp %>% 
+  mutate(rs = total_bg / agb_scam) -> traits_nocomp
+
+traits_nocomp %>% 
+  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
+
+agb_evo_model <- readRDS("derived_data/agb_model.rda")
+rs_evo_model <- readRDS("derived_data/rs_model.rda")
+
 ## Get tidal data to plot flooding on the x-axis ####
 
 # Read in tidal data
@@ -103,6 +124,4 @@ plot_rs_data %>%
 ## Bring plots together ####
 
 Fig4 <- agb_plot / rs_plot + plot_layout(guides = 'collect', heights = c(3,2)) + plot_annotation(tag_levels = 'a') & theme(legend.position = 'top')
-
-ggsave("~/Desktop/agb_5.png", agb_plot, height = 6, width = 8, units = "in") 
 ggsave(here("figs", "Fig4.png"), Fig4, height = 8.5, width = 6, units = "in")

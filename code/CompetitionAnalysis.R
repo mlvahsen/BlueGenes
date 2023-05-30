@@ -111,3 +111,9 @@ plot_model(density_corn_evo_model, type = "diag") # All looks good!
 
 # Get significance of model terms
 anova(density_corn_evo_model)
+
+## Save model objects for plotting ####
+saveRDS(agb_corn_evo_model, "derived_data/abg_comp_model.rda")
+saveRDS(height_corn_evo_model, "derived_data/height_comp_model.rda")
+saveRDS(width_corn_evo_model, "derived_data/width_comp_model.rda")
+

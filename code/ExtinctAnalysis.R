@@ -80,10 +80,13 @@ extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init_sc + origin_lab + da
                                       family = binomial(logit))
 
 # Fit the following model for plotting Fig S1 (same model with unscaled covariates)
-# extinct_mod_nocomp_fixed3_BR <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
-#                                         (co2 + salinity + elevation + age + location)^3 +
-#                                         I(elevation^2), data = full_data_nocomp,
-#                                       family = binomial(logit))
+extinct_mod_nocomp_fixed3_BR_plot <- brglm(survive ~ weight_init + origin_lab + date_cloned_grp +
+                                             (co2 + salinity + elevation + age + location)^3 +
+                                             I(elevation^2), data = full_data_nocomp,
+                                           family = binomial(logit))
+
+# Save fof plotting later
+saveRDS(extinct_mod_nocomp_fixed3_BR_plot, file = "derived_data/extinct_mod.rda")
 
 # Check to see if we are missing something major with excluding genotype
 extinct_mod_BR_genotype <- brglm(survive ~ weight_init_sc + origin_lab + date_cloned_grp +

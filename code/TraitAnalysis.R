@@ -8,8 +8,8 @@ library(brglm); library(lmtest); library(sjPlot);
 library(kableExtra); library(geomtextpath); library(patchwork);
 library(effectsize)
 
-# Read in compiled trait data
-source(here("supp_code", "CompileTraitData.R"))
+# Compile trait data
+source("supp_code/CompileTraitData.R")
 ##################
 ## AGB analysis ##
 ##################
@@ -769,3 +769,15 @@ summary(emmeans(bg_evo_model, ~salinity,
 
 bg_pred_means$response[1]/bg_pred_means$response[2]
 #1.315405
+
+## Write model objects for plotting ####
+
+saveRDS(agb_evo_model, "derived_data/agb_model.rda")
+saveRDS(bg_evo_model, "derived_data/bg_model.rda")
+saveRDS(rs_evo_model, "derived_data/rs_model.rda")
+saveRDS(beta_evo_model, "derived_data/beta_model.rda")
+saveRDS(height_evo_model, "derived_data/height_model.rda")
+saveRDS(width_evo_model, "derived_data/width_model.rda")
+saveRDS(density_evo_model, "derived_data/density_model.rda")
+
+

@@ -1,6 +1,4 @@
-# Compile trait data for Blue Genes
-
-# Blue Genes Analysis -- Clean code!!! #
+# Compile trait data for Blue Genes analysis
 
 ####################
 ## Data Wrangling ##
@@ -21,8 +19,7 @@ source(here("supp_code", "Calculate_Pot_Elevation.R"))
 inits <- read_csv(here("supp_data","InitialConditions_FinalReps_NOEDITS.csv"))
 
 # Read in the rest of the data
-census <- read_csv(here("supp_data","Biweekly_toSept16.csv"))
-abg <- read_csv(here("supp_data","AbovegroundBiomass_data_17Jun20.csv"))
+abg <- read_csv(here("supp_data","AbovegroundBiomass.csv"))
 reap_pot <- read_csv(here("supp_data","Harvest_FullData_PotLevel.csv"))
 reap_stem <- read_csv(here("supp_data","Harvest_FullData_StemLevel.csv"))
 pot_ids <- read_csv(here("supp_data","HarvestPot_ID.csv")) # for matching up pot_no with data sheets that don't have pot_no
@@ -242,7 +239,7 @@ full_data %>%
 
 ## Belowground ####
 # Read in belowground data
-source(here("supp_code", "bgb_data_fix.R"))
+source(here("supp_code", "Belowground_Data_Clean.R"))
 
 # Group data by pot to get total belowground
 bg_clean %>% 
@@ -320,7 +317,7 @@ bgb_beta_analysis_zeros <- rbind(for_adding_zeros, bgb_beta_analysis) %>%
   dplyr::select(pot_no, depth_roots, biomass, cum_sum)
 
 # Save these data for root depth parameter plot
-write_csv(bgb_beta_analysis_zeros,"supp_data/belowground_cumulative.csv")
+write_csv(bgb_beta_analysis_zeros,"derived_data/belowground_cumulative.csv")
 
 ## Run non-linear regression on cumulative probability for each pot
 
@@ -364,3 +361,5 @@ bg_full %>%
 ## This is just housekeeping so I don't get confused by all of the data frames
 rm(list=setdiff(ls(), c("bg_full")))
 
+# Write csv in derived data folder
+write_csv(bg_full, here("derived_data", "All_Trait_Data.csv"))

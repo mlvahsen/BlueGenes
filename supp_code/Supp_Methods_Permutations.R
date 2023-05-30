@@ -1,6 +1,11 @@
+# This code conducts the permutation tests as described in "Supplemental
+# Methods" and assess whether evolution of plasticity is likely a common
+# response of plant traits in our experiment
+
+## Preliminaries ####
 # Load libraries
 library(tidyverse); library(lme4)
-
+# Set seed
 set.seed(123)
 
 ## AGB ####

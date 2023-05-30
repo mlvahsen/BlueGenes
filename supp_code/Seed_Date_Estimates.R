@@ -1,5 +1,6 @@
-# Estimate age of seeds as predicted from 3 Kirkpatrick cores using equation
-# from Vahsen et al. 2021 Evolutionary Applications
+# This code estimates age of seeds as predicted from 3 Kirkpatrick cores using
+# equation from Vahsen et al. 2021 Evolutionary Applications (DOI:
+# 10.1111/eva.13316)
 
 library(tidyverse); library(lubridate); library(strex); library(here)
 
@@ -12,8 +13,7 @@ genotype %>%
                                T ~ depth_top)) %>% 
   dplyr::select(depth_top, date_collected) %>% 
   dplyr::mutate(year_collected = year(mdy(date_collected))) %>% 
-  # For now we are going to assume that the ones that are unknown were collected
-  # in 2002
+  # Set the ones that are unknown were collected in 2002
   dplyr::mutate(year_collected = case_when(is.na(year_collected) ~ 2002,
                                     T ~ year_collected)) %>% 
   filter(complete.cases(depth_top)) %>% 

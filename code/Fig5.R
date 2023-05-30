@@ -1,5 +1,32 @@
 # Figure 5 - Provenance by eco interactions
 
+## Bring in trait data and model ####
+source("supp_code/CompileTraitData.R")
+
+bg_full %>% 
+  filter(comp == 0 & location != "blackwater" & level < 5 &
+           agb_scam > 0) -> traits_nocomp
+
+# Center and scale elevation values
+traits_nocomp %>% 
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation_sc2 = scale(elevation^2)[,1]) -> traits_nocomp
+
+# Drop outlier for height data
+traits_nocomp %>% 
+  filter(pot_no != 1830) -> traits_nocomp_height
+
+traits_nocomp %>% 
+  mutate(rs = total_bg / agb_scam) -> traits_nocomp
+
+traits_nocomp %>% 
+  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
+
+# Read in model objects
+width_evo_model <- readRDS("derived_data/width_model.rda")
+height_evo_model <- readRDS("derived_data/height_model.rda")
+beta_evo_model <- readRDS("derived_data/beta_model.rda")
+
 ## Get tidal data to plot flooding on the x-axis for stem width ####
 
 # Read in tidal data

@@ -1,5 +1,14 @@
 # Figure 7 - Competition by elevation influence on aboveground biomass
 
+## Data manipulation ####
+
+# Read in compiled trait data
+source(here("supp_code", "CompileTraitData.R"))
+
+# Filter for only Corn Island genotypes, within levels 1-4, for extant plants 
+bg_full %>% 
+  filter(location == "corn" & level < 5 & agb_scam > 0) -> traits_corn
+
 ## Get tidal data to plot flooding on the x-axis ####
 
 # Read in tidal data
@@ -16,9 +25,16 @@ mean_tide <- mean(tidal_all$`Verified (m)`)
 
 ## Create AGB competition plot ####
 
+# Read in agb model
+agb_corn_evo_model <- readRDS("derived_data/abg_comp_model.rda")
+
 # Create flooding column in raw data
 traits_corn %>% 
   mutate(flooding = mean_tide - elevation) -> traits_corn
+
+# Create scaled elevation variable
+traits_corn %>% 
+  mutate(elevation_sc = scale(elevation)[,1])-> traits_corn
 
 # Create plot based on model object 
 plot_agb_data_corn <- summary(emmeans::emmeans(agb_corn_evo_model, ~comp:elevation_sc,
@@ -31,7 +47,7 @@ plot_agb_data_corn %>%
          elevation = elevation_sc*sd(traits_corn$elevation) + mean(traits_corn$elevation),
          flooding = mean_tide - elevation) %>% 
   ggplot(aes(x = flooding, y = agb_scam, group = comp, linetype = as.factor(comp))) +
-  geom_line(size = 0.7) +
+  geom_line(linewidth = 0.7) +
   geom_point(data = traits_corn, aes(x = flooding, y = agb_scam, shape = as.factor(comp)), alpha = 0.5, size = 2) +
   ylab(expression(paste(italic("S. americanus")," aboveground biomass (g)"))) +
   xlab("average inundation (m)") +

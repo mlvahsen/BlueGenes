@@ -1,6 +1,27 @@
 # Figure 6: genotype and GxE plot
 
-## Get tidal data to plot flooding on the x-axis for stem width ####
+## Read in trait data ####
+source("supp_code/CompileTraitData.R")
+
+bg_full %>% 
+  filter(comp == 0 & location != "blackwater" & level < 5 &
+           agb_scam > 0) -> traits_nocomp
+
+# Center and scale elevation values
+traits_nocomp %>% 
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation_sc2 = scale(elevation^2)[,1]) -> traits_nocomp
+
+# Drop outlier for height data
+traits_nocomp %>% 
+  filter(pot_no != 1830) -> traits_nocomp_height
+
+traits_nocomp %>% 
+  mutate(rs = total_bg / agb_scam) -> traits_nocomp
+
+traits_nocomp %>% 
+
+## Get tidal data to plot flooding on the x-axis ####
 
 # Read in tidal data
 tidal_1 <- read_csv(here("supp_data", "tidal_1.csv"))
@@ -16,6 +37,15 @@ mean_tide <- mean(tidal_all$`Verified (m)`)
 
 ## Make ICC plot ####
 # Collect all final no competition models
+agb_evo_model <- readRDS("derived_data/agb_model.rda")
+bg_evo_model <- readRDS("derived_data/bg_model.rda")
+rs_evo_model <- readRDS("derived_data/rs_model.rda")
+width_evo_model <- readRDS("derived_data/width_model.rda")
+height_evo_model <- readRDS("derived_data/height_model.rda")
+density_evo_model <- readRDS("derived_data/density_model.rda")
+beta_evo_model <- readRDS("derived_data/beta_model.rda")
+
+
 models_nocomp <- list(agb_mod = agb_evo_model,
                       bg_mod = bg_evo_model,
                       rs_mod = rs_evo_model,
@@ -276,7 +306,7 @@ design <- c(
 )
 
 # Preview design of plot
-plot(design)
+# plot(design)
 
 png("figs/Fig6.png", height = 7, width = 9.5, units = "in", res = 300)
 
@@ -286,5 +316,3 @@ random_intercept+beta_GxE+height_GxE+
   plot_annotation(tag_levels = "a")
 
 dev.off()
-
-

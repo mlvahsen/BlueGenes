@@ -1,3 +1,10 @@
+# This code is for generating Supplemental Figures S2-S7. Note: Fig S1 can be
+# generated using the code "supp_code/SurfaceWater_Nutrients.R"
+
+library(tidyverse); library(patchwork)
+
+## Read in trait data ####
+source("supp_code/CompileTraitData.R")
 ## Get tidal data to plot flooding on the x-axis ####
 
 # Read in tidal data
@@ -12,7 +19,58 @@ tidal_all <- rbind(tidal_1, tidal_2, tidal_3, tidal_4)
 # Change column names
 mean_tide <- mean(tidal_all$`Verified (m)`)
 
-## Fig S1: eco-evo of extinction/survival ####
+## Fig S2: trait distributions for extant experimental units ####
+
+plot_multi_histogram <- function(df, feature, label_column) {
+  plt <- ggplot(df, aes(x=eval(parse(text=feature)), fill=eval(parse(text=label_column)))) +
+    #geom_histogram(alpha=0.7, position="identity", aes(y = ..density..), color="black") +
+    geom_density(alpha=0.7) +
+    #geom_vline(aes(xintercept=mean(eval(parse(text=feature)))), color="black", linetype="dashed", size=1) +
+    labs(x=feature, y = "Density") + scale_fill_manual(values = c("#f1eef6","#d0d1e6","#a6bddb","#74a9cf","#08519c","#08306b"))
+  plt + guides(fill=guide_legend(title="Flooding Level"))
+}
+
+bg_alive <- bg_full %>% filter(agb_scam > 0 & location != "blackwater") %>%
+  mutate(rs = total_bg/agb_scam) %>% filter(rs < 15) %>% 
+  mutate(level = case_when(level == 1 ~ "1 (least flooded)",
+                           level == 6 ~ "6 (most flooded)",
+                           T ~ level))
+
+plot_multi_histogram(bg_alive, 'agb_scam', 'level') +
+  xlab("aboveground biomass (g)") +
+  theme_bw(base_size = 14) -> a
+
+plot_multi_histogram(bg_alive, 'total_bg', 'level') +
+  xlab("belowground biomass (g)") +
+  theme_bw(base_size = 14) -> b
+
+plot_multi_histogram(bg_alive, 'dens_scam_live', 'level') +
+  xlab("stem density") +
+  theme_bw(base_size = 14) -> c
+
+plot_multi_histogram(bg_alive, 'width_scam_mid', 'level') +
+  xlab("mean stem width (mm)") +
+  theme_bw(base_size = 14) -> d
+
+plot_multi_histogram(bg_alive, 'height_scam_tot', 'level') +
+  xlab("mean stem height (cm)") +
+  theme_bw(base_size = 14) -> e
+
+plot_multi_histogram(bg_alive, 'rs', 'level') +
+  xlab("root-to-shoot ratio") +
+  theme_bw(base_size = 14) -> f
+
+plot_multi_histogram(bg_alive, 'beta', 'level') +
+  xlab("root distribution parameter") +
+  theme_bw(base_size = 14) -> g
+
+png("figs/FigS2_TraitDists.png", height = 8.8, width = 11.2, res = 300, units = "in")
+a+b+f+g+e+d+c+ plot_layout(guides = "collect", nrow = 3) +
+  plot_annotation(tag_levels = "a")
+dev.off()
+## Fig S3: eco-evo of extinction/survival ####
+extinct_mod_nocomp_fixed3_BR <- readRDS("derived_data/extinct_mod.rda")
+
 age_colors <- c("#fb9a99", "#e31a1c")
 loc_colors <- c("#cab2d6", "#6a3d9a")
 
@@ -25,6 +83,13 @@ plot_data_a <- tibble(survive = a$data$predicted,
                       upper.ci = a$data$conf.high,
                       salinity = a$data$facet,
                       age = a$data$group)
+
+# Create data frame and recode
+bg_full %>% 
+  filter(comp == 0 & location != "blackwater") -> full_data_nocomp
+
+full_data_nocomp %>% 
+  mutate(survive = ifelse(extinct == 0, 1, 0)) -> full_data_nocomp
 
 plot_raw_data <- full_data_nocomp %>% 
   mutate(salinity = ifelse(salinity == "fresh", "freshwater site (4 ppt)", "brackish site (6 ppt)"),
@@ -100,7 +165,7 @@ plot_data_c %>%
   labs(x = expression(CO[2]), y = "survival rate") +
   scale_color_manual(values = age_colors) -> plot_c 
 
-png("figs/FigS1.png", res = 300, units = "in", height = 5, width = 9)
+png("figs/FigS3.png", res = 300, units = "in", height = 5, width = 9)
 plot_a + plot_c + plot_b + guide_area() + plot_annotation(tag_levels = 'a')+
   plot_layout(guides = "collect", widths = c(4,3)) & theme(legend.justification = "left")
 dev.off()
@@ -111,86 +176,27 @@ dev.off()
 emmeans(extinct_mod_nocomp_fixed3_BR, ~elevation,
         at = list(elevation = c(0.1,0.2)), type = "response")
 
-## Fig S2: effect of age and elevation on root depth distribution ####
-# Get emmeans values for plots
-beta_EA_plot <- emmeans::emmeans(beta_evo_model, ~age|elevation_sc,
-                                 weights = "proportional",
-                                 at = list(elevation_sc = seq(min(traits_nocomp_rs$elevation_sc),
-                                                              max(traits_nocomp_rs$elevation_sc), length.out = 50)))
+## Fig S4: effect of salinity and elevation on r:s and bgb ####
+rs_evo_model <- readRDS("derived_data/rs_model.rda")
+bg_evo_model <- readRDS("derived_data/bg_model.rda")
 
-traits_nocomp_rs %>% 
-  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
-                         T ~ "descendant cohort (2000-2020)"),
-         flooding = mean_tide - elevation) -> traits_nocomp_plot
+# Get no comp data and create scaled elevation values
+bg_full %>% 
+  filter(comp == 0 & location != "blackwater" & level < 5 &
+           agb_scam > 0) -> traits_nocomp
 
-summary(beta_EA_plot) %>% 
-  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
-                         T ~ "descendant cohort (2000-2020)")) %>% 
-  mutate(beta = emmean,
-         elevation = elevation_sc*sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation),
-         flooding = mean_tide - elevation) %>% 
-  ggplot(aes(x = flooding, y = beta, color = age)) +
-  geom_point(data = traits_nocomp_plot, aes(x = flooding, y = beta), shape = 1, stroke = 0.8, alpha = 0.7, size = 1.2) +
-  geom_line(size = 1.2) +
-  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = age), alpha = 0.2, color = NA) +
-  ylab(expression(paste('root distribution parameter (', beta, ")"))) +
-  xlab('average inundation (m)') +
-  scale_color_manual(values = c("#fb9a99","#e31a1c")) +
-  scale_fill_manual(values = c("#fb9a99","#e31a1c")) +
-  theme_bw(base_size = 14) +
-  theme(legend.position = "none") -> beta_figA
+traits_nocomp %>% 
+  mutate(elevation_sc = scale(elevation)[,1],
+         elevation_sc2 = scale(elevation^2)[,1]) -> traits_nocomp
 
-# Also make figure where we translate root distribution parameter to rooting
-# profile
+traits_nocomp %>% 
+  mutate(rs = total_bg / agb_scam) %>% 
+  filter(rs < 6 & pot_no !=165 & pot_no !=176) -> traits_nocomp_rs
 
-# Get raw data
-bgb_beta_analysis_zeros <- read_csv("supp_data/belowground_cumulative.csv")
-
-bgb_beta_analysis_zeros %>% 
-  select(pot_no, depth = depth_roots, cum_frac = cum_sum) -> raw_cumulative_fractions
-
-merge(raw_cumulative_fractions, traits_nocomp_rs %>% select(pot_no, age)) %>% 
-  mutate(age = case_when(age == "modern" ~ "descendant",
-         T ~ age))-> belowground_rawdata
-
-# Create vector of depths
-depths <- seq(0, 70, 1)
-# Extract mean for ancestral and descendant at mean elevation
-pred_beta_age <- summary(emmeans(beta_evo_model, ~elevation_sc:age,
-                                 at = list(elevation_sc = c(mean(traits_nocomp$elevation_sc),
-                                                            min(traits_nocomp$elevation_sc),
-                                                            max(traits_nocomp$elevation_sc)))))$emmean
-# Combine these in a tibble
-tibble(age = rep(c("ancestral", "descendant"), each = length(depths)*3),
-       cum_frac = c(1-pred_beta_age[1]^depths, 1-pred_beta_age[2]^depths, 1-pred_beta_age[3]^depths,
-                    1-pred_beta_age[4]^depths, 1-pred_beta_age[5]^depths, 1-pred_beta_age[6]^depths),
-       depth = rep(depths,6),
-       group = rep(c("mean_anc", "low_anc", "high_anc", "mean_mod", "low_mod", "high_mod"), each = length(depths)),
-       elevation = rep(c("mean", "low", "high","mean", "low", "high"), each = length(depths))) %>%
-  mutate(flooding = case_when(elevation == "low" ~ "high",
-                              elevation == "high" ~ "low",
-                              elevation == "mean" ~ "mean"),
-         inundation = factor(flooding, levels = c("low", "mean", "high"))) %>% 
-  ggplot(aes(x = depth, y = cum_frac, color = age, group = group)) +
-  geom_line(aes(linetype = inundation), size = 1.2) +
-  geom_line(data = belowground_rawdata, aes(x = depth, y = cum_frac, group = pot_no), alpha = 0.05) +
-  coord_flip() +
-  scale_y_reverse() +
-  scale_x_reverse() +
-  scale_linetype_manual(values = c("dotted", "solid", "dashed")) +
-  scale_color_manual(values = c("#fb9a99","#e31a1c")) +
-  xlab("depth below marsh surface (cm)") +
-  ylab("cumulative proportion") +
-  theme_bw(base_size = 14) -> beta_figB
-
-beta_figA + beta_figB + plot_annotation(tag_levels = "a")-> beta_fig
-ggsave(here("figs", "FigS2.png"), beta_fig, height = 4, width = 9, units = "in")
-
-## Fig S3: effect of salinity and elevation on r:s and bgb ####
 # root-shoot-ratio ~ salinity x elevation 
 rs_SE <- summary(emmeans(rs_evo_model, ~elevation_sc:salinity, weights = "proportional",
-                           at = list(elevation_sc = seq(min(traits_nocomp$elevation_sc),
-                                                        max(traits_nocomp$elevation_sc), length.out = 50)), type = "response"))
+                         at = list(elevation_sc = seq(min(traits_nocomp$elevation_sc),
+                                                      max(traits_nocomp$elevation_sc), length.out = 50)), type = "response"))
 
 # Collect data from plot_model object
 plot_rs_data <- tibble(elevation_sc = rs_SE$elevation_sc,
@@ -251,30 +257,96 @@ plot_bg_data %>%
   scale_color_manual(values = c("#ff7f00", "#fdbf6f")) +
   scale_fill_manual(values = c("#ff7f00", "#fdbf6f")) -> bg_SE_plot
 
-png("figs/FigS3.png", height = 8.7, width = 5.5, res = 300, units = "in")
+png("figs/FigS4.png", height = 8.7, width = 5.5, res = 300, units = "in")
 rs_SE_plot / bg_SE_plot +
   plot_annotation(tag_levels = "a")
 dev.off()
 
-## Fig S4: correlation between SPPA agb and SCAM stem density ####
-traits_corn %>% 
-  filter(comp == 1) %>% 
-  mutate(sppa_code = ifelse(agb_sppa == 0, "dead", "alive")) %>% 
-  ggplot(aes(x = agb_sppa, y = dens_scam_live, color = elevation, shape = sppa_code)) +
-  geom_point(size = 4, alpha = 0.5, stroke = 2) +
-  xlab(expression(paste(italic("S. patens"), " aboveground biomass (g)"))) +
-  ylab(expression(paste(italic("S. americanus"), " stem density"))) +
+## Fig S5: effect of age and elevation on root depth distribution ####
+beta_evo_model <- readRDS("derived_data/beta_model.rda")
+
+# Get emmeans values for plots
+beta_EA_plot <- emmeans::emmeans(beta_evo_model, ~age|elevation_sc,
+                                 weights = "proportional",
+                                 at = list(elevation_sc = seq(min(traits_nocomp_rs$elevation_sc),
+                                                              max(traits_nocomp_rs$elevation_sc), length.out = 50)))
+
+traits_nocomp_rs %>% 
+  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
+                         T ~ "descendant cohort (2000-2020)"),
+         flooding = mean_tide - elevation) -> traits_nocomp_plot
+
+summary(beta_EA_plot) %>% 
+  mutate(age = case_when(age == "ancestral" ~ "ancestral cohort (1900-1950)",
+                         T ~ "descendant cohort (2000-2020)")) %>% 
+  mutate(beta = emmean,
+         elevation = elevation_sc*sd(traits_nocomp_rs$elevation) + mean(traits_nocomp_rs$elevation),
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(x = flooding, y = beta, color = age)) +
+  geom_point(data = traits_nocomp_plot, aes(x = flooding, y = beta), shape = 1, stroke = 0.8, alpha = 0.7, size = 1.2) +
+  geom_line(size = 1.2) +
+  geom_ribbon(aes(ymin = lower.CL, ymax = upper.CL, fill = age), alpha = 0.2, color = NA) +
+  ylab(expression(paste('root distribution parameter (', beta, ")"))) +
+  xlab('average inundation (m)') +
+  scale_color_manual(values = c("#fb9a99","#e31a1c")) +
+  scale_fill_manual(values = c("#fb9a99","#e31a1c")) +
   theme_bw(base_size = 14) +
-  scale_shape_manual(values = c(19,4), name = "",
-                     labels = c(expression(paste(italic("S. patens"), " alive")),
-                                expression(paste(italic("S. patens"), " dead")))) +
-  scale_color_gradient(low = "#810f7c", high = "#b3cde3") -> FigS4
+  theme(legend.position = "none") -> beta_figA
 
-png("figs/FigS4.png", height = 4.3, width = 6.3, res = 300, units = "in")
-FigS4
-dev.off()
+# Also make figure where we translate root distribution parameter to rooting
+# profile
 
-## Fig S5: effect of SPPA competition on stem height and width ####
+# Get raw data
+bgb_beta_analysis_zeros <- read_csv("derived_data/belowground_cumulative.csv")
+
+bgb_beta_analysis_zeros %>% 
+  select(pot_no, depth = depth_roots, cum_frac = cum_sum) -> raw_cumulative_fractions
+
+merge(raw_cumulative_fractions, traits_nocomp_rs %>% select(pot_no, age)) %>% 
+  mutate(age = case_when(age == "modern" ~ "descendant",
+         T ~ age))-> belowground_rawdata
+
+# Create vector of depths
+depths <- seq(0, 70, 1)
+# Extract mean for ancestral and descendant at mean elevation
+pred_beta_age <- summary(emmeans(beta_evo_model, ~elevation_sc:age,
+                                 at = list(elevation_sc = c(mean(traits_nocomp$elevation_sc),
+                                                            min(traits_nocomp$elevation_sc),
+                                                            max(traits_nocomp$elevation_sc)))))$emmean
+# Combine these in a tibble
+tibble(age = rep(c("ancestral", "descendant"), each = length(depths)*3),
+       cum_frac = c(1-pred_beta_age[1]^depths, 1-pred_beta_age[2]^depths, 1-pred_beta_age[3]^depths,
+                    1-pred_beta_age[4]^depths, 1-pred_beta_age[5]^depths, 1-pred_beta_age[6]^depths),
+       depth = rep(depths,6),
+       group = rep(c("mean_anc", "low_anc", "high_anc", "mean_mod", "low_mod", "high_mod"), each = length(depths)),
+       elevation = rep(c("mean", "low", "high","mean", "low", "high"), each = length(depths))) %>%
+  mutate(flooding = case_when(elevation == "low" ~ "high",
+                              elevation == "high" ~ "low",
+                              elevation == "mean" ~ "mean"),
+         inundation = factor(flooding, levels = c("low", "mean", "high"))) %>% 
+  ggplot(aes(x = depth, y = cum_frac, color = age, group = group)) +
+  geom_line(aes(linetype = inundation), size = 1.2) +
+  geom_line(data = belowground_rawdata, aes(x = depth, y = cum_frac, group = pot_no), alpha = 0.05) +
+  coord_flip() +
+  scale_y_reverse() +
+  scale_x_reverse() +
+  scale_linetype_manual(values = c("dotted", "solid", "dashed")) +
+  scale_color_manual(values = c("#fb9a99","#e31a1c")) +
+  xlab("depth below marsh surface (cm)") +
+  ylab("cumulative proportion") +
+  theme_bw(base_size = 14) -> beta_figB
+
+beta_figA + beta_figB + plot_annotation(tag_levels = "a")-> beta_fig
+ggsave(here("figs", "FigS5.png"), beta_fig, height = 4, width = 9, units = "in")
+
+## Fig S6: effect of SPPA competition on stem height and width ####
+width_corn_evo_model <- readRDS("derived_data/width_comp_model.rda")
+height_corn_evo_model <- readRDS("derived_data/height_comp_model.rda")
+
+# Filter for only Corn Island genotypes, within levels 1-4, for extant plants 
+bg_full %>% 
+  filter(location == "corn" & level < 5 & agb_scam > 0) -> traits_corn
+
 # Get emmeans values for plots
 width_comp_plot <- summary(emmeans::emmeans(width_corn_evo_model, ~comp,
                                             weights = "proportional"))
@@ -319,6 +391,24 @@ tibble(height_scam_tot = height_comp_plot$emmean,
   scale_x_discrete(labels=expression(paste("without ", italic("S. patens")), paste("with ", italic("S. patens")))) +
   xlab("") -> height_comp
 
-FigS5 <- height_comp + width_comp + plot_annotation(tag_levels = "a")
+FigS6 <- height_comp + width_comp + plot_annotation(tag_levels = "a")
 
-ggsave(here("figs", "FigS5.png"), FigS5, height = 3.5, width = 7, units = "in")
+ggsave(here("figs", "FigS6.png"), FigS6, height = 3.5, width = 7, units = "in")
+
+## Fig S7: correlation between SPPA agb and SCAM stem density ####
+traits_corn %>% 
+  filter(comp == 1) %>% 
+  mutate(sppa_code = ifelse(agb_sppa == 0, "dead", "alive")) %>% 
+  ggplot(aes(x = agb_sppa, y = dens_scam_live, color = elevation, shape = sppa_code)) +
+  geom_point(size = 4, alpha = 0.5, stroke = 2) +
+  xlab(expression(paste(italic("S. patens"), " aboveground biomass (g)"))) +
+  ylab(expression(paste(italic("S. americanus"), " stem density"))) +
+  theme_bw(base_size = 14) +
+  scale_shape_manual(values = c(19,4), name = "",
+                     labels = c(expression(paste(italic("S. patens"), " alive")),
+                                expression(paste(italic("S. patens"), " dead")))) +
+  scale_color_gradient(low = "#810f7c", high = "#b3cde3") -> FigS7
+
+png("figs/FigS7.png", height = 4.3, width = 6.3, res = 300, units = "in")
+FigS7
+dev.off()

@@ -1,6 +1,6 @@
 # This script uses both RTK-GPS and hand measurements to get actual heights of
 # pots within frames. We can then use this data as a covariate in models rather
-# than levels. This should overall reduce frame effects as well.
+# than levels. 
 
 # All measurements taken by Helena Kleiner in Spring 2020
 

@@ -1,4 +1,5 @@
-# Salinity data for Fig 2
+# This code generates the salinity data plot in Fig 2 and calculates overall
+# salinity differences between the two common garden sites
 
 library(tidyverse); library(wql);
 library(lubridate); library(oce);

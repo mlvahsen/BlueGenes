@@ -1,5 +1,4 @@
-# Figure out which pots are missing from belowground data entry for Blue Genes
-# experiment 2019
+# Script for cleaning up belowground biomass data
 
 library(tidyverse)
 

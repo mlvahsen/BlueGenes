@@ -1,5 +1,5 @@
-# Calculate percent flooding for pots in Blue Genes experiment based on
-# Annapolis tidal gauge data for that time period
+# This code calculate percent flooding for pots in Blue Genes experiment based on
+# Annapolis tidal gauge data for that time period (used in Figure 2)
 
 # Load libraries
 library(tidyverse); library(here)
