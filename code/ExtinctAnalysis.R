@@ -32,11 +32,17 @@ full_data_nocomp %>%
 # Fit a logistic GLMM
 extinct_mod_nocomp <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab +
                             (co2 + age + location + elevation + salinity)^5 +
-                            I(elevation^2) + (1|genotype) + (1|site_frame),
+                            I(elevation^2) + (1+co2*salinity + salinity*elevation + elevation*co2|genotype) + (1|site_frame),
                           data = full_data_nocomp, family = "binomial")
+# Lots of convergence issues - so simplify RE structure
+
+extinct_mod_nocomp2 <- glmer(survive ~ weight_init + date_cloned_grp + origin_lab +
+                              (co2 + age + location + elevation + salinity)^5 +
+                              I(elevation^2) + (1+co2+salinity+elevation|genotype) + (1|site_frame),
+                            data = full_data_nocomp, family = "binomial")
 
 # Random effect estimated at zero
-VarCorr(extinct_mod_nocomp)
+VarCorr(extinct_mod_nocomp2)
 # Looks like both random effects are estimated to be zero
 
 # Now fit a glm without random effects

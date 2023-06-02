@@ -1,4 +1,5 @@
 # Figure 4. Eco-evo effects across age cohorts for AGB and R:S
+library(tidyverse); library(sjPlot)
 
 ## Bring in trait data and model ####
 source("supp_code/CompileTraitData.R")
