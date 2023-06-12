@@ -398,8 +398,9 @@ ggsave(here("figs", "FigS6.png"), FigS6, height = 3.5, width = 7, units = "in")
 ## Fig S7: correlation between SPPA agb and SCAM stem density ####
 traits_corn %>% 
   filter(comp == 1) %>% 
-  mutate(sppa_code = ifelse(agb_sppa == 0, "dead", "alive")) %>% 
-  ggplot(aes(x = agb_sppa, y = dens_scam_live, color = elevation, shape = sppa_code)) +
+  mutate(sppa_code = ifelse(agb_sppa == 0, "dead", "alive"),
+         flooding = mean_tide - elevation) %>% 
+  ggplot(aes(x = agb_sppa, y = dens_scam_live, color = flooding, shape = sppa_code)) +
   geom_point(size = 4, alpha = 0.5, stroke = 2) +
   xlab(expression(paste(italic("S. patens"), " aboveground biomass (g)"))) +
   ylab(expression(paste(italic("S. americanus"), " stem density"))) +
@@ -407,7 +408,8 @@ traits_corn %>%
   scale_shape_manual(values = c(19,4), name = "",
                      labels = c(expression(paste(italic("S. patens"), " alive")),
                                 expression(paste(italic("S. patens"), " dead")))) +
-  scale_color_gradient(low = "#810f7c", high = "#b3cde3") -> FigS7
+  scale_color_gradient(high = "#810f7c", low = "#b3cde3") +
+  labs(color = "inundation (m)")-> FigS7
 
 png("figs/FigS7.png", height = 4.3, width = 6.3, res = 300, units = "in")
 FigS7
