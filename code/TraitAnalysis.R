@@ -702,7 +702,7 @@ agb_pred_means %>%
 fresh_modern[2]/fresh_modern[1]
 # 1.901671
 
-# Collect predicted means for co2 treatments from fresh & modern
+# Collect predicted means for co2 treatments from brackish & ancestral
 agb_pred_means %>% 
   filter(salinity == "salt" & age == "ancestral") %>% 
   pull(response) -> salt_ancestral
