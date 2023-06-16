@@ -81,11 +81,12 @@ predicted_values <- ggplot_build(salinity_plot)$data[[2]]
 # Figure out which points are from which months
 salinity_all$date_time_num <- as.numeric(salinity_all$date_time)
 salinity_all$month <- month(salinity_all$date_time)
+salinity_all$day <- day(salinity_all$date_time)
 
 july_range <- range(salinity_all[salinity_all$month == 7,"date_time_num"])
 august_range <- range(salinity_all[salinity_all$month == 8,"date_time_num"])
 sept_range <- range(salinity_all[salinity_all$month == 9,"date_time_num"])
-oct_range <- range(salinity_all[salinity_all$month == 10,"date_time_num"])
+oct_range <- range(salinity_all[salinity_all$month == 10 & salinity_all$day < 6,"date_time_num"])
 
 # Calculate salinity averages by site and month
 predicted_values %>% 
@@ -94,7 +95,7 @@ predicted_values %>%
                                ifelse(x > sept_range[1] & x < sept_range[2], "09",
                                       ifelse(x > oct_range[1] & x < oct_range[2], "10", NA))))) %>% 
   filter(complete.cases(month)) %>% 
-  mutate(group = ifelse(group == 1, "freshwater", "gcrew"))-> predicted_values
+  mutate(group = ifelse(group == 1, "gcrew", "freshwater"))-> predicted_values
 
 predicted_values %>% 
   group_by(group, month) %>% 
@@ -105,11 +106,9 @@ predicted_values %>%
   dplyr::select(site = group,
          y = y) %>% 
   group_by(site) %>% 
-  summarize(salinity = round(mean(y),2))
-
-# site       salinity
-# freshwater     6.79
-# gcrew          4.49
+  # Round down because we are missing 2+ weeks of data from June where salinity
+  # was low
+  summarize(salinity = floor(mean(y)))
 
 # Save plot
 ggsave(here("figs", "Fig2_salinity.png"), salinity_plot, height = 2.8, width = 3.4, units = "in")
